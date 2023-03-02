@@ -6,8 +6,13 @@ import morgan from "morgan";
 import * as dotenv from "dotenv";
 dotenv.config();
 
+import testRoutes from "./routes/test.js";
+
 //app
 const app = express();
+
+//port
+const port = process.env.PORT || 8080;
 
 //db
 mongoose
@@ -29,6 +34,4 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors({ origin: true, credentials: true }));
 
 //routes
-
-//port
-const port = process.env.PORT || 8080;
+app.use("/test", testRoutes);
