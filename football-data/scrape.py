@@ -1,5 +1,5 @@
 import pandas as pd
-pd.set_option('display.max_rows', None)
+
 currentYear = 2023
 positions = ["qb", "rb", "wr", "te", "k", "dst"]
 
