@@ -88,7 +88,6 @@ def agg_RBs(grouped):
         df["FPTS_poor"] + df["FPTS_bad"] != 0, df["FPTS_poor"] + df["FPTS_bad"], 1))
     df.insert(42, "FPTS_GSRat", (df["FPTS_great"] + df["FPTS_good"]
                                  ) / np.where(df["FPTS_bad"] != 0, df["FPTS_bad"], 1))
-    df.replace(np.inf, 17, inplace=True)
     df.insert(43, "FPTS_Score", df["INJCOR"] * (df["FPTS_adj"] * .4 + df["FPTS_median"]
               * .4 + df["FPTS_QSRat"] * .5 + df["FPTS_GSRat"] * .25 + df["OPP_mean"] * .1))
     df.insert(48, "HALF_adj", np.where(df["HALF_std"] != 0, df["HALF_mean"] / pow(
@@ -97,7 +96,6 @@ def agg_RBs(grouped):
         df["HALF_poor"] + df["HALF_bad"] != 0, df["HALF_poor"] + df["HALF_bad"], 1))
     df.insert(55, "HALF_GSRat", (df["HALF_great"] + df["HALF_good"]
                                  ) / np.where(df["HALF_bad"] != 0, df["HALF_bad"], 1))
-    df.replace(np.inf, 17, inplace=True)
     df.insert(56, "HALF_Score", df["INJCOR"] * (df["HALF_adj"] * .4 + df["HALF_median"]
               * .4 + df["HALF_QSRat"] * .5 + df["HALF_GSRat"] * .25 + df["OPP_mean"] * .1))
     df.insert(61, "PPR_adj", np.where(df["PPR_std"] != 0, df["PPR_mean"] / pow(
@@ -106,10 +104,9 @@ def agg_RBs(grouped):
         df["PPR_poor"] + df["PPR_bad"] != 0, df["PPR_poor"] + df["PPR_bad"], 1))
     df.insert(68, "PPR_GSRat", (df["PPR_great"] + df["PPR_good"]
                                 ) / np.where(df["PPR_bad"] != 0, df["PPR_bad"], 1))
-    df.replace(np.inf, 17, inplace=True)
     df.insert(69, "PPR_Score", df["INJCOR"] * (df["PPR_adj"] * .4 + df["PPR_median"]
               * .4 + df["PPR_QSRat"] * .5 + df["PPR_GSRat"] * .25 + df["OPP_mean"] * .1))
 
     df.fillna(0, inplace=True)
-    df = df[(df["OPP_mean"] > 5) & (df["G"] > 2)]
+    df = df[(df["OPP_mean"] > 1) & (df["G"] > 2)]
     return df
