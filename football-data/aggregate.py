@@ -80,10 +80,9 @@ def agg_RBs(grouped):
     df.insert(25, "OPP", df["rush_ATT"] + df["rec_TGT"])
     df.insert(26, "OPP_mean", df["OPP"] / df["G"])
     df.insert(29, "FL/T", df["FL"] / df["TOU"])
-    df.insert(30, "INJCOR", np.where(df["G"] < 10, 1 - (10 - df["G"])*.025, 1))
+    df.insert(30, "INJCOR", np.where(df["G"] <= 8, np.log10(df["G"] + 1), 1))
     df.insert(35, "FPTS_adj", np.where(df["FPTS_std"] != 0, df["FPTS_mean"] / pow(
         df["FPTS_std"], 1/4) * FPTS_adj_constant, df["FPTS_mean"]))
-    df.replace(np.inf, 0)
     df.insert(41, "FPTS_QSRat", (df["FPTS_great"] + df["FPTS_good"] + df["FPTS_okay"]) / np.where(
         df["FPTS_poor"] + df["FPTS_bad"] != 0, df["FPTS_poor"] + df["FPTS_bad"], 1))
     df.insert(42, "FPTS_GSRat", (df["FPTS_great"] + df["FPTS_good"]
@@ -107,6 +106,6 @@ def agg_RBs(grouped):
     df.insert(69, "PPR_Score", df["INJCOR"] * (df["PPR_adj"] * .4 + df["PPR_median"]
               * .4 + df["PPR_QSRat"] * .5 + df["PPR_GSRat"] * .25 + df["OPP_mean"] * .1))
 
+    df.replace(np.inf, 0)
     df.fillna(0, inplace=True)
-    df = df[(df["OPP_mean"] > 1) & (df["G"] > 2)]
     return df
