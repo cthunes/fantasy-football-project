@@ -3,8 +3,9 @@ from aggregate import *
 
 currentYear = 2023
 # positions = ["qb", "rb", "wr", "te", "k", "dst"]
-positions = ["rb"]
-weights = [.6, .25, .1, .05]
+positions = ["rb", "wr"]
+# each year is weighed 2.5x more than the previous year (~62%, ~24%, ~10%, ~4%)
+weights = [15.625, 6.25, 2.5, 1]
 
 
 def wrangle(pos, year):
@@ -20,6 +21,8 @@ def wrangle(pos, year):
     grouped = df.groupby("Player", sort=False, as_index=False)
     if pos == "rb":
         df = agg_RBs(grouped)
+    elif pos == "wr":
+        df = agg_WRs(grouped)
     else:
         df = grouped.agg(Pos=("Player", lambda x: pos.upper()),
                          G=("Player", "size"),
