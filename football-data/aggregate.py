@@ -4,6 +4,7 @@ import numpy as np
 FPTS_tiers = [6, 9.5, 13.5, 18]
 HALF_tiers = [7, 10.75, 15.085, 20]
 PPR_tiers = [8, 12, 16.67, 22]
+te_tier_adj = -3
 
 rb_FPTS_adj_constant = 1.615  # average of the 1/4 roots of fpts std dev
 rb_HALF_adj_constant = 1.633
@@ -250,42 +251,42 @@ def agg_TEs(grouped):
                      FPTS_median=("FPTS", "median"),
                      FPTS_std=("FPTS", "std"),
                      FPTS_bad=("FPTS", lambda x: sum(
-                         1 for y in x if y < FPTS_tiers[0])),
+                         1 for y in x if y < FPTS_tiers[0] + te_tier_adj)),
                      FPTS_poor=("FPTS", lambda x: sum(1 for y in x if (
-                         y >= FPTS_tiers[0]) and (y < FPTS_tiers[1]))),
+                         y >= FPTS_tiers[0] + te_tier_adj) and (y < FPTS_tiers[1] + te_tier_adj))),
                      FPTS_okay=("FPTS", lambda x: sum(1 for y in x if (
-                         y >= FPTS_tiers[1]) and (y < FPTS_tiers[2]))),
+                         y >= FPTS_tiers[1] + te_tier_adj) and (y < FPTS_tiers[2] + te_tier_adj))),
                      FPTS_good=("FPTS", lambda x: sum(1 for y in x if (
-                         y >= FPTS_tiers[2]) and (y < FPTS_tiers[3]))),
+                         y >= FPTS_tiers[2] + te_tier_adj) and (y < FPTS_tiers[3] + te_tier_adj))),
                      FPTS_great=("FPTS", lambda x: sum(
-                         1 for y in x if y >= FPTS_tiers[3])),
+                         1 for y in x if y >= FPTS_tiers[3] + te_tier_adj)),
                      HALF=("HALF", "sum"),
                      HALF_mean=("HALF", "mean"),
                      HALF_median=("HALF", "median"),
                      HALF_std=("HALF", "std"),
                      HALF_bad=("HALF", lambda x: sum(
-                         1 for y in x if y < HALF_tiers[0])),
+                         1 for y in x if y < HALF_tiers[0] + te_tier_adj)),
                      HALF_poor=("HALF", lambda x: sum(1 for y in x if (
-                         y >= HALF_tiers[0]) and (y < HALF_tiers[1]))),
+                         y >= HALF_tiers[0] + te_tier_adj) and (y < HALF_tiers[1] + te_tier_adj))),
                      HALF_okay=("HALF", lambda x: sum(1 for y in x if (
-                         y >= HALF_tiers[1]) and (y < HALF_tiers[2]))),
+                         y >= HALF_tiers[1] + te_tier_adj) and (y < HALF_tiers[2] + te_tier_adj))),
                      HALF_good=("HALF", lambda x: sum(1 for y in x if (
-                         y >= HALF_tiers[2]) and (y < HALF_tiers[3]))),
+                         y >= HALF_tiers[2] + te_tier_adj) and (y < HALF_tiers[3] + te_tier_adj))),
                      HALF_great=("HALF", lambda x: sum(
-                         1 for y in x if y >= HALF_tiers[3])),
+                         1 for y in x if y >= HALF_tiers[3] + te_tier_adj)),
                      PPR=("PPR", "sum"),
                      PPR_mean=("PPR", "mean"),
                      PPR_median=("PPR", "median"),
                      PPR_std=("PPR", "std"),
                      PPR_bad=("PPR", lambda x: sum(
-                         1 for y in x if y < PPR_tiers[0])),
+                         1 for y in x if y < PPR_tiers[0] + te_tier_adj)),
                      PPR_poor=("PPR", lambda x: sum(1 for y in x if (
-                         y >= PPR_tiers[0]) and (y < PPR_tiers[1]))),
+                         y >= PPR_tiers[0] + te_tier_adj) and (y < PPR_tiers[1] + te_tier_adj))),
                      PPR_okay=("PPR", lambda x: sum(1 for y in x if (
-                         y >= PPR_tiers[1]) and (y < PPR_tiers[2]))),
+                         y >= PPR_tiers[1] + te_tier_adj) and (y < PPR_tiers[2] + te_tier_adj))),
                      PPR_good=("PPR", lambda x: sum(1 for y in x if (
-                         y >= PPR_tiers[2]) and (y < PPR_tiers[3]))),
-                     PPR_great=("PPR", lambda x: sum(1 for y in x if y >= PPR_tiers[3])))
+                         y >= PPR_tiers[2] + te_tier_adj) and (y < PPR_tiers[3] + te_tier_adj))),
+                     PPR_great=("PPR", lambda x: sum(1 for y in x if y >= PPR_tiers[3] + te_tier_adj)))
     df.insert(1, "POS", "TE")
     df.insert(9, "rec_Y/R", df["rec_YDS"] / df["rec_REC"])
     df.insert(20, "rush_Y/A", df["rush_YDS"] / df["rush_ATT"])
