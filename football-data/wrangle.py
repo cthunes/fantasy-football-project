@@ -2,8 +2,7 @@ import pandas as pd
 from aggregate import *
 
 currentYear = 2023
-# positions = ["qb", "rb", "wr", "te", "k", "dst"]
-positions = ["qb", "rb", "wr", "te", "k"]
+positions = ["qb", "rb", "wr", "te", "k", "dst"]
 # each year is weighed 2.5x more than the previous year (~62%, ~24%, ~10%, ~4%)
 weights = [15.625, 6.25, 2.5, 1]
 
@@ -36,10 +35,7 @@ def wrangle(pos, year):
     elif pos == "k":
         df = agg_Ks(grouped)
     else:
-        df = grouped.agg(Pos=("Player", lambda x: pos.upper()),
-                         G=("Player", "size"),
-                         FPTS=("FPTS", "mean"),
-                         FPTS_std=("FPTS", "std"))
+        df = agg_DSTs(grouped)
 
     df = df.sort_values("HALF_Score", ascending=False)
     return df.round(2)
@@ -60,6 +56,7 @@ def wrangle_all(all, pos):
     all.insert(1, "TEAM", "")
     all[["Player", "TEAM"]] = all.Player.str.split("(", expand=True)
     all["TEAM"] = all.TEAM.str.replace(')', '', regex=False)
+    all["Player"] = all["Player"].str.strip()
 
     # must have played in the last 2 seasons
     all = all[all["Weight_sum"] >= weights[1]]
@@ -67,8 +64,9 @@ def wrangle_all(all, pos):
         (all["Weight_sum"] < weights[0]) & (all["TEAM"] == "FA"))]
 
     # add column for role on team (ranking on team for position)
-    all.insert(3, "DPCHT", all.groupby("TEAM")[
-               "OPP_mean"].transform("rank", ascending=False))
+    if pos != "dst":
+        all.insert(3, "DPCHT", all.groupby("TEAM")[
+            "OPP_mean"].transform("rank", ascending=False))
     all = all.sort_values("HALF_Score", ascending=False).round(2)
     all = all.drop("Weight_sum", axis=1)
     print("Saving file aggregated/{}/all.csv".format(pos))
@@ -88,8 +86,10 @@ for pos in positions:
         df.insert(1, "TEAM", "")
         df[["Player", "TEAM"]] = df.Player.str.split("(", expand=True)
         df["TEAM"] = df.TEAM.str.replace(')', '', regex=False)
-        df.insert(3, "DPCHT", df.groupby("TEAM")[
-                  "OPP_mean"].transform("rank", ascending=False))
+        df["Player"] = df["Player"].str.strip()
+        if pos != "dst":
+            df.insert(3, "DPCHT", df.groupby("TEAM")[
+                "OPP_mean"].transform("rank", ascending=False))
         print("Saving file aggregated/{}/{}.csv".format(pos, year))
         df.to_csv(
             "football-data/aggregated/{}/{}.csv".format(pos, year), index=False)
