@@ -133,16 +133,3 @@ dist
 football-data/__pycache__/
 football-data/*.py[cod]
 
-# csv files
-football-data/raw/dst/*.csv
-football-data/raw/k/*.csv
-football-data/raw/qb/*.csv
-football-data/raw/rb/*.csv
-football-data/raw/te/*.csv
-football-data/raw/wr/*.csv
-football-data/aggregated/dst/*.csv
-football-data/aggregated/k/*.csv
-football-data/aggregated/qb/*.csv
-football-data/aggregated/rb/*.csv
-football-data/aggregated/te/*.csv
-football-data/aggregated/wr/*.csv
