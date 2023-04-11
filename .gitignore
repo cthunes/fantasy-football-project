@@ -132,3 +132,7 @@ dist
 # Byte-compiled / optimized / DLL files
 football-data/__pycache__/
 football-data/*.py[cod]
+
+# csv files
+football-data/raw/
+football-data/aggregated/
