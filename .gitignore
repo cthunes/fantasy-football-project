@@ -128,3 +128,10 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Byte-compiled / optimized / DLL files
+football-data/__pycache__/
+football-data/*.py[cod]
+
+# csv files
+football-data/*/*/*.csv
