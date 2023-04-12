@@ -6,7 +6,8 @@ import morgan from "morgan";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-import testRoutes from "./routes/test.js";
+import playerRoutes from "./routes/player.js";
+import saveFootballData from "./saveData.js";
 
 //app
 const app = express();
@@ -27,6 +28,11 @@ mongoose
     )
     .catch((err) => console.log("Error connecting to database: ", err.message));
 
+//some condition
+if (true === true) {
+    saveFootballData();
+}
+
 //middleware
 app.use(morgan("dev"));
 app.use(bodyParser.json());
@@ -34,4 +40,4 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors({ origin: true, credentials: true }));
 
 //routes
-app.use("/test", testRoutes);
+app.use("/players", playerRoutes);
