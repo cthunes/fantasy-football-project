@@ -157,7 +157,7 @@ const parseCSV = (filename) => {
         .on("end", () => console.log("done"));
 };
 
-const saveFootballData = async () => {
+const saveFootballData = () => {
     for (const pos of positions) {
         parseCSV(`../football-data/aggregated/${pos}/all.csv`);
         for (const yearsAgo of [1, 2, 3, 4]) {
