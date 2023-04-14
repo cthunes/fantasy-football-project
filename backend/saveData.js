@@ -12,6 +12,7 @@ const pushPlayer = async (player) => {
             name: player.name,
             position: player.position,
         });
+        //console.log(p);
         if (p) {
             p.team = player.team;
             if (
@@ -25,13 +26,13 @@ const pushPlayer = async (player) => {
         } else {
             p = new Player(player);
         }
-        await p.save();
+        return p.save();
     } catch (e) {
         console.log(e.message);
     }
 };
 
-const parseQB = (row, filename) => {
+const parseQB = async (row, filename) => {
     const info = row.slice(0, 3);
     const numbers = row.slice(3).map(Number);
     var season = "4 year weighted average";
@@ -141,28 +142,31 @@ const parseQB = (row, filename) => {
     if (filename.includes("all.csv")) {
         player.yearsOfExperience = numbers[numbers.length - 1];
     }
-    pushPlayer(player);
+    return pushPlayer(player);
 };
 
-const parseCSV = (filename) => {
+async function parseCSV(filename) {
     const data = [];
-    fs.createReadStream(filename)
+    const parser = fs
+        .createReadStream(filename)
         .pipe(parse({ delimiter: ",", from_line: 2 }))
         .on("error", (error) => console.error(error))
-        .on("data", (row) => {
-            if (filename.includes("qb")) {
-                parseQB(row, filename);
-            }
-        })
-        .on("end", () => console.log("done"));
-};
+        .on("end", () => console.log(filename + " done"));
+    const promises = [];
+    for await (const row of parser) {
+        if (filename.includes("qb")) {
+            promises.push(await parseQB(row, filename));
+        }
+    }
+    return promises;
+}
 
-const saveFootballData = () => {
+const saveFootballData = async () => {
     for (const pos of positions) {
-        parseCSV(`../football-data/aggregated/${pos}/all.csv`);
-        for (const yearsAgo of [1, 2, 3, 4]) {
+        await parseCSV(`../football-data/aggregated/${pos}/all.csv`);
+        for (const yearsAgo of [1, 2, 3, 4, 5, 6]) {
             const year = currentYear - yearsAgo;
-            parseCSV(`../football-data/aggregated/${pos}/${year}.csv`);
+            await parseCSV(`../football-data/aggregated/${pos}/${year}.csv`);
         }
     }
 };
