@@ -4,7 +4,7 @@ from aggregate import *
 currentYear = 2023
 positions = ["qb", "rb", "wr", "te", "k", "dst"]
 # each year is weighed 2.5x more than the previous year (~62%, ~24%, ~10%, ~4%)
-weights = [15.625, 6.25, 2.5, 1]
+weights = [97.65625, 39.0625, 15.625, 6.25, 2.5, 1]
 
 
 def wrangle(pos, year):
@@ -77,7 +77,7 @@ for pos in positions:
 
     data = []
 
-    for yearsAgo in range(1, 5):
+    for yearsAgo in range(1, 7):
         year = currentYear - yearsAgo
         df = wrangle(pos, year)
         df["Weight"] = weights[yearsAgo - 1]
