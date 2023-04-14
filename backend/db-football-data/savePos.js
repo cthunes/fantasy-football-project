@@ -1,10 +1,4 @@
-import fs from "fs";
-import { parse } from "csv-parse";
-
-import Player from "./models/Player.js";
-
-const currentYear = 2023;
-const positions = ["qb"];
+import Player from "../models/Player.js";
 
 const pushPlayer = async (player) => {
     try {
@@ -12,7 +6,6 @@ const pushPlayer = async (player) => {
             name: player.name,
             position: player.position,
         });
-        //console.log(p);
         if (p) {
             p.team = player.team;
             if (
@@ -32,7 +25,7 @@ const pushPlayer = async (player) => {
     }
 };
 
-const parseQB = async (row, filename) => {
+export const parseQB = (row, filename) => {
     const info = row.slice(0, 3);
     const numbers = row.slice(3).map(Number);
     var season = "4 year weighted average";
@@ -145,30 +138,117 @@ const parseQB = async (row, filename) => {
     return pushPlayer(player);
 };
 
-async function parseCSV(filename) {
-    const data = [];
-    const parser = fs
-        .createReadStream(filename)
-        .pipe(parse({ delimiter: ",", from_line: 2 }))
-        .on("error", (error) => console.error(error))
-        .on("end", () => console.log(filename + " done"));
-    const promises = [];
-    for await (const row of parser) {
-        if (filename.includes("qb")) {
-            promises.push(await parseQB(row, filename));
-        }
+export const parseRB = (row, filename) => {
+    const info = row.slice(0, 3);
+    const numbers = row.slice(3).map(Number);
+    var season = "4 year weighted average";
+    const year = /\d+/.exec(filename);
+    if (year) season = year[0];
+    const player = {
+        name: info[0],
+        team: info[1],
+        position: info[2],
+        stats: [
+            {
+                season: season,
+                depthChart: numbers[0],
+                games: numbers[1],
+                injuryCorrectionConstant: numbers[29],
+                rushing: {
+                    attempts: numbers[2],
+                    attemptsMean: numbers[3],
+                    yards: numbers[4],
+                    yardsMean: numbers[5],
+                    yardsPerAttempt: numbers[6],
+                    long: numbers[7],
+                    longMean: numbers[8],
+                    twentyPlus: numbers[9],
+                    twentyPlusMean: numbers[10],
+                    td: numbers[11],
+                    tdMean: numbers[12],
+                },
+                receiving: {
+                    receptions: numbers[13],
+                    receptionsMean: numbers[14],
+                    targets: numbers[15],
+                    targetsMean: numbers[16],
+                    yards: numbers[17],
+                    yardsMean: numbers[18],
+                    yardsPerReception: numbers[19],
+                    td: numbers[20],
+                    tdMean: numbers[21],
+                },
+                misc: {
+                    touches: numbers[22],
+                    touchesMean: numbers[23],
+                    opportunities: numbers[24],
+                    opportunitiesMean: numbers[25],
+                    fumblesLost: numbers[26],
+                    fumblesLostMean: numbers[27],
+                    fumblesLostPerTouch: numbers[28],
+                },
+                standard: {
+                    points: {
+                        sum: numbers[30],
+                        mean: numbers[31],
+                        median: numbers[32],
+                        standardDeviation: numbers[33],
+                        adjustedMean: numbers[34],
+                    },
+                    games: {
+                        bad: numbers[35],
+                        poor: numbers[36],
+                        okay: numbers[37],
+                        good: numbers[38],
+                        great: numbers[39],
+                    },
+                    qualityStartRatio: numbers[40],
+                    goodStartRatio: numbers[41],
+                    score: numbers[42],
+                },
+                half: {
+                    points: {
+                        sum: numbers[43],
+                        mean: numbers[44],
+                        median: numbers[45],
+                        standardDeviation: numbers[46],
+                        adjustedMean: numbers[47],
+                    },
+                    games: {
+                        bad: numbers[48],
+                        poor: numbers[49],
+                        okay: numbers[50],
+                        good: numbers[51],
+                        great: numbers[52],
+                    },
+                    qualityStartRatio: numbers[53],
+                    goodStartRatio: numbers[54],
+                    score: numbers[55],
+                },
+                ppr: {
+                    points: {
+                        sum: numbers[56],
+                        mean: numbers[57],
+                        median: numbers[58],
+                        standardDeviation: numbers[59],
+                        adjustedMean: numbers[60],
+                    },
+                    games: {
+                        bad: numbers[61],
+                        poor: numbers[62],
+                        okay: numbers[63],
+                        good: numbers[64],
+                        great: numbers[65],
+                    },
+                    qualityStartRatio: numbers[66],
+                    goodStartRatio: numbers[67],
+                    score: numbers[68],
+                },
+            },
+        ],
+    };
+    if (filename.includes("all.csv")) {
+        player.yearsOfExperience = numbers[numbers.length - 1];
     }
-    return promises;
-}
-
-const saveFootballData = async () => {
-    for (const pos of positions) {
-        await parseCSV(`../football-data/aggregated/${pos}/all.csv`);
-        for (const yearsAgo of [1, 2, 3, 4, 5, 6]) {
-            const year = currentYear - yearsAgo;
-            await parseCSV(`../football-data/aggregated/${pos}/${year}.csv`);
-        }
-    }
+    return pushPlayer(player);
 };
-
-export default saveFootballData;

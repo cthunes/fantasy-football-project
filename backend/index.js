@@ -7,7 +7,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 import playerRoutes from "./routes/player.js";
-import saveFootballData from "./saveData.js";
+import saveFootballData from "./db-football-data/parseCSV.js";
 
 //app
 const app = express();
@@ -21,17 +21,14 @@ mongoose
         useNewUrlParser: true,
         useUnifiedTopology: true,
     })
-    .then(() =>
+    .then(() => {
+        //detect changes?
+        if (true === true) saveFootballData();
         app.listen(port, () =>
             console.log(`Server is running on port: ${port}`)
-        )
-    )
+        );
+    })
     .catch((err) => console.log("Error connecting to database: ", err.message));
-
-//some condition
-if (true === true) {
-    saveFootballData();
-}
 
 //middleware
 app.use(morgan("dev"));
