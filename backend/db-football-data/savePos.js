@@ -252,3 +252,119 @@ export const parseRB = (row, filename) => {
     }
     return pushPlayer(player);
 };
+
+//WRs and TEs (PC = PassCatcher)
+export const parsePC = (row, filename) => {
+    const info = row.slice(0, 3);
+    const numbers = row.slice(3).map(Number);
+    var season = "4 year weighted average";
+    const year = /\d+/.exec(filename);
+    if (year) season = year[0];
+    const player = {
+        name: info[0],
+        team: info[1],
+        position: info[2],
+        stats: [
+            {
+                season: season,
+                depthChart: numbers[0],
+                games: numbers[1],
+                injuryCorrectionConstant: numbers[29],
+                rushing: {
+                    attempts: numbers[15],
+                    attemptsMean: numbers[16],
+                    yards: numbers[17],
+                    yardsMean: numbers[18],
+                    yardsPerAttempt: numbers[19],
+                    td: numbers[20],
+                    tdMean: numbers[21],
+                },
+                receiving: {
+                    receptions: numbers[2],
+                    receptionsMean: numbers[3],
+                    targets: numbers[4],
+                    targetsMean: numbers[5],
+                    yards: numbers[6],
+                    yardsMean: numbers[7],
+                    yardsPerReception: numbers[8],
+                    long: numbers[9],
+                    longMean: numbers[10],
+                    twentyPlus: numbers[11],
+                    twentyPlusMean: numbers[12],
+                    td: numbers[13],
+                    tdMean: numbers[14],
+                },
+                misc: {
+                    touches: numbers[22],
+                    touchesMean: numbers[23],
+                    opportunities: numbers[24],
+                    opportunitiesMean: numbers[25],
+                    fumblesLost: numbers[26],
+                    fumblesLostMean: numbers[27],
+                    fumblesLostPerTouch: numbers[28],
+                },
+                standard: {
+                    points: {
+                        sum: numbers[30],
+                        mean: numbers[31],
+                        median: numbers[32],
+                        standardDeviation: numbers[33],
+                        adjustedMean: numbers[34],
+                    },
+                    games: {
+                        bad: numbers[35],
+                        poor: numbers[36],
+                        okay: numbers[37],
+                        good: numbers[38],
+                        great: numbers[39],
+                    },
+                    qualityStartRatio: numbers[40],
+                    goodStartRatio: numbers[41],
+                    score: numbers[42],
+                },
+                half: {
+                    points: {
+                        sum: numbers[43],
+                        mean: numbers[44],
+                        median: numbers[45],
+                        standardDeviation: numbers[46],
+                        adjustedMean: numbers[47],
+                    },
+                    games: {
+                        bad: numbers[48],
+                        poor: numbers[49],
+                        okay: numbers[50],
+                        good: numbers[51],
+                        great: numbers[52],
+                    },
+                    qualityStartRatio: numbers[53],
+                    goodStartRatio: numbers[54],
+                    score: numbers[55],
+                },
+                ppr: {
+                    points: {
+                        sum: numbers[56],
+                        mean: numbers[57],
+                        median: numbers[58],
+                        standardDeviation: numbers[59],
+                        adjustedMean: numbers[60],
+                    },
+                    games: {
+                        bad: numbers[61],
+                        poor: numbers[62],
+                        okay: numbers[63],
+                        good: numbers[64],
+                        great: numbers[65],
+                    },
+                    qualityStartRatio: numbers[66],
+                    goodStartRatio: numbers[67],
+                    score: numbers[68],
+                },
+            },
+        ],
+    };
+    if (filename.includes("all.csv")) {
+        player.yearsOfExperience = numbers[numbers.length - 1];
+    }
+    return pushPlayer(player);
+};

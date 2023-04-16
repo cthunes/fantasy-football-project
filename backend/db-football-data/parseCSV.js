@@ -1,10 +1,11 @@
 import fs from "fs";
 import { parse } from "csv-parse";
 
-import { parseQB, parseRB } from "./savePos.js";
+import { parseQB, parseRB, parsePC } from "./savePos.js";
 
 const currentYear = 2023;
-const positions = ["qb", "rb"];
+const positions = ["qb", "rb", "wr", "te"];
+//const positions = [];
 
 async function parseCSV(filename) {
     const data = [];
@@ -19,6 +20,8 @@ async function parseCSV(filename) {
             promises.push(await parseQB(row, filename));
         } else if (filename.includes("rb")) {
             promises.push(await parseRB(row, filename));
+        } else if (filename.includes("wr") || filename.includes("te")) {
+            promises.push(await parsePC(row, filename));
         }
     }
     return promises;
