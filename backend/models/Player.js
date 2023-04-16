@@ -53,6 +53,8 @@ const statsSchema = mongoose.Schema({
         fieldGoals: {
             sum: Number,
             mean: Number,
+            attempts: Number,
+            attemptsMean: Number,
             percentage: Number,
             long: Number,
             longMean: Number,

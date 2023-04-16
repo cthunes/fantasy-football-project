@@ -1,10 +1,10 @@
 import fs from "fs";
 import { parse } from "csv-parse";
 
-import { parseQB, parseRB, parsePC } from "./savePos.js";
+import { parseQB, parseRB, parsePC, parseK } from "./savePos.js";
 
 const currentYear = 2023;
-const positions = ["qb", "rb", "wr", "te"];
+const positions = ["qb", "rb", "wr", "te", "k"];
 //const positions = [];
 
 async function parseCSV(filename) {
@@ -16,12 +16,14 @@ async function parseCSV(filename) {
         .on("end", () => console.log(filename + " done"));
     const promises = [];
     for await (const row of parser) {
-        if (filename.includes("qb")) {
+        if (filename.includes("/qb/")) {
             promises.push(await parseQB(row, filename));
-        } else if (filename.includes("rb")) {
+        } else if (filename.includes("/rb/")) {
             promises.push(await parseRB(row, filename));
-        } else if (filename.includes("wr") || filename.includes("te")) {
+        } else if (filename.includes("/wr/") || filename.includes("/te/")) {
             promises.push(await parsePC(row, filename));
+        } else if (filename.includes("/k/")) {
+            promises.push(await parseK(row, filename));
         }
     }
     return promises;
