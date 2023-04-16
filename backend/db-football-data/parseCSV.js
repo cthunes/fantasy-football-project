@@ -4,7 +4,7 @@ import { parse } from "csv-parse";
 import { parseQB, parseRB } from "./savePos.js";
 
 const currentYear = 2023;
-const positions = ["rb"];
+const positions = ["qb", "rb"];
 
 async function parseCSV(filename) {
     const data = [];
