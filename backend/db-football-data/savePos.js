@@ -482,3 +482,103 @@ export const parseK = (row, filename) => {
     }
     return pushPlayer(player);
 };
+
+export const parseDST = (row, filename) => {
+    const info = row.slice(0, 3);
+    const numbers = row.slice(3).map(Number);
+    var season = "4 year weighted average";
+    const year = /\d+/.exec(filename);
+    if (year) season = year[0];
+    const player = {
+        name: info[0],
+        team: info[1],
+        position: info[2],
+        stats: [
+            {
+                season: season,
+                games: numbers[0],
+                dst: {
+                    defense: {
+                        sacks: numbers[1],
+                        sacksMean: numbers[2],
+                        interceptions: numbers[3],
+                        interceptionsMean: numbers[4],
+                        fumblesRecovered: numbers[5],
+                        fumblesRecoveredMean: numbers[6],
+                        forcedFumbles: numbers[7],
+                        forcedFumblesMean: numbers[8],
+                        safeties: numbers[9],
+                        safetiesMean: numbers[10],
+                        td: numbers[11],
+                        tdMean: numbers[12],
+                    },
+                    specialTeams: {
+                        td: numbers[13],
+                        tdMean: numbers[14],
+                    },
+                },
+                standard: {
+                    points: {
+                        sum: numbers[15],
+                        mean: numbers[16],
+                        median: numbers[17],
+                        standardDeviation: numbers[18],
+                        adjustedMean: numbers[19],
+                    },
+                    games: {
+                        bad: numbers[20],
+                        poor: numbers[21],
+                        okay: numbers[22],
+                        good: numbers[23],
+                        great: numbers[24],
+                    },
+                    qualityStartRatio: numbers[25],
+                    goodStartRatio: numbers[26],
+                    score: numbers[27],
+                },
+                half: {
+                    points: {
+                        sum: numbers[28],
+                        mean: numbers[29],
+                        median: numbers[30],
+                        standardDeviation: numbers[31],
+                        adjustedMean: numbers[32],
+                    },
+                    games: {
+                        bad: numbers[33],
+                        poor: numbers[34],
+                        okay: numbers[35],
+                        good: numbers[36],
+                        great: numbers[37],
+                    },
+                    qualityStartRatio: numbers[38],
+                    goodStartRatio: numbers[39],
+                    score: numbers[40],
+                },
+                ppr: {
+                    points: {
+                        sum: numbers[41],
+                        mean: numbers[42],
+                        median: numbers[43],
+                        standardDeviation: numbers[44],
+                        adjustedMean: numbers[45],
+                    },
+                    games: {
+                        bad: numbers[46],
+                        poor: numbers[47],
+                        okay: numbers[48],
+                        good: numbers[49],
+                        great: numbers[50],
+                    },
+                    qualityStartRatio: numbers[51],
+                    goodStartRatio: numbers[52],
+                    score: numbers[53],
+                },
+            },
+        ],
+    };
+    if (filename.includes("all.csv")) {
+        player.yearsOfExperience = numbers[numbers.length - 1];
+    }
+    return pushPlayer(player);
+};
