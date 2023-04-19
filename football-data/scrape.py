@@ -39,7 +39,7 @@ def scrape(pos, year, week):
 
 
 for pos in positions:
-    for yearsAgo in range(1, 5):
+    for yearsAgo in range(1, 7):
         data = []
         year = currentYear - yearsAgo
         for week in range(1, 18):

@@ -6,7 +6,9 @@ import morgan from "morgan";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-import testRoutes from "./routes/test.js";
+import playerRoutes from "./routes/player.js";
+import rankingRoutes from "./routes/ranking.js";
+import saveFootballData from "./db-football-data/parseCSV.js";
 
 //app
 const app = express();
@@ -20,11 +22,13 @@ mongoose
         useNewUrlParser: true,
         useUnifiedTopology: true,
     })
-    .then(() =>
+    .then(() => {
+        //detect changes?
+        if (true === false) saveFootballData();
         app.listen(port, () =>
             console.log(`Server is running on port: ${port}`)
-        )
-    )
+        );
+    })
     .catch((err) => console.log("Error connecting to database: ", err.message));
 
 //middleware
@@ -34,4 +38,5 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors({ origin: true, credentials: true }));
 
 //routes
-app.use("/test", testRoutes);
+app.use("/players", playerRoutes);
+app.use("/rankings", rankingRoutes);

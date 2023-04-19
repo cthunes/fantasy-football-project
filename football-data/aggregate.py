@@ -129,7 +129,7 @@ def agg_QBs(grouped):
     df.insert(67, "PPR_Score", df["INJCOR"] * (df["PPR_adj"] * scoring_weights[0] + df["PPR_median"] * scoring_weights[1] +
               df["PPR_QSRat"] * scoring_weights[2] + df["PPR_GSRat"] * scoring_weights[3] + df["OPP_mean"] * scoring_weights[4]))
 
-    df.replace(np.inf, 0)
+    df.replace(np.inf, 0, inplace=True)
     df.fillna(0, inplace=True)
     return df
 
@@ -236,7 +236,7 @@ def agg_RBs(grouped):
     df.insert(69, "PPR_Score", df["INJCOR"] * (df["PPR_adj"] * scoring_weights[0] + df["PPR_median"] * scoring_weights[1] +
               df["PPR_QSRat"] * scoring_weights[2] + df["PPR_GSRat"] * scoring_weights[3] + df["OPP_mean"] * scoring_weights[4]))
 
-    df.replace(np.inf, 0)
+    df.replace(np.inf, 0, inplace=True)
     df.fillna(0, inplace=True)
     return df
 
@@ -343,7 +343,7 @@ def agg_WRs(grouped):
     df.insert(69, "PPR_Score", df["INJCOR"] * (df["PPR_adj"] * scoring_weights[0] + df["PPR_median"] * scoring_weights[1] +
               df["PPR_QSRat"] * scoring_weights[2] + df["PPR_GSRat"] * scoring_weights[3] + df["OPP_mean"] * scoring_weights[4]))
 
-    df.replace(np.inf, 0)
+    df.replace(np.inf, 0, inplace=True)
     df.fillna(0, inplace=True)
     return df
 
@@ -450,7 +450,7 @@ def agg_TEs(grouped):
     df.insert(69, "PPR_Score", df["INJCOR"] * (df["PPR_adj"] * scoring_weights[0] + df["PPR_median"]
               * scoring_weights[1] + df["PPR_QSRat"] * scoring_weights[2] + df["PPR_GSRat"] * scoring_weights[3] + df["OPP_mean"] * scoring_weights[4]))
 
-    df.replace(np.inf, 0)
+    df.replace(np.inf, 0, inplace=True)
     df.fillna(0, inplace=True)
     return df
 
@@ -554,7 +554,7 @@ def agg_Ks(grouped):
     df.insert(66, "PPR_Score", df["INJCOR"] * (df["PPR_adj"] * scoring_weights[0] + df["PPR_median"] * scoring_weights[1] +
               df["PPR_QSRat"] * scoring_weights[2] + df["PPR_GSRat"] * scoring_weights[3] + df["OPP_mean"] * scoring_weights[4]))
 
-    df.replace(np.inf, 0)
+    df.replace(np.inf, 0, inplace=True)
     df.fillna(0, inplace=True)
     return df
 
@@ -646,6 +646,6 @@ def agg_DSTs(grouped):
     df.insert(55, "PPR_Score", df["PPR_adj"] * scoring_weights[0] + df["PPR_median"] *
               scoring_weights[1] + df["PPR_QSRat"] * scoring_weights[2] + df["PPR_GSRat"] * scoring_weights[3])
 
-    df.replace(np.inf, 0)
+    df.replace(np.inf, 0, inplace=True)
     df.fillna(0, inplace=True)
     return df
