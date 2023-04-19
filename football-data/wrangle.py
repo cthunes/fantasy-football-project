@@ -5,6 +5,28 @@ currentYear = 2023
 positions = ["qb", "rb", "wr", "te", "k", "dst"]
 # each year is weighed 2.5x more than the previous year (~62%, ~24%, ~10%, ~4%)
 weights = [97.65625, 39.0625, 15.625, 6.25, 2.5, 1]
+scoring_types = ["FPTS", "HALF", "PPR"]
+z_scores = [-.84162, -.25335, .25335, .84162]
+
+
+def calc_tiers(df, pos, year):
+    point_tiers = []
+    p = 20
+    if pos == "rb":
+        p = 40
+    if pos == "wr":
+        p = 60
+    g = 17 if year > 2020 else 16
+    for type in scoring_types:
+        top = df.sort_values(type, ascending=False).head(p * g)
+        # use median instead of mean due to skew of selection of top p * g rows
+        median = top[type].median()
+        std = top[type].std()
+        tiers = []
+        for z in z_scores:
+            tiers.append(median + z * std)
+        point_tiers.append(tiers)
+    return point_tiers
 
 
 def wrangle(pos, year):
@@ -13,7 +35,6 @@ def wrangle(pos, year):
         header = 0
     df = pd.read_csv(
         "football-data/raw/{}/{}.csv".format(pos, year), header=header)
-    df = df.sort_values(["Player", "Week"])
 
     if pos == "rb" or pos == "wr" or pos == "te":
         df["HALF"] = df["FPTS"] + df["REC"] * 0.5
@@ -22,20 +43,23 @@ def wrangle(pos, year):
         df["HALF"] = df["FPTS"]
         df["PPR"] = df["FPTS"]
 
+    point_tiers = calc_tiers(df, pos, year)
+
+    df = df.sort_values(["Player", "Week"])
     grouped = df.groupby("Player", sort=False, as_index=False)
 
     if pos == "rb":
-        df = agg_RBs(grouped)
+        df = agg_RBs(grouped, point_tiers)
     elif pos == "wr":
-        df = agg_WRs(grouped)
+        df = agg_WRs(grouped, point_tiers)
     elif pos == "te":
-        df = agg_TEs(grouped)
+        df = agg_TEs(grouped, point_tiers)
     elif pos == "qb":
-        df = agg_QBs(grouped)
+        df = agg_QBs(grouped, point_tiers)
     elif pos == "k":
-        df = agg_Ks(grouped)
+        df = agg_Ks(grouped, point_tiers)
     else:
-        df = agg_DSTs(grouped)
+        df = agg_DSTs(grouped, point_tiers)
 
     df = df.sort_values("HALF_Score", ascending=False)
     return df.round(2)
