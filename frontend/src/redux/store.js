@@ -1,8 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
-import testReducer from "./test";
+import playerReducer from "./player";
+import rankingReducer from "./player";
 
 export default configureStore({
     reducer: {
-        test: testReducer,
+        player: playerReducer,
+        ranking: rankingReducer,
     },
 });
