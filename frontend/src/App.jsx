@@ -8,19 +8,13 @@ import {
     Grow,
     Grid,
 } from "@mui/material";
-import { playerFetchAll } from "./redux/player";
 import { rankingFetchAll, rankingCreate } from "./redux/ranking";
 
-import Table from "./components/Table/Table";
+import Table from "./components/Table/StatsTable";
 import FormAndRankings from "./components/FormAndRankings/FormAndRankings";
 
 const App = () => {
-    const players = useSelector((state) => state.player.players);
     const dispatch = useDispatch();
-
-    useEffect(() => {
-        dispatch(playerFetchAll());
-    }, [dispatch]);
 
     return (
         <Container maxWidth="xl">
@@ -39,15 +33,6 @@ const App = () => {
                     >
                         <Grid item xs={12} sm={7}>
                             <Table />
-                            {players.map((player) => (
-                                <ul>
-                                    <li key={player.name}>
-                                        <label>
-                                            {player.name}, {player.position}
-                                        </label>
-                                    </li>
-                                </ul>
-                            ))}
                         </Grid>
                         <Grid item xs={12} sm={4}>
                             <FormAndRankings />
