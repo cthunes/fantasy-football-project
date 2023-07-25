@@ -29,8 +29,7 @@ export const playerSlice = createSlice({
             })
             .addCase(playerFetchAll.fulfilled, (state, action) => {
                 state.status = "succeeded";
-                // Add any fetched posts to the array
-                state.players = state.players.concat(action.payload);
+                state.players = action.payload;
             })
             .addCase(playerFetchAll.rejected, (state, action) => {
                 state.status = "failed";

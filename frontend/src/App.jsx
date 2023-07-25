@@ -9,8 +9,9 @@ import {
     Grid,
 } from "@mui/material";
 import { rankingFetchAll, rankingCreate } from "./redux/ranking";
+import { setYear } from "./redux/year";
 
-import Table from "./components/Table/StatsTable";
+import StatsTable from "./components/Table/StatsTable";
 import FormAndRankings from "./components/FormAndRankings/FormAndRankings";
 
 const App = () => {
@@ -29,27 +30,23 @@ const App = () => {
                         container
                         justify="space-between"
                         alignItems="stretch"
-                        spacing={3}
+                        spacing={2}
                     >
-                        <Grid item xs={12} sm={7}>
-                            <Table />
-                        </Grid>
-                        <Grid item xs={12} sm={4}>
-                            <FormAndRankings />
-                            <Button
-                                variant="contained"
-                                onClick={() =>
-                                    dispatch(
-                                        rankingCreate({
-                                            name: "Christian McCaffrey is awesome",
-                                            type: "what is type for",
-                                        })
-                                    )
-                                }
-                            >
-                                Create Rankings
-                            </Button>
-                        </Grid>
+                        {true && (
+                            <Grid item xs={12}>
+                                <StatsTable />
+                            </Grid>
+                        )}
+                        {false && (
+                            <>
+                                <Grid item xs={12} sm={8}>
+                                    <StatsTable />
+                                </Grid>
+                                <Grid item xs={12} sm={4}>
+                                    <FormAndRankings />
+                                </Grid>
+                            </>
+                        )}
                     </Grid>
                 </Container>
             </Grow>

@@ -37,7 +37,7 @@ export const rankingSlice = createSlice({
             })
             .addCase(rankingFetchAll.fulfilled, (state, action) => {
                 state.status = "succeeded";
-                // Add any fetched posts to the array
+                // Add any fetched rankings to the array
                 state.players = state.players.concat(action.payload);
             })
             .addCase(rankingFetchAll.rejected, (state, action) => {
