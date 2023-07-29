@@ -19,8 +19,8 @@ const StatsTable = () => {
     const players = useSelector((state) => state.player.players);
     const year = useSelector((state) => state.year.year);
     const pointsType = useSelector((state) => state.pointsType.pointsType);
-    const [tableData, setTableData] = useState(() => []);
     const [position, setPosition] = useState("ALL");
+    const [tableData, setTableData] = useState(() => []);
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -50,48 +50,35 @@ const StatsTable = () => {
         );
     }, [players, year, position, pointsType]);
 
-    const columns = useMemo(
-        () => [
-            {
-                id: "player",
-                header: "PLAYER",
-                columns: [
-                    {
-                        accessorKey: "name",
-                        header: "NAME",
-                        size: 200,
-                    },
-                ],
-            },
+    const columns = useMemo(() => {
+        let cols = [
             {
                 id: "overview",
                 header: "OVERVIEW",
                 columns: [
                     {
+                        accessorKey: "name",
+                        id: "name",
+                        header: "NAME",
+                        size: 200,
+                    },
+                    {
                         accessorKey: "position",
+                        id: "position",
                         header: "POS",
                         size: 30,
                     },
                     {
                         accessorKey: "team",
+                        id: "team",
                         header: "TEAM",
                         size: 50,
                     },
                     {
                         accessorKey: "yearsOfExperience",
+                        id: "yoe",
                         header: "YOE",
                         size: 30,
-                    },
-                    {
-                        accessorFn: (player) =>
-                            player.stats[
-                                player.stats.findIndex(
-                                    (item) => item.season === year
-                                )
-                            ].season,
-                        id: "season",
-                        header: "YEAR",
-                        size: 50,
                     },
                     {
                         accessorFn: (player) =>
@@ -1125,9 +1112,1039 @@ const StatsTable = () => {
                     },
                 ],
             },
-        ],
-        [year]
-    );
+            {
+                accessorKey: "defense/st totals",
+                header: "DEFENSE/ST TOTALS",
+                columns: [
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].dst.defense.sacks;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "dst.defense.sacks",
+                        header: "SACK",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].dst.defense.interceptions;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "dst.defense.interceptions",
+                        header: "INT",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].dst.defense.fumblesRecovered;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "dst.defense.fumblesRecovered",
+                        header: "FR",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].dst.defense.forcedFumbles;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "dst.defense.forcedFumbles",
+                        header: "FF",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].dst.defense.safeties;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "dst.defense.safeties",
+                        header: "SAF",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].dst.defense.td;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "dst.defense.td",
+                        header: "TD",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].dst.specialTeams.td;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "dst.specialTeams.td",
+                        header: "STTD",
+                        size: 30,
+                    },
+                ],
+            },
+            {
+                accessorKey: "defense/st averages",
+                header: "DEFENSE/ST AVERAGES",
+                columns: [
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].dst.defense.sacksMean;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "dst.defense.sacksMean",
+                        header: "SACK",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].dst.defense.interceptionsMean;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "dst.defense.interceptionsMean",
+                        header: "INT",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].dst.defense.fumblesRecoveredMean;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "dst.defense.fumblesRecoveredMean",
+                        header: "FR",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].dst.defense.forcedFumblesMean;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "dst.defense.forcedFumblesMean",
+                        header: "FF",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].dst.defense.safetiesMean;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "dst.defense.safetiesMean",
+                        header: "SAF",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].dst.defense.tdMean;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "dst.defense.tdMean",
+                        header: "TD",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].dst.specialTeams.tdMean;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "dst.specialTeams.tdMean",
+                        header: "STTD",
+                        size: 30,
+                    },
+                ],
+            },
+            {
+                accessorKey: "misc totals",
+                header: "MISC TOTALS",
+                columns: [
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].misc.touches;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "misc.touches",
+                        header: "TCH",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].misc.opportunities;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "misc.opportunities",
+                        header: "OPP",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].misc.fumblesLost;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "misc.fumblesLost",
+                        header: "FL",
+                        size: 30,
+                    },
+                ],
+            },
+            {
+                accessorKey: "misc averages",
+                header: "MISC AVERAGES",
+                columns: [
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].misc.touchesMean;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "misc.touchesMean",
+                        header: "TCH",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].misc.opportunitiesMean;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "misc.opportunitiesMean",
+                        header: "OPP",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].misc.fumblesLostMean;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "misc.fumblesLostMean",
+                        header: "FL",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].misc.fumblesLostPerTouch;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "misc.fumblesLostPerTouch",
+                        header: "FL/T",
+                        size: 30,
+                    },
+                ],
+            },
+        ];
+        if (pointsType === "ppr") {
+            cols = cols.concat([
+                {
+                    accessorKey: "ppr points",
+                    header: "PPR POINTS",
+                    columns: [
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].ppr.points.sum;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "ppr.points.sum",
+                            header: "SUM",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].ppr.points.mean;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "ppr.points.mean",
+                            header: "MEAN",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].ppr.points.median;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "ppr.points.median",
+                            header: "MDN",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].ppr.points.standardDeviation;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "ppr.points.standardDeviation",
+                            header: "STD",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].ppr.points.adjustedMean;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "ppr.points.adjustedMean",
+                            header: "ADMN",
+                            size: 30,
+                        },
+                    ],
+                },
+                {
+                    accessorKey: "ppr misc",
+                    header: "PPR MISC",
+                    columns: [
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].ppr.games.bad;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "ppr.games.bad",
+                            header: "BAD",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].ppr.games.poor;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "ppr.games.poor",
+                            header: "POOR",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].ppr.games.okay;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "ppr.games.okay",
+                            header: "FINE",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].ppr.games.good;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "ppr.games.good",
+                            header: "GOOD",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].ppr.games.great;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "ppr.games.great",
+                            header: "GRT",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].ppr.qualityStartRatio;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "ppr.qualityStartRatio",
+                            header: "QSR",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].ppr.goodStartRatio;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "ppr.goodStartRatio",
+                            header: "GSR",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].ppr.score;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "ppr.score",
+                            header: "SCR",
+                            size: 30,
+                        },
+                    ],
+                },
+            ]);
+        } else if (pointsType === "half") {
+            cols = cols.concat([
+                {
+                    accessorKey: "half-ppr points",
+                    header: "HALF-PPR POINTS",
+                    columns: [
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].half.points.sum;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "half.points.sum",
+                            header: "SUM",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].half.points.mean;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "half.points.mean",
+                            header: "MEAN",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].half.points.median;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "half.points.median",
+                            header: "MDN",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].half.points.standardDeviation;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "half.points.standardDeviation",
+                            header: "STD",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].half.points.adjustedMean;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "half.points.adjustedMean",
+                            header: "ADMN",
+                            size: 30,
+                        },
+                    ],
+                },
+                {
+                    accessorKey: "half-ppr misc",
+                    header: "HALF-PPR MISC",
+                    columns: [
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].half.games.bad;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "half.games.bad",
+                            header: "BAD",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].half.games.poor;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "half.games.poor",
+                            header: "POOR",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].half.games.okay;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "half.games.okay",
+                            header: "FINE",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].half.games.good;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "half.games.good",
+                            header: "GOOD",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].half.games.great;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "half.games.great",
+                            header: "GRT",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].half.qualityStartRatio;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "half.qualityStartRatio",
+                            header: "QSR",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].half.goodStartRatio;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "half.goodStartRatio",
+                            header: "GSR",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].half.score;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "half.score",
+                            header: "SCR",
+                            size: 30,
+                        },
+                    ],
+                },
+            ]);
+        } else if (pointsType === "standard") {
+            cols = cols.concat([
+                {
+                    accessorKey: "standard points",
+                    header: "STANDARD POINTS",
+                    columns: [
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].standard.points.sum;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "standard.points.sum",
+                            header: "SUM",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].standard.points.mean;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "standard.points.mean",
+                            header: "MEAN",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].standard.points.median;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "standard.points.median",
+                            header: "MDN",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].standard.points.standardDeviation;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "standard.points.standardDeviation",
+                            header: "STD",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].standard.points.adjustedMean;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "standard.points.adjustedMean",
+                            header: "ADMN",
+                            size: 30,
+                        },
+                    ],
+                },
+                {
+                    accessorKey: "standard misc",
+                    header: "STANDARD MISC",
+                    columns: [
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].standard.games.bad;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "standard.games.bad",
+                            header: "BAD",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].standard.games.poor;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "standard.games.poor",
+                            header: "POOR",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].standard.games.okay;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "standard.games.okay",
+                            header: "FINE",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].standard.games.good;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "standard.games.good",
+                            header: "GOOD",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].standard.games.great;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "standard.games.great",
+                            header: "GRT",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].standard.qualityStartRatio;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "standard.qualityStartRatio",
+                            header: "QSR",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].standard.goodStartRatio;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "standard.goodStartRatio",
+                            header: "GSR",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].standard.score;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "standard.score",
+                            header: "SCR",
+                            size: 30,
+                        },
+                    ],
+                },
+            ]);
+        }
+        return cols;
+    }, [year, pointsType]);
 
     return (
         <Box
@@ -1146,9 +2163,108 @@ const StatsTable = () => {
                 enablePinning
                 enableDensityToggle={false}
                 initialState={{
-                    columnPinning: { left: ["name"] },
+                    columnPinning: {
+                        left: ["mrt-row-numbers", "name", "position"],
+                    },
                     density: "compact",
                     pagination: { pageSize: 25 },
+                    columnVisibility: {
+                        "rushing.attempts": false,
+                        "rushing.attemptsMean": false,
+                        "rushing.yards": false,
+                        "rushing.yardsMean": false,
+                        "rushing.yardsPerAttempt": false,
+                        "rushing.long": false,
+                        "rushing.longMean": false,
+                        "rushing.twentyPlus": false,
+                        "rushing.twentyPlusMean": false,
+                        "rushing.td": false,
+                        "rushing.tdMean": false,
+                        "receiving.receptions": false,
+                        "receiving.receptionsMean": false,
+                        "receiving.targets": false,
+                        "receiving.targetsMean": false,
+                        "receiving.yards": false,
+                        "receiving.yardsMean": false,
+                        "receiving.yardsPerReception": false,
+                        "receiving.long": false,
+                        "receiving.longMean": false,
+                        "receiving.twentyPlus": false,
+                        "receiving.twentyPlusMean": false,
+                        "receiving.td": false,
+                        "receiving.tdMean": false,
+                        "passing.completions": false,
+                        "passing.completionsMean": false,
+                        "passing.attempts": false,
+                        "passing.attemptsMean": false,
+                        "passing.percentage": false,
+                        "passing.yards": false,
+                        "passing.yardsMean": false,
+                        "passing.yardsPerAttempt": false,
+                        "passing.td": false,
+                        "passing.tdMean": false,
+                        "passing.interceptions": false,
+                        "passing.interceptionsMean": false,
+                        "passing.sacks": false,
+                        "passing.sacksMean": false,
+                        "kicking.fieldGoals.sum": false,
+                        "kicking.fieldGoals.mean": false,
+                        "kicking.fieldGoals.attempts": false,
+                        "kicking.fieldGoals.attemptsMean": false,
+                        "kicking.fieldGoals.percentage": false,
+                        "kicking.fieldGoals.long": false,
+                        "kicking.fieldGoals.longMean": false,
+                        "kicking.fieldGoals.sum10_19": false,
+                        "kicking.fieldGoals.mean10_19": false,
+                        "kicking.fieldGoals.sum20_29": false,
+                        "kicking.fieldGoals.mean20_29": false,
+                        "kicking.fieldGoals.sum30_39": false,
+                        "kicking.fieldGoals.mean30_39": false,
+                        "kicking.fieldGoals.sum40_49": false,
+                        "kicking.fieldGoals.mean40_49": false,
+                        "kicking.fieldGoals.sum50Plus": false,
+                        "kicking.fieldGoals.mean50Plus": false,
+                        "kicking.extraPoints.sum": false,
+                        "kicking.extraPoints.mean": false,
+                        "kicking.extraPoints.attempts": false,
+                        "kicking.extraPoints.attemptsMean": false,
+                        "kicking.extraPoints.percentage": false,
+                        "dst.defense.sacks": false,
+                        "dst.defense.sacksMean": false,
+                        "dst.defense.interceptions": false,
+                        "dst.defense.interceptionsMean": false,
+                        "dst.defense.fumblesRecovered": false,
+                        "dst.defense.fumblesRecoveredMean": false,
+                        "dst.defense.forcedFumbles": false,
+                        "dst.defense.forcedFumblesMean": false,
+                        "dst.defense.safeties": false,
+                        "dst.defense.safetiesMean": false,
+                        "dst.defense.td": false,
+                        "dst.defense.tdMean": false,
+                        "dst.specialTeams.td": false,
+                        "dst.specialTeams.tdMean": false,
+                        "misc.touches": false,
+                        "misc.touchesMean": false,
+                        "misc.opportunities": false,
+                        "misc.opportunitiesMean": false,
+                        "misc.fumblesLost": false,
+                        "misc.fumblesLostMean": false,
+                        "misc.fumblesLostPerTouch": false,
+                    },
+                    sorting: [
+                        {
+                            id: "half.score",
+                            desc: true,
+                        },
+                        {
+                            id: "ppr.score",
+                            desc: true,
+                        },
+                        {
+                            id: "standard.score",
+                            desc: true,
+                        }, //sort by state in ascending order by default
+                    ],
                 }}
                 muiTableProps={{
                     sx: {
