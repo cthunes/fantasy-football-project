@@ -30,7 +30,7 @@ const App = () => {
                     </Toolbar>
                 </AppBar>
             </Box>
-            <Container maxWidth="xl" disableGutters>
+            <Container maxWidth="xl">
                 <Grid
                     container
                     justify="space-between"

@@ -28,7 +28,7 @@ const pushPlayer = async (player) => {
 export const parseQB = (row, filename) => {
     const info = row.slice(0, 3);
     const numbers = row.slice(3).map(Number);
-    var season = "4 year weighted average";
+    var season = "Weighted Average";
     const year = /\d+/.exec(filename);
     if (year) season = year[0];
     const player = {
@@ -133,7 +133,12 @@ export const parseQB = (row, filename) => {
         ],
     };
     if (filename.includes("all.csv")) {
-        player.yearsOfExperience = numbers[numbers.length - 1];
+        player.yearsOfExperience = numbers[numbers.length - 4];
+        player.stats[0].half.projected = {
+            mean: numbers[numbers.length - 3],
+            sum: numbers[numbers.length - 2],
+            rank: numbers[numbers.length - 1],
+        };
     }
     return pushPlayer(player);
 };
@@ -141,7 +146,7 @@ export const parseQB = (row, filename) => {
 export const parseRB = (row, filename) => {
     const info = row.slice(0, 3);
     const numbers = row.slice(3).map(Number);
-    var season = "4 year weighted average";
+    var season = "Weighted Average";
     const year = /\d+/.exec(filename);
     if (year) season = year[0];
     const player = {
@@ -248,7 +253,12 @@ export const parseRB = (row, filename) => {
         ],
     };
     if (filename.includes("all.csv")) {
-        player.yearsOfExperience = numbers[numbers.length - 1];
+        player.yearsOfExperience = numbers[numbers.length - 4];
+        player.stats[0].half.projected = {
+            mean: numbers[numbers.length - 3],
+            sum: numbers[numbers.length - 2],
+            rank: numbers[numbers.length - 1],
+        };
     }
     return pushPlayer(player);
 };
@@ -257,7 +267,7 @@ export const parseRB = (row, filename) => {
 export const parsePC = (row, filename) => {
     const info = row.slice(0, 3);
     const numbers = row.slice(3).map(Number);
-    var season = "4 year weighted average";
+    var season = "Weighted Average";
     const year = /\d+/.exec(filename);
     if (year) season = year[0];
     const player = {
@@ -364,7 +374,12 @@ export const parsePC = (row, filename) => {
         ],
     };
     if (filename.includes("all.csv")) {
-        player.yearsOfExperience = numbers[numbers.length - 1];
+        player.yearsOfExperience = numbers[numbers.length - 4];
+        player.stats[0].half.projected = {
+            mean: numbers[numbers.length - 3],
+            sum: numbers[numbers.length - 2],
+            rank: numbers[numbers.length - 1],
+        };
     }
     return pushPlayer(player);
 };
@@ -372,7 +387,7 @@ export const parsePC = (row, filename) => {
 export const parseK = (row, filename) => {
     const info = row.slice(0, 3);
     const numbers = row.slice(3).map(Number);
-    var season = "4 year weighted average";
+    var season = "Weighted Average";
     const year = /\d+/.exec(filename);
     if (year) season = year[0];
     const player = {
@@ -478,7 +493,12 @@ export const parseK = (row, filename) => {
         ],
     };
     if (filename.includes("all.csv")) {
-        player.yearsOfExperience = numbers[numbers.length - 1];
+        player.yearsOfExperience = numbers[numbers.length - 4];
+        player.stats[0].half.projected = {
+            mean: numbers[numbers.length - 3],
+            sum: numbers[numbers.length - 2],
+            rank: numbers[numbers.length - 1],
+        };
     }
     return pushPlayer(player);
 };
@@ -486,7 +506,7 @@ export const parseK = (row, filename) => {
 export const parseDST = (row, filename) => {
     const info = row.slice(0, 3);
     const numbers = row.slice(3).map(Number);
-    var season = "4 year weighted average";
+    var season = "Weighted Average";
     const year = /\d+/.exec(filename);
     if (year) season = year[0];
     const player = {
@@ -578,7 +598,12 @@ export const parseDST = (row, filename) => {
         ],
     };
     if (filename.includes("all.csv")) {
-        player.yearsOfExperience = numbers[numbers.length - 1];
+        player.yearsOfExperience = numbers[numbers.length - 4];
+        player.stats[0].half.projected = {
+            mean: numbers[numbers.length - 3],
+            sum: numbers[numbers.length - 2],
+            rank: numbers[numbers.length - 1],
+        };
     }
     return pushPlayer(player);
 };

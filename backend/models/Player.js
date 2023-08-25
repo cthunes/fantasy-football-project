@@ -143,6 +143,11 @@ const statsSchema = mongoose.Schema({
         qualityStartRatio: Number,
         goodStartRatio: Number,
         score: Number,
+        projected: {
+            sum: Number,
+            mean: Number,
+            rank: Number,
+        },
     },
     ppr: {
         points: {
