@@ -1918,6 +1918,60 @@ const StatsTable = () => {
                         },
                     ],
                 },
+                {
+                    accessorKey: "half-ppr projected",
+                    header: "HALF-PPR PROJECTED",
+                    columns: [
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].half.projected.mean;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "half.projected.mean",
+                            header: "MEAN",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].half.projected.sum;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "half.projected.sum",
+                            header: "TOT",
+                            size: 30,
+                        },
+                        {
+                            accessorFn: (player) => {
+                                try {
+                                    return player.stats[
+                                        player.stats.findIndex(
+                                            (item) => item.season === year
+                                        )
+                                    ].half.projected.rank;
+                                } catch {
+                                    return null;
+                                }
+                            },
+                            id: "half.projected.rank",
+                            header: "RANK",
+                            size: 30,
+                        },
+                    ],
+                },
             ]);
         } else if (pointsType === "standard") {
             cols = cols.concat([
@@ -2149,8 +2203,7 @@ const StatsTable = () => {
     return (
         <Box
             sx={{
-                mt: 2,
-                backgroundColor: "primary",
+                backgroundColor: "secondary.main",
             }}
         >
             <MaterialReactTable
@@ -2250,10 +2303,25 @@ const StatsTable = () => {
                         "misc.fumblesLost": false,
                         "misc.fumblesLostMean": false,
                         "misc.fumblesLostPerTouch": false,
+                        "standard.games.bad": false,
+                        "standard.games.poor": false,
+                        "standard.games.okay": false,
+                        "standard.games.good": false,
+                        "standard.games.great": false,
+                        "half.games.bad": false,
+                        "half.games.poor": false,
+                        "half.games.okay": false,
+                        "half.games.good": false,
+                        "half.games.great": false,
+                        "ppr.games.bad": false,
+                        "ppr.games.poor": false,
+                        "ppr.games.okay": false,
+                        "ppr.games.good": false,
+                        "ppr.games.great": false,
                     },
                     sorting: [
                         {
-                            id: "half.score",
+                            id: "half.projected.sum",
                             desc: true,
                         },
                         {
@@ -2309,12 +2377,12 @@ const StatsTable = () => {
                                 </Select>
                             </FormControl>
                             <FormControl sx={{ my: 1, mr: 1, minWidth: 80 }}>
-                                <InputLabel id="type-label">Type</InputLabel>
+                                <InputLabel id="type-label">Scoring</InputLabel>
                                 <Select
                                     labelId="type-label"
                                     id="type-select"
                                     value={pointsType}
-                                    label="Type"
+                                    label="Scoring"
                                     onChange={(event) =>
                                         dispatch(
                                             setPointsType(event.target.value)
@@ -2339,15 +2407,14 @@ const StatsTable = () => {
                                         dispatch(setYear(event.target.value))
                                     }
                                 >
-                                    <MenuItem value={"4 year weighted average"}>
-                                        4 year weighted average
+                                    <MenuItem value={"Weighted Average"}>
+                                        Weighted Average
                                     </MenuItem>
                                     <MenuItem value={"2022"}>2022</MenuItem>
                                     <MenuItem value={"2021"}>2021</MenuItem>
                                     <MenuItem value={"2020"}>2020</MenuItem>
                                     <MenuItem value={"2019"}>2019</MenuItem>
                                     <MenuItem value={"2018"}>2018</MenuItem>
-                                    <MenuItem value={"2017"}>2017</MenuItem>
                                 </Select>
                             </FormControl>
                         </Stack>

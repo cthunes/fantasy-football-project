@@ -1,60 +1,51 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-    Container,
-    AppBar,
-    Toolbar,
-    Box,
-    Typography,
-    Button,
-    Grid,
-} from "@mui/material";
-import { rankingFetchAll, rankingCreate } from "./redux/ranking";
-import { setYear } from "./redux/year";
+import React from "react";
+import { useSelector } from "react-redux";
+import { Container, Grid, Grow } from "@mui/material";
 
+import TopBar from "./components/TopBar/TopBar";
 import StatsTable from "./components/Table/StatsTable";
 import FormAndRankings from "./components/FormAndRankings/FormAndRankings";
 
 const App = () => {
-    const dispatch = useDispatch();
+    const view = useSelector((state) => state.view.view);
 
     return (
-        <Container maxWidth="xl" disableGutters>
-            <Box sx={{ flexGrow: 1 }}>
-                <AppBar position="static">
-                    <Toolbar>
-                        <Typography variant="h4" sx={{ flexGrow: 1 }}>
-                            Explore Fantasy Statistics
-                        </Typography>
-                        <Button color="inherit">need tabs</Button>
-                    </Toolbar>
-                </AppBar>
-            </Box>
-            <Container maxWidth="xl">
+        <>
+            <TopBar />
+            <Container
+                maxWidth="xl"
+                sx={{
+                    mt: 2,
+                }}
+            >
                 <Grid
                     container
                     justify="space-between"
                     alignItems="stretch"
                     spacing={2}
                 >
-                    {true && (
-                        <Grid item xs={12}>
-                            <StatsTable />
-                        </Grid>
-                    )}
-                    {false && (
-                        <>
-                            <Grid item xs={12} sm={8}>
-                                <StatsTable />
-                            </Grid>
-                            <Grid item xs={12} sm={4}>
-                                <FormAndRankings />
-                            </Grid>
-                        </>
-                    )}
+                    <Grid
+                        item
+                        xs={12}
+                        lg={view === "rankings" || view === "draft" ? 8 : 12}
+                    >
+                        <StatsTable />
+                    </Grid>
+                    <Grid
+                        item
+                        xs={12}
+                        lg={4}
+                        display={
+                            view === "rankings" || view === "draft"
+                                ? "block"
+                                : "none"
+                        }
+                    >
+                        <FormAndRankings />
+                    </Grid>
                 </Grid>
             </Container>
-        </Container>
+        </>
     );
 };
 

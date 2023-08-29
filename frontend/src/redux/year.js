@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 export const yearSlice = createSlice({
     name: "year",
     initialState: {
-        year: "4 year weighted average",
+        year: "Weighted Average",
     },
     reducers: {
         setYear: (state, action) => {
