@@ -17,8 +17,8 @@ export const rankingFetchAll = createAsyncThunk(
 
 export const rankingCreate = createAsyncThunk(
     "ranking/rankingCreate",
-    async (player) => {
-        const { data } = await api.createRanking(player);
+    async (ranking) => {
+        const { data } = await api.createRanking(ranking);
         return data;
     }
 );
@@ -26,7 +26,8 @@ export const rankingCreate = createAsyncThunk(
 export const rankingSlice = createSlice({
     name: "ranking",
     initialState: {
-        players: [],
+        rankings: [],
+        current: {},
         status: "idle",
     },
     reducers: {},
@@ -38,13 +39,17 @@ export const rankingSlice = createSlice({
             .addCase(rankingFetchAll.fulfilled, (state, action) => {
                 state.status = "succeeded";
                 // Add any fetched rankings to the array
-                state.players = state.players.concat(action.payload);
+                state.rankings = action.payload;
+                if (action.payload.length > 0) {
+                    state.current = action.payload[action.payload.length - 1];
+                }
             })
             .addCase(rankingFetchAll.rejected, (state, action) => {
                 state.status = "failed";
             })
             .addCase(rankingCreate.fulfilled, (state, action) => {
-                state.players.push(action.payload);
+                state.rankings.push(action.payload);
+                state.current = action.payload;
             });
     },
 });

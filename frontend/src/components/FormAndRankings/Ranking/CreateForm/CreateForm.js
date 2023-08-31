@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -20,15 +20,70 @@ import {
 } from "@mui/material";
 import { KeyboardArrowUp, KeyboardArrowDown } from "@mui/icons-material";
 
+import { rankingFetchAll, rankingCreate } from "../../../../redux/ranking";
 import { setPointsType } from "../../../../redux/pointsType";
 
 const CreateForm = () => {
-    const [expanded, setExpanded] = React.useState(true);
+    const [expanded, setExpanded] = React.useState(false);
     const dispatch = useDispatch();
+    const rankings = useSelector((state) => state.ranking.rankings);
+    const players = useSelector((state) => state.player.players);
     const pointsType = useSelector((state) => state.pointsType.pointsType);
     const year = useSelector((state) => state.year.year);
-    const [column, setColumn] = useState("half.score");
+    const [column, setColumn] = useState(`${pointsType}.score`);
     const [number, setNumber] = useState(300);
+
+    useEffect(() => {
+        dispatch(rankingFetchAll());
+    }, [dispatch]);
+
+    function generateRanking() {
+        let split = column.split(".");
+        let r1 = players
+            .map((player) => ({
+                ...player,
+                rankingStatistic: () => {
+                    let stat =
+                        split.length === 2
+                            ? player.stats[
+                                  player.stats.findIndex(
+                                      (item) => item.season === year
+                                  )
+                              ][split[0]][split[1]]
+                            : player.stats[
+                                  player.stats.findIndex(
+                                      (item) => item.season === year
+                                  )
+                              ][split[0]][split[1]][split[2]];
+                    if (player.position === "QB") return stat * 0.5;
+                    else if (player.position === "TE") return stat * 1.15;
+                    else if (player.position === "K") return stat * 0.8;
+                    else if (player.position === "DST") return stat * 0.9;
+                    else return stat;
+                },
+            }))
+            .filter((player) =>
+                player.stats.some((item) => item.season === year)
+            )
+            .sort((a, b) => b.rankingStatistic() - a.rankingStatistic())
+            .map((player, i) => ({ ...player, rank: i + 1 }))
+            .slice(0, number);
+        dispatch(
+            rankingCreate({
+                name: "Rankings " + (rankings.length + 1),
+                type: pointsType,
+                rankings: {
+                    overall: r1,
+                    qb: r1.filter((player) => player.position === "QB"),
+                    rb: r1.filter((player) => player.position === "RB"),
+                    wr: r1.filter((player) => player.position === "WR"),
+                    te: r1.filter((player) => player.position === "TE"),
+                    k: r1.filter((player) => player.position === "K"),
+                    dst: r1.filter((player) => player.position === "DST"),
+                },
+            })
+        );
+    }
 
     return (
         <Card
@@ -98,6 +153,18 @@ const CreateForm = () => {
                                             <MenuItem value={"2022"}>
                                                 2022
                                             </MenuItem>
+                                            <MenuItem value={"2021"}>
+                                                2021
+                                            </MenuItem>
+                                            <MenuItem value={"2020"}>
+                                                2020
+                                            </MenuItem>
+                                            <MenuItem value={"2019"}>
+                                                2019
+                                            </MenuItem>
+                                            <MenuItem value={"2018"}>
+                                                2018
+                                            </MenuItem>
                                         </Select>
                                     </FormControl>
                                     <FormControl
@@ -112,13 +179,30 @@ const CreateForm = () => {
                                             id="type-select"
                                             value={pointsType}
                                             label="Scoring"
-                                            onChange={(event) =>
+                                            onChange={(event) => {
+                                                if (
+                                                    column ===
+                                                    "half.projected.sum"
+                                                )
+                                                    setColumn(
+                                                        `${event.target.value}.score`
+                                                    );
+                                                else
+                                                    setColumn(
+                                                        `${
+                                                            event.target.value
+                                                        }.${column.substring(
+                                                            column.indexOf(
+                                                                "."
+                                                            ) + 1
+                                                        )}`
+                                                    );
                                                 dispatch(
                                                     setPointsType(
                                                         event.target.value
                                                     )
-                                                )
-                                            }
+                                                );
+                                            }}
                                         >
                                             <MenuItem value={"standard"}>
                                                 Standard
@@ -144,14 +228,12 @@ const CreateForm = () => {
                                             value={column}
                                             label="Column"
                                             onChange={(event) =>
-                                                dispatch(
-                                                    setColumn(
-                                                        event.target.value
-                                                    )
-                                                )
+                                                setColumn(event.target.value)
                                             }
                                         >
-                                            <MenuItem value={"half.score"}>
+                                            <MenuItem
+                                                value={`${pointsType}.score`}
+                                            >
                                                 Score
                                             </MenuItem>
                                             <MenuItem
@@ -160,24 +242,22 @@ const CreateForm = () => {
                                                         ? false
                                                         : true
                                                 }
-                                                value={"half.projected.sum"}
+                                                value={`${pointsType}.projected.sum`}
                                             >
                                                 Projected Points
                                             </MenuItem>
                                             <MenuItem
-                                                value={"half.points.mean"}
+                                                value={`${pointsType}.points.mean`}
                                             >
                                                 Mean Points
                                             </MenuItem>
                                             <MenuItem
-                                                value={
-                                                    "half.points.adjustedMean"
-                                                }
+                                                value={`${pointsType}.points.adjustedMean`}
                                             >
                                                 Adjusted Mean Points
                                             </MenuItem>
                                             <MenuItem
-                                                value={"half.points.median"}
+                                                value={`${pointsType}.points.median`}
                                             >
                                                 Median Points
                                             </MenuItem>
@@ -185,8 +265,8 @@ const CreateForm = () => {
                                     </FormControl>
                                     <Typography
                                         id="input-slider"
-                                        fontSize={12}
-                                        sx={{ ml: 2, color: "#616161" }}
+                                        fontSize={11.5}
+                                        sx={{ ml: 2, color: "#656565" }}
                                     >
                                         Number of Players
                                     </Typography>
@@ -199,7 +279,21 @@ const CreateForm = () => {
                                         min={200}
                                         max={400}
                                         sx={{ color: "secondary.dark" }}
+                                        onChange={(event) =>
+                                            setNumber(event.target.value)
+                                        }
                                     />
+                                    <Typography
+                                        fontSize={11}
+                                        sx={{
+                                            mb: 1,
+                                            mx: 0.5,
+                                            color: "#656565",
+                                        }}
+                                    >
+                                        Note: QBs will be assigned 1/2 value to
+                                        appropriately place them.
+                                    </Typography>
                                     <Button
                                         sx={{
                                             color: "white",
@@ -209,10 +303,7 @@ const CreateForm = () => {
                                                 bgcolor: "secondary.dark",
                                             },
                                         }}
-                                        onClick={
-                                            () =>
-                                                console.log("Generate rankings") //do something
-                                        }
+                                        onClick={generateRanking}
                                     >
                                         Generate Rankings
                                     </Button>
@@ -237,12 +328,13 @@ const CreateForm = () => {
                                 columnSpacing={2}
                             >
                                 <Grid item md={12} lg={5}>
-                                    <ListItemText secondary="Generate from existing ranking:" />
+                                    <ListItemText secondary="Create from existing ranking:" />
                                 </Grid>
                                 <Grid item md={12} lg={7}>
                                     <Button
                                         sx={{
-                                            mb: 1,
+                                            mt: 0.5,
+                                            mr: 1,
                                             color: "black",
                                             backgroundColor: "secondary.light",
                                             width: 180,
@@ -256,6 +348,8 @@ const CreateForm = () => {
                                     <Button
                                         sx={{
                                             color: "black",
+                                            mt: 0.5,
+                                            mr: 1,
                                             backgroundColor: "secondary.light",
                                             width: 180,
                                             ":hover": {
