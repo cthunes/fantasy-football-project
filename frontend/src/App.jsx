@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { Container, Grid, Grow } from "@mui/material";
+import { Container, Grid } from "@mui/material";
 
 import TopBar from "./components/TopBar/TopBar";
 import StatsTable from "./components/Table/StatsTable";
@@ -8,6 +8,24 @@ import FormAndRankings from "./components/FormAndRankings/FormAndRankings";
 
 const App = () => {
     const view = useSelector((state) => state.view.view);
+    const consoleError = console.error;
+    const consoleWarn = console.warn;
+    const SUPPRESSED = [
+        ".score",
+        "Warning:",
+        "SerializableStateInvariantMiddleware",
+    ];
+
+    console.warn = function filterWarnings(msg, ...args) {
+        if (!SUPPRESSED.some((entry) => msg.includes(entry))) {
+            consoleWarn(msg, ...args);
+        }
+    };
+    console.error = function filterWarnings(msg, ...args) {
+        if (!SUPPRESSED.some((entry) => msg.includes(entry))) {
+            consoleError(msg, ...args);
+        }
+    };
 
     return (
         <>
@@ -27,14 +45,14 @@ const App = () => {
                     <Grid
                         item
                         xs={12}
-                        lg={view === "rankings" || view === "draft" ? 8 : 12}
+                        lg={view === "rankings" || view === "draft" ? 7.5 : 12}
                     >
                         <StatsTable />
                     </Grid>
                     <Grid
                         item
                         xs={12}
-                        lg={4}
+                        lg={4.5}
                         display={
                             view === "rankings" || view === "draft"
                                 ? "block"

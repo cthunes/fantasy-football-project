@@ -95,6 +95,7 @@ const CreateForm = () => {
         >
             <CardHeader
                 title="Create New Rankings"
+                titleTypographyProps={{ color: "white", fontSize: 20 }}
                 action={
                     <IconButton
                         onClick={() => setExpanded(!expanded)}
@@ -107,7 +108,7 @@ const CreateForm = () => {
                         )}
                     </IconButton>
                 }
-                sx={{ color: "white", backgroundColor: "secondary.main" }}
+                sx={{ backgroundColor: "secondary.main" }}
             ></CardHeader>
             <Box sx={{ backgroundColor: "secondary.light" }}>
                 <Collapse in={expanded} timeout="auto" unmountOnExit>
@@ -339,6 +340,7 @@ const CreateForm = () => {
                                             backgroundColor: "secondary.light",
                                             width: 180,
                                             ":hover": {
+                                                color: "white",
                                                 bgcolor: "secondary.main",
                                             },
                                         }}
@@ -353,6 +355,7 @@ const CreateForm = () => {
                                             backgroundColor: "secondary.light",
                                             width: 180,
                                             ":hover": {
+                                                color: "white",
                                                 bgcolor: "secondary.main",
                                             },
                                         }}

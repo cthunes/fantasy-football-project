@@ -2334,6 +2334,9 @@ const StatsTable = () => {
                         }, //sort by state in ascending order by default
                     ],
                 }}
+                displayColumnDefOptions={{
+                    "mrt-row-numbers": { size: 1 },
+                }}
                 muiTableProps={{
                     sx: {
                         border: "1px solid rgba(20, 20, 20, .3)",
@@ -2349,6 +2352,7 @@ const StatsTable = () => {
                         border: "1px solid rgba(20, 20, 20, .1)",
                     },
                 }}
+                muiTableContainerProps={{ sx: { maxHeight: "80vh" } }}
                 muiTablePaginationProps={{
                     rowsPerPageOptions: [25, 50, 100],
                 }}

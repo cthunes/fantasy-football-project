@@ -23,14 +23,37 @@ export const rankingCreate = createAsyncThunk(
     }
 );
 
+export const rankingUpdate = createAsyncThunk(
+    "ranking/rankingUpdate",
+    async (ranking) => {
+        const { data } = await api.updateRanking(ranking.id, ranking);
+        return data;
+    }
+);
+
 export const rankingSlice = createSlice({
     name: "ranking",
     initialState: {
         rankings: [],
         current: {},
+        drafted: [],
+        unavailable: [],
         status: "idle",
     },
-    reducers: {},
+    reducers: {
+        setCurrent: (state, action) => {
+            state.current = action.payload;
+            state.drafted = [];
+            state.unavailable = [];
+        },
+        setDrafted: (state, action) => {
+            state.drafted = action.payload;
+            console.log(state.drafted);
+        },
+        setUnavailable: (state, action) => {
+            state.unavailable = action.payload;
+        },
+    },
     extraReducers(builder) {
         builder
             .addCase(rankingFetchAll.pending, (state, action) => {
@@ -43,17 +66,35 @@ export const rankingSlice = createSlice({
                 if (action.payload.length > 0) {
                     state.current = action.payload[action.payload.length - 1];
                 }
+                state.drafted = [];
+                state.unavailable = [];
             })
             .addCase(rankingFetchAll.rejected, (state, action) => {
                 state.status = "failed";
             })
             .addCase(rankingCreate.fulfilled, (state, action) => {
-                state.rankings.push(action.payload);
+                state.rankings = [...state.rankings, action.payload];
                 state.current = action.payload;
+            })
+            .addCase(rankingUpdate.fulfilled, (state, action) => {
+                state.rankings = state.rankings.filter(
+                    (ranking) => ranking.name !== action.payload.name
+                );
+                state.rankings = [...state.rankings, action.payload];
+                state.current = action.payload;
+                state.drafted = [];
+                state.unavailable = [];
             });
     },
 });
 
-export const { fetchAll, create } = rankingSlice.actions;
+export const {
+    fetchAll,
+    create,
+    update,
+    setCurrent,
+    setDrafted,
+    setUnavailable,
+} = rankingSlice.actions;
 
 export default rankingSlice.reducer;

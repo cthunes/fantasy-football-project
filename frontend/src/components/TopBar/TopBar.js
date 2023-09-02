@@ -26,7 +26,7 @@ const TopBar = () => {
                         onClick={() => dispatch(setView("stats"))}
                         sx={{ mr: "auto" }}
                     >
-                        <Typography variant="h4" sx={{ flexGrow: 1 }}>
+                        <Typography variant="h5" sx={{ flexGrow: 1 }}>
                             Explore Fantasy Statistics
                         </Typography>
                     </ButtonBase>
