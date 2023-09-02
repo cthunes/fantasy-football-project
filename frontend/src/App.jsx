@@ -1,46 +1,69 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Container, Typography, Button } from "@mui/material";
-import { testFetchAll, testCreate } from "./redux/test";
+import React from "react";
+import { useSelector } from "react-redux";
+import { Container, Grid } from "@mui/material";
+
+import TopBar from "./components/TopBar/TopBar";
+import StatsTable from "./components/Table/StatsTable";
+import FormAndRankings from "./components/FormAndRankings/FormAndRankings";
 
 const App = () => {
-    const players = useSelector((state) => state.test.players);
-    const dispatch = useDispatch();
+    const view = useSelector((state) => state.view.view);
+    const consoleError = console.error;
+    const consoleWarn = console.warn;
+    const SUPPRESSED = [
+        ".score",
+        "Warning:",
+        "SerializableStateInvariantMiddleware",
+    ];
 
-    useEffect(() => {
-        dispatch(testFetchAll());
-    }, [dispatch]);
+    console.warn = function filterWarnings(msg, ...args) {
+        if (!SUPPRESSED.some((entry) => msg.includes(entry))) {
+            consoleWarn(msg, ...args);
+        }
+    };
+    console.error = function filterWarnings(msg, ...args) {
+        if (!SUPPRESSED.some((entry) => msg.includes(entry))) {
+            consoleError(msg, ...args);
+        }
+    };
 
     return (
-        <Container maxWidth="lg">
-            <Typography variant="h2" align="center">
-                Fantasy Football Project
-            </Typography>
-            {players.map((player) => (
-                <ul>
-                    <li key={player.name}>
-                        <label>
-                            {player.name}, {player.position}, {player.fpoints}{" "}
-                            points
-                        </label>
-                    </li>
-                </ul>
-            ))}
-            <Button
-                variant="contained"
-                onClick={() =>
-                    dispatch(
-                        testCreate({
-                            name: "Christian McCaffrey",
-                            position: "RB",
-                            fpoints: 24.2,
-                        })
-                    )
-                }
+        <>
+            <TopBar />
+            <Container
+                maxWidth="xl"
+                sx={{
+                    mt: 2,
+                }}
             >
-                Create Player
-            </Button>
-        </Container>
+                <Grid
+                    container
+                    justify="space-between"
+                    alignItems="stretch"
+                    spacing={2}
+                >
+                    <Grid
+                        item
+                        xs={12}
+                        lg={view === "rankings" || view === "draft" ? 7.5 : 12}
+                    >
+                        <StatsTable />
+                    </Grid>
+                    <Grid
+                        item
+                        xs={12}
+                        lg={4.5}
+                        display={
+                            view === "rankings" || view === "draft"
+                                ? "block"
+                                : "none"
+                        }
+                    >
+                        <FormAndRankings />
+                    </Grid>
+                </Grid>
+            </Container>
+        </>
     );
 };
 

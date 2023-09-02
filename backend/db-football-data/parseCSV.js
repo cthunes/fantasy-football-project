@@ -33,7 +33,7 @@ async function parseCSV(filename) {
 const saveFootballData = async () => {
     for (const pos of positions) {
         await parseCSV(`../football-data/aggregated/${pos}/all.csv`);
-        for (const yearsAgo of [1, 2, 3, 4, 5, 6]) {
+        for (const yearsAgo of [1, 2, 3, 4, 5]) {
             const year = currentYear - yearsAgo;
             await parseCSV(`../football-data/aggregated/${pos}/${year}.csv`);
         }

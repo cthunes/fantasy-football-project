@@ -4,7 +4,8 @@ const rankInfoSchema = mongoose.Schema({
     rank: Number,
     name: String,
     team: String,
-    player_id: {
+    position: String,
+    _id: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "Player",
     },
@@ -14,6 +15,7 @@ const rankingSchema = mongoose.Schema({
     name: {
         type: String,
         required: true,
+        unique: true,
     },
     type: {
         type: String,

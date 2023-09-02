@@ -1,4 +1,5 @@
 import Ranking from "../models/Ranking.js";
+import mongoose from "mongoose";
 
 export const getRankings = async (req, res) => {
     try {
@@ -17,6 +18,21 @@ export const createRanking = async (req, res) => {
         res.status(201).json(newRanking);
     } catch (error) {
         res.status(409).json({ message: error.message });
+    }
+};
+
+export const updateRanking = async (req, res) => {
+    const { id: _id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(_id))
+        return res.status(404).send("No ranking found with id");
+    const updatedRanking = req.body;
+    try {
+        const ranking = await Ranking.findByIdAndUpdate(_id, updatedRanking, {
+            new: true,
+        });
+        res.json(ranking);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
     }
 };
 
