@@ -1,7 +1,7 @@
 import pandas as pd
 from aggregate import *
 
-currentYear = 2023
+currentYear = 2024
 # .00001 or the addition of .00001 all refers to 0; this prevents errors caused by it being exactly 0
 positions = [
     {"name": "qb", "weights": [15.625, 6.25, 2.5, 1, 0.00001]},

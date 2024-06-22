@@ -12,6 +12,10 @@ const pushPlayer = async (player) => {
                 !p.stats.some((stat) => stat.season === player.stats[0].season)
             ) {
                 p.stats.push(player.stats[0]);
+            } else {
+                p.stats = p.stats.map((s) =>
+                    s.season !== player.stats[0].season ? s : player.stats[0]
+                );
             }
             if (player.yearsOfExperience) {
                 p.yearsOfExperience = player.yearsOfExperience;

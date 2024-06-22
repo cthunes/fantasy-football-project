@@ -151,6 +151,9 @@ const CreateForm = () => {
                                             >
                                                 Weighted Average
                                             </MenuItem>
+                                            <MenuItem value={"2023"}>
+                                                2023
+                                            </MenuItem>
                                             <MenuItem value={"2022"}>
                                                 2022
                                             </MenuItem>
@@ -162,9 +165,6 @@ const CreateForm = () => {
                                             </MenuItem>
                                             <MenuItem value={"2019"}>
                                                 2019
-                                            </MenuItem>
-                                            <MenuItem value={"2018"}>
-                                                2018
                                             </MenuItem>
                                         </Select>
                                     </FormControl>

@@ -1556,7 +1556,7 @@ const StatsTable = () => {
                                 }
                             },
                             id: "ppr.points.adjustedMean",
-                            header: "ADMN",
+                            header: "ADJM",
                             size: 30,
                         },
                     ],
@@ -1779,7 +1779,7 @@ const StatsTable = () => {
                                 }
                             },
                             id: "half.points.adjustedMean",
-                            header: "ADMN",
+                            header: "ADJM",
                             size: 30,
                         },
                     ],
@@ -2056,7 +2056,7 @@ const StatsTable = () => {
                                 }
                             },
                             id: "standard.points.adjustedMean",
-                            header: "ADMN",
+                            header: "ADJM",
                             size: 30,
                         },
                     ],
@@ -2414,11 +2414,11 @@ const StatsTable = () => {
                                     <MenuItem value={"Weighted Average"}>
                                         Weighted Average
                                     </MenuItem>
+                                    <MenuItem value={"2023"}>2023</MenuItem>
                                     <MenuItem value={"2022"}>2022</MenuItem>
                                     <MenuItem value={"2021"}>2021</MenuItem>
                                     <MenuItem value={"2020"}>2020</MenuItem>
                                     <MenuItem value={"2019"}>2019</MenuItem>
-                                    <MenuItem value={"2018"}>2018</MenuItem>
                                 </Select>
                             </FormControl>
                         </Stack>

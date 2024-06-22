@@ -170,13 +170,13 @@ const Ranking = () => {
                         </Grid>
                     </Box>
                     <Grid container columnSpacing={1}>
-                        <Grid item xs={12} sm={6} md={6} lg={12}>
+                        <Grid item xs={12} sm={12} md={6} lg={6} xl={12}>
                             <PosRanking
                                 position="Overall"
                                 accessorKey="overall"
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6} md={6} lg={12}>
+                        <Grid item xs={12} sm={12} md={6} lg={6} xl={12}>
                             <PosRanking
                                 position="Quarterbacks"
                                 accessorKey="qb"

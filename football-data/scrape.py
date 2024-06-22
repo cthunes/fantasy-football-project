@@ -1,6 +1,6 @@
 import pandas as pd
 
-currentYear = 2023
+currentYear = 2024
 positions = ["qb", "rb", "wr", "te", "k", "dst"]
 
 

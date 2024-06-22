@@ -3,7 +3,7 @@ import { parse } from "csv-parse";
 
 import { parseQB, parseRB, parsePC, parseK, parseDST } from "./savePos.js";
 
-const currentYear = 2023;
+const currentYear = 2024;
 const positions = ["qb", "rb", "wr", "te", "k", "dst"];
 
 async function parseCSV(filename) {

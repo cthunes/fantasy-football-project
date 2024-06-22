@@ -45,14 +45,7 @@ const App = () => {
                     <Grid
                         item
                         xs={12}
-                        lg={view === "rankings" || view === "draft" ? 7.5 : 12}
-                    >
-                        <StatsTable />
-                    </Grid>
-                    <Grid
-                        item
-                        xs={12}
-                        lg={4.5}
+                        xl={4.5}
                         display={
                             view === "rankings" || view === "draft"
                                 ? "block"
@@ -60,6 +53,13 @@ const App = () => {
                         }
                     >
                         <FormAndRankings />
+                    </Grid>
+                    <Grid
+                        item
+                        xs={12}
+                        xl={view === "rankings" || view === "draft" ? 7.5 : 12}
+                    >
+                        <StatsTable />
                     </Grid>
                 </Grid>
             </Container>
