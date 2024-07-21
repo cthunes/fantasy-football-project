@@ -344,11 +344,20 @@ def wrangle_all(all, pos, weights):
 
     # add column for role on team (ranking on team for position)
     if pos != "dst":
-        all.insert(
-            3,
-            "DPCHT",
-            all.groupby("TEAM")["OPP_mean"].transform("rank", ascending=False),
-        )
+        if pos == "qb":
+            all["temp_sum"] = all["G"] + all["OPP_mean"] / 2
+            all.insert(
+                3,
+                "DPCHT",
+                all.groupby("TEAM")["temp_sum"].transform("rank", ascending=False),
+            )
+            all = all.drop(columns="temp_sum")
+        else:
+            all.insert(
+                3,
+                "DPCHT",
+                all.groupby("TEAM")["OPP_mean"].transform("rank", ascending=False),
+            )
         all["DPCHT"] = np.where(all["TEAM"] == "FA", 0, all["DPCHT"])
     all = all.sort_values("HALF_Score", ascending=False).round(2)
     all = all.drop("Weight_sum", axis=1)
@@ -375,11 +384,21 @@ for pos in positions:
         df["TEAM"] = df.TEAM.str.replace(")", "", regex=False)
         df["Player"] = df["Player"].str.strip()
         if pos["name"] != "dst":
-            df.insert(
-                3,
-                "DPCHT",
-                df.groupby("TEAM")["OPP_mean"].transform("rank", ascending=False),
-            )
+            if pos["name"] == "qb":
+                df["temp_sum"] = df["G"] + df["OPP_mean"] / 2
+                df.insert(
+                    3,
+                    "DPCHT",
+                    df.groupby("TEAM")["temp_sum"].transform("rank", ascending=False),
+                )
+                df = df.drop(columns="temp_sum")
+            else:
+                df.insert(
+                    3,
+                    "DPCHT",
+                    df.groupby("TEAM")["OPP_mean"].transform("rank", ascending=False),
+                )
+            df["DPCHT"] = np.where(df["TEAM"] == "FA", 0, df["DPCHT"])
         print("Saving file aggregated/{}/{}.csv".format(pos["name"], year))
         df.to_csv("aggregated/{}/{}.csv".format(pos["name"], year), index=False)
 
