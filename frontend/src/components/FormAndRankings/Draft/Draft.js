@@ -92,10 +92,10 @@ const Draft = () => {
                     {current.name}
                 </Typography>
                 <Grid container columnSpacing={1}>
-                    <Grid item xs={12} sm={6} md={6} lg={12}>
+                    <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
                         <PosRanking position="Overall" accessorKey="overall" />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={6} lg={12}>
+                    <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
                         <PosRanking position="Quarterbacks" accessorKey="qb" />
                         <PosRanking position="Running Backs" accessorKey="rb" />
                         <PosRanking

@@ -137,10 +137,10 @@ const PosRanking = (props) => {
                             muiTableContainerProps={
                                 props.position === "Overall"
                                     ? {
-                                          sx: { maxHeight: "80vh" },
+                                          sx: { maxHeight: "118vh" },
                                       }
                                     : {
-                                          sx: { maxHeight: "40vh" },
+                                          sx: { maxHeight: "46vh" },
                                       }
                             }
                             muiTableBodyRowProps={({ row }) => ({
