@@ -26,7 +26,6 @@ const Ranking = () => {
     }, [current]);
 
     const editRanking = () => {
-        console.log(currentName);
         dispatch(
             setCurrent(
                 rankings[

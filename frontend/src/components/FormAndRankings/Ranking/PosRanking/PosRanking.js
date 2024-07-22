@@ -9,7 +9,11 @@ import {
     IconButton,
     Box,
 } from "@mui/material";
-import { KeyboardArrowUp, KeyboardArrowDown } from "@mui/icons-material";
+import {
+    KeyboardArrowUp,
+    KeyboardArrowDown,
+    Delete,
+} from "@mui/icons-material";
 import { MaterialReactTable } from "material-react-table";
 
 import { setCurrent } from "../../../../redux/ranking";
@@ -135,6 +139,24 @@ const PosRanking = (props) => {
         },
     });
 
+    const deletePlayer = (row) => {
+        const pos = row.original.position.toLowerCase();
+        dispatch(
+            setCurrent({
+                ...current,
+                rankings: {
+                    ...current.rankings,
+                    overall: current.rankings.overall.filter(
+                        (player) => player.name !== row.original.name
+                    ),
+                    [pos]: current.rankings[pos].filter(
+                        (player) => player.name !== row.original.name
+                    ),
+                },
+            })
+        );
+    };
+
     return (
         <Card
             border={5}
@@ -172,6 +194,7 @@ const PosRanking = (props) => {
                         <MaterialReactTable
                             columns={columns}
                             data={current.rankings[props.accessorKey]}
+                            enableRowActions
                             enableRowOrdering
                             enableRowNumbers={
                                 props.position === "Overall" ? false : true
@@ -184,21 +207,53 @@ const PosRanking = (props) => {
                             enableTopToolbar={false}
                             initialState={{
                                 density: "compact",
+                                columnOrder: [
+                                    "mrt-row-drag",
+                                    props.position !== "Overall" &&
+                                        "mrt-row-numbers",
+                                    "rank",
+                                    "name",
+                                    "position",
+                                    "team",
+                                    "mrt-row-actions",
+                                ],
                             }}
                             displayColumnDefOptions={{
-                                "mrt-row-drag": { size: 1 },
+                                "mrt-row-drag": {
+                                    header: "",
+                                    size: 1,
+                                },
                                 "mrt-row-numbers": { size: 1 },
+                                "mrt-row-actions": {
+                                    header: "",
+                                    size: 1,
+                                },
                             }}
                             muiTableContainerProps={
                                 props.position === "Overall"
                                     ? {
-                                          sx: { maxHeight: "80vh" },
+                                          sx: { maxHeight: "118vh" },
                                       }
                                     : {
-                                          sx: { maxHeight: "40vh" },
+                                          sx: { maxHeight: "46vh" },
                                       }
                             }
                             muiTableBodyRowDragHandleProps={reorder}
+                            renderRowActions={({ row, table }) => (
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        flexWrap: "nowrap",
+                                    }}
+                                >
+                                    <IconButton
+                                        color="secondary"
+                                        onClick={() => deletePlayer(row)}
+                                    >
+                                        <Delete />
+                                    </IconButton>
+                                </Box>
+                            )}
                         />
                     </CardContent>
                 </Collapse>
