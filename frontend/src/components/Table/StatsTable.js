@@ -20,6 +20,7 @@ const StatsTable = () => {
     const year = useSelector((state) => state.year.year);
     const pointsType = useSelector((state) => state.pointsType.pointsType);
     const [position, setPosition] = useState("ALL");
+    const [team, setTeam] = useState("ALL");
     const [tableData, setTableData] = useState(() => []);
     const dispatch = useDispatch();
 
@@ -31,24 +32,27 @@ const StatsTable = () => {
     useEffect(() => {
         setTableData(
             players.filter((player) => {
+                let ret;
                 if (position === "ALL") {
-                    return player.stats.some((item) => item.season === year);
+                    ret = player.stats.some((item) => item.season === year);
                 } else if (position === "FLX") {
-                    return (
+                    ret =
                         player.stats.some((item) => item.season === year) &&
                         (player.position === "RB" ||
                             player.position === "WR" ||
-                            player.position === "TE")
-                    );
+                            player.position === "TE");
                 } else {
-                    return (
+                    ret =
                         player.stats.some((item) => item.season === year) &&
-                        player.position === position
-                    );
+                        player.position === position;
                 }
+                if (team !== "ALL") {
+                    ret = ret && player.team === team;
+                }
+                return ret;
             })
         );
-    }, [players, year, position, pointsType]);
+    }, [players, year, position, team, pointsType]);
 
     const columns = useMemo(() => {
         let cols = [
@@ -2400,7 +2404,7 @@ const StatsTable = () => {
                                     <MenuItem value={"ppr"}>PPR</MenuItem>
                                 </Select>
                             </FormControl>
-                            <FormControl sx={{ my: 1, minWidth: 120 }}>
+                            <FormControl sx={{ my: 1, mr: 1, minWidth: 120 }}>
                                 <InputLabel id="year-label">Year</InputLabel>
                                 <Select
                                     labelId="year-label"
@@ -2419,6 +2423,77 @@ const StatsTable = () => {
                                     <MenuItem value={"2021"}>2021</MenuItem>
                                     <MenuItem value={"2020"}>2020</MenuItem>
                                     <MenuItem value={"2019"}>2019</MenuItem>
+                                </Select>
+                            </FormControl>
+                            <FormControl sx={{ my: 1, minWidth: 120 }}>
+                                <InputLabel id="team-label">Team</InputLabel>
+                                <Select
+                                    labelId="team-label"
+                                    id="team-select"
+                                    value={team}
+                                    label="Team"
+                                    onChange={(event) =>
+                                        setTeam(event.target.value)
+                                    }
+                                >
+                                    <MenuItem value={"ALL"}>All</MenuItem>
+                                    <MenuItem value={"ARI"}>Arizona</MenuItem>
+                                    <MenuItem value={"ATL"}>Atlanta</MenuItem>
+                                    <MenuItem value={"BAL"}>Baltimore</MenuItem>
+                                    <MenuItem value={"BUF"}>Buffalo</MenuItem>
+                                    <MenuItem value={"CAR"}>Carolina</MenuItem>
+                                    <MenuItem value={"CHI"}>Chicago</MenuItem>
+                                    <MenuItem value={"CIN"}>
+                                        Cincinnati
+                                    </MenuItem>
+                                    <MenuItem value={"CLE"}>Cleveland</MenuItem>
+                                    <MenuItem value={"DAL"}>Dallas</MenuItem>
+                                    <MenuItem value={"DEN"}>Denver</MenuItem>
+                                    <MenuItem value={"DET"}>Detroit</MenuItem>
+                                    <MenuItem value={"GB"}>Green Bay</MenuItem>
+                                    <MenuItem value={"HOU"}>Houston</MenuItem>
+                                    <MenuItem value={"IND"}>
+                                        Indianapolis
+                                    </MenuItem>
+                                    <MenuItem value={"JAC"}>
+                                        Jacksonville
+                                    </MenuItem>
+                                    <MenuItem value={"KC"}>
+                                        Kansas City
+                                    </MenuItem>
+                                    <MenuItem value={"LAC"}>
+                                        LA Chargers
+                                    </MenuItem>
+                                    <MenuItem value={"LAR"}>LA Rams</MenuItem>
+                                    <MenuItem value={"LV"}>Las Vegas</MenuItem>
+                                    <MenuItem value={"MIA"}>Miami</MenuItem>
+                                    <MenuItem value={"MIN"}>Minnesota</MenuItem>
+                                    <MenuItem value={"NE"}>
+                                        New England
+                                    </MenuItem>
+                                    <MenuItem value={"NO"}>
+                                        New Orleans
+                                    </MenuItem>
+                                    <MenuItem value={"NYG"}>NY Giants</MenuItem>
+                                    <MenuItem value={"NYJ"}>NY Jets</MenuItem>
+                                    <MenuItem value={"PHI"}>
+                                        Philadelphia
+                                    </MenuItem>
+                                    <MenuItem value={"PIT"}>
+                                        Pittsburgh
+                                    </MenuItem>
+                                    <MenuItem value={"SEA"}>Seattle</MenuItem>
+                                    <MenuItem value={"SF"}>
+                                        San Francisco
+                                    </MenuItem>
+                                    <MenuItem value={"TB"}>Tampa Bay</MenuItem>
+                                    <MenuItem value={"TEN"}>Tennessee</MenuItem>
+                                    <MenuItem value={"WAS"}>
+                                        Washington
+                                    </MenuItem>
+                                    <MenuItem value={"FA"}>
+                                        Free Agents
+                                    </MenuItem>
                                 </Select>
                             </FormControl>
                         </Stack>
