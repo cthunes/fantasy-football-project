@@ -11,12 +11,14 @@ import {
     Box,
     Grid,
     FormControl,
+    FormControlLabel,
     InputLabel,
     Select,
     MenuItem,
     Slider,
     Typography,
     Button,
+    Switch,
 } from "@mui/material";
 import { KeyboardArrowUp, KeyboardArrowDown } from "@mui/icons-material";
 
@@ -31,6 +33,7 @@ const CreateForm = () => {
     const pointsType = useSelector((state) => state.pointsType.pointsType);
     const year = useSelector((state) => state.year.year);
     const [column, setColumn] = useState(`${pointsType}.score`);
+    const [includeFAs, setIncludeFAs] = useState(true);
     const [number, setNumber] = useState(300);
 
     useEffect(() => {
@@ -39,29 +42,32 @@ const CreateForm = () => {
 
     function generateRanking() {
         let split = column.split(".");
-        let r1 = players
-            .map((player) => ({
-                ...player,
-                rankingStatistic: () => {
-                    let stat =
-                        split.length === 2
-                            ? player.stats[
-                                  player.stats.findIndex(
-                                      (item) => item.season === year
-                                  )
-                              ][split[0]][split[1]]
-                            : player.stats[
-                                  player.stats.findIndex(
-                                      (item) => item.season === year
-                                  )
-                              ][split[0]][split[1]][split[2]];
-                    if (player.position === "QB") return stat * 0.5;
-                    else if (player.position === "TE") return stat * 1.15;
-                    else if (player.position === "K") return stat * 0.8;
-                    else if (player.position === "DST") return stat * 0.9;
-                    else return stat;
-                },
-            }))
+        let r1 = players.map((player) => ({
+            ...player,
+            rankingStatistic: () => {
+                let stat =
+                    split.length === 2
+                        ? player.stats[
+                              player.stats.findIndex(
+                                  (item) => item.season === year
+                              )
+                          ][split[0]][split[1]]
+                        : player.stats[
+                              player.stats.findIndex(
+                                  (item) => item.season === year
+                              )
+                          ][split[0]][split[1]][split[2]];
+                if (player.position === "QB") return stat * 0.5;
+                else if (player.position === "TE") return stat * 1.15;
+                else if (player.position === "K") return stat * 0.8;
+                else if (player.position === "DST") return stat * 0.9;
+                else return stat;
+            },
+        }));
+        if (!includeFAs) {
+            r1 = r1.filter((player) => player.team !== "FA");
+        }
+        r1 = r1
             .filter((player) =>
                 player.stats.some((item) => item.season === year)
             )
@@ -263,6 +269,23 @@ const CreateForm = () => {
                                                 Median Points
                                             </MenuItem>
                                         </Select>
+                                    </FormControl>
+                                    <FormControl sx={{ my: 1, minWidth: 120 }}>
+                                        <FormControlLabel
+                                            control={
+                                                <Switch
+                                                    color="secondary"
+                                                    checked={includeFAs}
+                                                    onChange={() =>
+                                                        setIncludeFAs(
+                                                            !includeFAs
+                                                        )
+                                                    }
+                                                />
+                                            }
+                                            label="Include Free Agents"
+                                            labelPlacement="start"
+                                        />
                                     </FormControl>
                                     <Typography
                                         id="input-slider"

@@ -7,8 +7,10 @@ import {
     InputLabel,
     MenuItem,
     FormControl,
+    FormControlLabel,
     Select,
     Stack,
+    Switch,
 } from "@mui/material";
 
 import { playerFetchAll } from "../../redux/player";
@@ -21,6 +23,7 @@ const StatsTable = () => {
     const pointsType = useSelector((state) => state.pointsType.pointsType);
     const [position, setPosition] = useState("ALL");
     const [team, setTeam] = useState("ALL");
+    const [showFAs, setShowFAs] = useState(true);
     const [tableData, setTableData] = useState(() => []);
     const dispatch = useDispatch();
 
@@ -49,10 +52,13 @@ const StatsTable = () => {
                 if (team !== "ALL") {
                     ret = ret && player.team === team;
                 }
+                if (!showFAs) {
+                    ret = ret && player.team !== "FA";
+                }
                 return ret;
             })
         );
-    }, [players, year, position, team, pointsType]);
+    }, [players, year, position, team, showFAs, pointsType]);
 
     const columns = useMemo(() => {
         let cols = [
@@ -2364,12 +2370,16 @@ const StatsTable = () => {
                     return (
                         <Stack direction="row" justifyContent="space-between">
                             <FormControl sx={{ my: 1, mr: 1, minWidth: 80 }}>
-                                <InputLabel id="pos-label">Position</InputLabel>
+                                <InputLabel id="pos-label" color="secondary">
+                                    Position
+                                </InputLabel>
                                 <Select
                                     labelId="pos-label"
                                     id="pos-select"
                                     value={position}
                                     label="Position"
+                                    size="small"
+                                    color="secondary"
                                     onChange={(event) =>
                                         setPosition(event.target.value)
                                     }
@@ -2385,12 +2395,16 @@ const StatsTable = () => {
                                 </Select>
                             </FormControl>
                             <FormControl sx={{ my: 1, mr: 1, minWidth: 80 }}>
-                                <InputLabel id="type-label">Scoring</InputLabel>
+                                <InputLabel id="type-label" color="secondary">
+                                    Scoring
+                                </InputLabel>
                                 <Select
                                     labelId="type-label"
                                     id="type-select"
                                     value={pointsType}
                                     label="Scoring"
+                                    size="small"
+                                    color="secondary"
                                     onChange={(event) =>
                                         dispatch(
                                             setPointsType(event.target.value)
@@ -2405,12 +2419,16 @@ const StatsTable = () => {
                                 </Select>
                             </FormControl>
                             <FormControl sx={{ my: 1, mr: 1, minWidth: 120 }}>
-                                <InputLabel id="year-label">Year</InputLabel>
+                                <InputLabel id="year-label" color="secondary">
+                                    Year
+                                </InputLabel>
                                 <Select
                                     labelId="year-label"
                                     id="year-select"
                                     value={year}
                                     label="Year"
+                                    size="small"
+                                    color="secondary"
                                     onChange={(event) =>
                                         dispatch(setYear(event.target.value))
                                     }
@@ -2426,12 +2444,16 @@ const StatsTable = () => {
                                 </Select>
                             </FormControl>
                             <FormControl sx={{ my: 1, minWidth: 120 }}>
-                                <InputLabel id="team-label">Team</InputLabel>
+                                <InputLabel id="team-label" color="secondary">
+                                    Team
+                                </InputLabel>
                                 <Select
                                     labelId="team-label"
                                     id="team-select"
                                     value={team}
                                     label="Team"
+                                    size="small"
+                                    color="secondary"
                                     onChange={(event) =>
                                         setTeam(event.target.value)
                                     }
@@ -2495,6 +2517,21 @@ const StatsTable = () => {
                                         Free Agents
                                     </MenuItem>
                                 </Select>
+                            </FormControl>
+                            <FormControl sx={{ my: 1, minWidth: 120 }}>
+                                <FormControlLabel
+                                    control={
+                                        <Switch
+                                            color="secondary"
+                                            checked={showFAs}
+                                            onChange={() =>
+                                                setShowFAs(!showFAs)
+                                            }
+                                        />
+                                    }
+                                    label="Show Free Agents"
+                                    labelPlacement="start"
+                                />
                             </FormControl>
                         </Stack>
                     );
