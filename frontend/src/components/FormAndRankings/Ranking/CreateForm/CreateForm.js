@@ -135,10 +135,10 @@ const CreateForm = () => {
                                 alignItems="stretch"
                                 columnSpacing={2}
                             >
-                                <Grid item md={3} lg={5}>
+                                <Grid item md={4}>
                                     <ListItemText secondary="Generate from descending order:" />
                                 </Grid>
-                                <Grid item md={9} lg={7}>
+                                <Grid item md={8}>
                                     <FormControl
                                         size="small"
                                         sx={{ my: 1, mr: 1, width: 180 }}
@@ -351,10 +351,10 @@ const CreateForm = () => {
                                 alignItems="stretch"
                                 columnSpacing={2}
                             >
-                                <Grid item md={12} lg={5}>
+                                <Grid item md={4}>
                                     <ListItemText secondary="Create from existing ranking:" />
                                 </Grid>
-                                <Grid item md={12} lg={7}>
+                                <Grid item md={8}>
                                     <Button
                                         sx={{
                                             mt: 0.5,

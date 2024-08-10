@@ -34,12 +34,22 @@ const TopBar = () => {
                         <Button
                             color="inherit"
                             onClick={() => dispatch(setView("rankings"))}
+                            sx={{
+                                ":hover": {
+                                    bgcolor: "secondary.dark",
+                                },
+                            }}
                         >
                             Rankings
                         </Button>
                         <Button
                             color="inherit"
                             onClick={() => dispatch(setView("draft"))}
+                            sx={{
+                                ":hover": {
+                                    bgcolor: "secondary.dark",
+                                },
+                            }}
                         >
                             Draft
                         </Button>

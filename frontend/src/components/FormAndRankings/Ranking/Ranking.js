@@ -5,6 +5,7 @@ import {
     Box,
     Grid,
     Typography,
+    Divider,
     Select,
     Button,
     FormControl,
@@ -63,7 +64,7 @@ const Ranking = () => {
             {current.name != null && currentName != null && (
                 <Box align="center">
                     <Box sx={{ my: 2 }}>
-                        <Grid container columnSpacing={1}>
+                        <Grid container columnSpacing={1} sx={{ my: 2 }}>
                             <Grid item xs={6} sm={6} md={6} lg={6}>
                                 <FormControl
                                     fullWidth
@@ -112,6 +113,7 @@ const Ranking = () => {
                                 </Button>
                             </Grid>
                         </Grid>
+                        <Divider />
                         <Typography variant="h5" sx={{ my: 1 }}>
                             {current.name}
                         </Typography>
@@ -168,7 +170,7 @@ const Ranking = () => {
                             </Grid>
                         </Grid>
                     </Box>
-                    <Grid container columnSpacing={1}>
+                    <Grid container columnSpacing={1} sx={{ my: 1 }}>
                         <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
                             <PosRanking
                                 position="Overall"
