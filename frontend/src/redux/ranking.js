@@ -38,6 +38,7 @@ export const rankingSlice = createSlice({
         current: {},
         drafted: [],
         unavailable: [],
+        newPlayerCount: 0,
         status: "idle",
     },
     reducers: {
@@ -48,10 +49,12 @@ export const rankingSlice = createSlice({
         },
         setDrafted: (state, action) => {
             state.drafted = action.payload;
-            console.log(state.drafted);
         },
         setUnavailable: (state, action) => {
             state.unavailable = action.payload;
+        },
+        setNewPlayerCount: (state, action) => {
+            state.newPlayerCount = action.payload;
         },
     },
     extraReducers(builder) {
@@ -95,6 +98,7 @@ export const {
     setCurrent,
     setDrafted,
     setUnavailable,
+    setNewPlayerCount,
 } = rankingSlice.actions;
 
 export default rankingSlice.reducer;
