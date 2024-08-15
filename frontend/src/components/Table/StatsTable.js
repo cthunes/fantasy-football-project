@@ -157,6 +157,22 @@ const StatsTable = () => {
                                     player.stats.findIndex(
                                         (item) => item.season === year
                                     )
+                                ].rushing.firstDowns;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "rushing.firstDowns",
+                        header: "FD",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
                                 ].rushing.long;
                             } catch {
                                 return null;
@@ -259,6 +275,22 @@ const StatsTable = () => {
                                     player.stats.findIndex(
                                         (item) => item.season === year
                                     )
+                                ].rushing.firstDownsMean;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "rushing.firstDownsMean",
+                        header: "FD",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
                                 ].rushing.longMean;
                             } catch {
                                 return null;
@@ -352,6 +384,22 @@ const StatsTable = () => {
                         },
                         id: "receiving.yards",
                         header: "YDS",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].receiving.firstDowns;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "receiving.firstDowns",
+                        header: "FD",
                         size: 30,
                     },
                     {
@@ -470,6 +518,22 @@ const StatsTable = () => {
                         },
                         id: "receiving.yardsPerReception",
                         header: "Y/C",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].receiving.firstDownsMean;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "receiving.firstDownsMean",
+                        header: "FD",
                         size: 30,
                     },
                     {
@@ -1401,6 +1465,22 @@ const StatsTable = () => {
                                     player.stats.findIndex(
                                         (item) => item.season === year
                                     )
+                                ].misc.firstDowns;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "misc.firstDowns",
+                        header: "FD",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
                                 ].misc.fumblesLost;
                             } catch {
                                 return null;
@@ -1446,6 +1526,22 @@ const StatsTable = () => {
                         },
                         id: "misc.opportunitiesMean",
                         header: "OPP",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].misc.firstDownsMean;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "misc.firstDownsMean",
+                        header: "FD",
                         size: 30,
                     },
                     {
@@ -2237,6 +2333,8 @@ const StatsTable = () => {
                         "rushing.yards": false,
                         "rushing.yardsMean": false,
                         "rushing.yardsPerAttempt": false,
+                        "rushing.firstDowns": false,
+                        "rushing.firstDownsMean": false,
                         "rushing.long": false,
                         "rushing.longMean": false,
                         "rushing.twentyPlus": false,
@@ -2250,6 +2348,8 @@ const StatsTable = () => {
                         "receiving.yards": false,
                         "receiving.yardsMean": false,
                         "receiving.yardsPerReception": false,
+                        "receiving.firstDowns": false,
+                        "receiving.firstDownsMean": false,
                         "receiving.long": false,
                         "receiving.longMean": false,
                         "receiving.twentyPlus": false,
@@ -2310,6 +2410,8 @@ const StatsTable = () => {
                         "misc.touchesMean": false,
                         "misc.opportunities": false,
                         "misc.opportunitiesMean": false,
+                        "misc.firstDowns": false,
+                        "misc.firstDownsMean": false,
                         "misc.fumblesLost": false,
                         "misc.fumblesLostMean": false,
                         "misc.fumblesLostPerTouch": false,

@@ -35,6 +35,78 @@ def calc_tiers(df, pos, year):
     return point_tiers
 
 
+def add_fds(df, pos, year):
+    if pos != "dst" and pos != "k":
+        df["copy"] = df["Player"]
+        df.insert(1, "TEAM", "")
+        df[["Player", "TEAM"]] = df.Player.str.split("(", expand=True)
+        df["TEAM"] = df.TEAM.str.replace(")", "", regex=False)
+        df["Player"] = df["Player"].str.strip()
+
+        rush_fds = pd.read_csv("raw/fd/rushing/{}.csv".format(year))
+
+        # use last names as join column
+        df["join_name"] = (
+            df["Player"]
+            .str.replace(r" Jr.$| Sr.$| II$| III$| IV$", "", regex=True)
+            .str.rsplit(n=1)
+            .str[-1]
+        )
+        rush_fds["join_name"] = (
+            rush_fds["Player"]
+            .str.replace(r" Jr.$| Sr.$| II$| III$| IV$", "", regex=True)
+            .str.rsplit(n=1)
+            .str[-1]
+        )
+        rush_fds = rush_fds.drop(columns="Player")
+
+        rush_fds = rush_fds.rename(columns={"Att": "rush_ATT"})
+        df = df.merge(rush_fds, how="left", on=["join_name", "rush_ATT"])
+        loc = list(df.columns).index("rush_Y/A")
+        df.insert(loc + 1, "rush_FD", df["FD"])
+        df.insert(loc + 2, "rush_FD_mean", df["rush_FD"] / df["G"])
+        df = df.drop(columns="FD")
+
+        if pos != "qb":
+            rec_fds = pd.read_csv("raw/fd/receiving/{}.csv".format(year))
+            rec_fds["join_name"] = (
+                rec_fds["Player"]
+                .str.replace(r" Jr.$| Sr.$| II$| III$| IV$", "", regex=True)
+                .str.rsplit(n=1)
+                .str[-1]
+            )
+            rec_fds = rec_fds.drop(columns="Player")
+            rec_fds = rec_fds.rename(columns={"Rec": "rec_REC"})
+            df = df.merge(rec_fds, how="left", on=["join_name", "rec_REC"])
+            loc = list(df.columns).index("rec_Y/R")
+            df.insert(loc + 1, "rec_FD", df["FD"])
+            df.insert(loc + 2, "rec_FD_mean", df["rec_FD"] / df["G"])
+            df = df.drop(columns="FD")
+
+        loc = list(df.columns).index("OPP_mean")
+        df.insert(
+            loc + 1,
+            "FD",
+            df["rush_FD"] + df["rec_FD"] if pos != "qb" else df["rush_FD"],
+        )
+        df.insert(
+            loc + 2,
+            "FD_mean",
+            (
+                df["rush_FD_mean"] + df["rec_FD_mean"]
+                if pos != "qb"
+                else df["rush_FD_mean"]
+            ),
+        )
+
+        df["HALF_Score"] = df["HALF_Score"] + df["FD_mean"] * 0.5
+        df.fillna(0, inplace=True)
+        df["Player"] = df["copy"]
+        df = df.drop(columns=["join_name", "TEAM", "copy"])
+
+    return df.round(2)
+
+
 def wrangle(pos, year):
     header = 1
     if pos == "k" or pos == "dst":
@@ -66,6 +138,7 @@ def wrangle(pos, year):
     else:
         df = agg_DSTs(grouped, point_tiers)
 
+    df = add_fds(df, pos, year)
     df = df.sort_values("HALF_Score", ascending=False)
     return df.round(2)
 
@@ -359,12 +432,12 @@ def wrangle_all(all, pos, weights):
                 all.groupby("TEAM")["OPP_mean"].transform("rank", ascending=False),
             )
         all["DPCHT"] = np.where(all["TEAM"] == "FA", 0, all["DPCHT"])
-    all = all.sort_values("HALF_Score", ascending=False).round(2)
     all = all.drop("Weight_sum", axis=1)
 
     # calculate projected half-ppr points
     all = calc_projected_points(all, pos)
 
+    all = all.sort_values("HALF_Score", ascending=False).round(2)
     # save
     print("Saving file aggregated/{}/all.csv".format(pos))
     all.to_csv("aggregated/{}/all.csv".format(pos), index=False)
