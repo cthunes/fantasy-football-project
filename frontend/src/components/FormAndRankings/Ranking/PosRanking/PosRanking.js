@@ -30,6 +30,7 @@ import {
 import { MaterialReactTable } from "material-react-table";
 
 import { setCurrent, setNewPlayerCount } from "../../../../redux/ranking";
+import { setOverallRnkHt } from "../../../../redux/view";
 
 import PlayerInfo from "./PlayerInfo/PlayerInfo";
 
@@ -37,6 +38,7 @@ const PosRanking = (props) => {
     const dispatch = useDispatch();
     const current = useSelector((state) => state.ranking.current);
     const newPlayerCount = useSelector((state) => state.ranking.newPlayerCount);
+    const overallRnkHt = useSelector((state) => state.view.overallRnkHt);
     const [expanded, setExpanded] = useState(false);
     const [open, setOpen] = useState(false);
 
@@ -316,7 +318,17 @@ const PosRanking = (props) => {
                             </DialogActions>
                         </Dialog>
                         <IconButton
-                            onClick={() => setExpanded(!expanded)}
+                            onClick={() => {
+                                if (props.accessorKey !== "overall") {
+                                    dispatch(
+                                        setOverallRnkHt(
+                                            overallRnkHt +
+                                                439 * (!expanded ? 1 : -1)
+                                        )
+                                    );
+                                }
+                                setExpanded(!expanded);
+                            }}
                             size="small"
                         >
                             {expanded ? (
@@ -330,7 +342,11 @@ const PosRanking = (props) => {
                 sx={{ py: 1, backgroundColor: "secondary.main" }}
             ></CardHeader>
             <Box sx={{ backgroundColor: "secondary.light" }}>
-                <Collapse in={expanded} timeout={0} unmountOnExit>
+                <Collapse
+                    in={props.position === "Overall" ? !expanded : expanded}
+                    timeout={0}
+                    unmountOnExit
+                >
                     <CardContent
                         sx={{
                             p: 0,
@@ -381,7 +397,7 @@ const PosRanking = (props) => {
                             muiTableContainerProps={
                                 props.position === "Overall"
                                     ? {
-                                          sx: { maxHeight: 1128 },
+                                          sx: { maxHeight: overallRnkHt },
                                       }
                                     : {
                                           sx: { maxHeight: 439 },

@@ -10,7 +10,7 @@ import {
     ButtonGroup,
 } from "@mui/material";
 
-import { setView } from "../.././redux/view";
+import { setOverallRnkHt, setView } from "../.././redux/view";
 
 const TopBar = () => {
     const dispatch = useDispatch();
@@ -33,7 +33,10 @@ const TopBar = () => {
                     <ButtonGroup>
                         <Button
                             color="inherit"
-                            onClick={() => dispatch(setView("rankings"))}
+                            onClick={() => {
+                                dispatch(setView("rankings"));
+                                dispatch(setOverallRnkHt(249));
+                            }}
                             sx={{
                                 ":hover": {
                                     bgcolor: "secondary.dark",
@@ -44,7 +47,10 @@ const TopBar = () => {
                         </Button>
                         <Button
                             color="inherit"
-                            onClick={() => dispatch(setView("draft"))}
+                            onClick={() => {
+                                dispatch(setView("draft"));
+                                dispatch(setOverallRnkHt(249));
+                            }}
                             sx={{
                                 ":hover": {
                                     bgcolor: "secondary.dark",

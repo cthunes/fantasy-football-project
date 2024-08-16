@@ -18,6 +18,7 @@ import {
 import { MaterialReactTable } from "material-react-table";
 
 import { setDrafted, setUnavailable } from "../../../../redux/ranking";
+import { setOverallRnkHt } from "../../../../redux/view";
 
 const PosRanking = (props) => {
     const dispatch = useDispatch();
@@ -25,6 +26,7 @@ const PosRanking = (props) => {
     const [expanded, setExpanded] = useState(false);
     const drafted = useSelector((state) => state.ranking.drafted);
     const unavailable = useSelector((state) => state.ranking.unavailable);
+    const overallRnkHt = useSelector((state) => state.view.overallRnkHt);
 
     const columns = useMemo(
         () => [
@@ -91,7 +93,17 @@ const PosRanking = (props) => {
                 titleTypographyProps={{ color: "white", fontSize: 16 }}
                 action={
                     <IconButton
-                        onClick={() => setExpanded(!expanded)}
+                        onClick={() => {
+                            if (props.accessorKey !== "overall") {
+                                dispatch(
+                                    setOverallRnkHt(
+                                        overallRnkHt +
+                                            439 * (!expanded ? 1 : -1)
+                                    )
+                                );
+                            }
+                            setExpanded(!expanded);
+                        }}
                         size="small"
                     >
                         {expanded ? (
@@ -104,7 +116,11 @@ const PosRanking = (props) => {
                 sx={{ py: 1, backgroundColor: "secondary.main" }}
             ></CardHeader>
             <Box sx={{ backgroundColor: "secondary.light" }}>
-                <Collapse in={expanded} timeout={0} unmountOnExit>
+                <Collapse
+                    in={props.position === "Overall" ? !expanded : expanded}
+                    timeout={0}
+                    unmountOnExit
+                >
                     <CardContent
                         sx={{
                             p: 0,
@@ -137,7 +153,7 @@ const PosRanking = (props) => {
                             muiTableContainerProps={
                                 props.position === "Overall"
                                     ? {
-                                          sx: { maxHeight: 1128 },
+                                          sx: { maxHeight: overallRnkHt },
                                       }
                                     : {
                                           sx: { maxHeight: 439 },
