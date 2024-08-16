@@ -11,28 +11,6 @@ positions = [
     {"name": "k", "weights": [3.375, 2.25, 1.5, 1, 0.00001]},
     {"name": "dst", "weights": [64, 16, 4, 1, 0.00001]},
 ]
-scoring_types = ["FPTS", "HALF", "PPR"]
-z_scores = [-0.84162, -0.25335, 0.25335, 0.84162]
-
-
-def calc_tiers(df, pos, year):
-    point_tiers = []
-    p = 20
-    if pos == "rb":
-        p = 40
-    if pos == "wr":
-        p = 60
-    g = 17 if year > 2020 else 16
-    for type in scoring_types:
-        top = df.sort_values(type, ascending=False).head(p * g)
-        # use median instead of mean due to skew of selection of top p * g rows
-        median = top[type].median()
-        std = top[type].std()
-        tiers = []
-        for z in z_scores:
-            tiers.append(median + z * std)
-        point_tiers.append(tiers)
-    return point_tiers
 
 
 def add_fds(df, pos, year):
@@ -83,6 +61,7 @@ def add_fds(df, pos, year):
             df.insert(loc + 2, "rec_FD_mean", df["rec_FD"] / df["G"])
             df = df.drop(columns="FD")
 
+        df.fillna(0, inplace=True)
         loc = list(df.columns).index("OPP_mean")
         df.insert(
             loc + 1,
@@ -100,11 +79,10 @@ def add_fds(df, pos, year):
         )
 
         df["HALF_Score"] = df["HALF_Score"] + df["FD_mean"] * 0.5
-        df.fillna(0, inplace=True)
         df["Player"] = df["copy"]
         df = df.drop(columns=["join_name", "TEAM", "copy"])
 
-    return df.round(2)
+    return df.round(2).drop_duplicates()
 
 
 def wrangle(pos, year):
@@ -120,23 +98,44 @@ def wrangle(pos, year):
         df["HALF"] = df["FPTS"]
         df["PPR"] = df["FPTS"]
 
-    point_tiers = calc_tiers(df, pos, year)
+    point_tiers = [5, 10, 15, 20]
+    if pos == "rb" or pos == "wr":
+        point_tiers = [10, 20, 30, 40]
+
+    def assign_rank(rank):
+        if rank <= point_tiers[0]:
+            return 1
+        elif rank <= point_tiers[1]:
+            return 2
+        elif rank <= point_tiers[2]:
+            return 3
+        elif rank <= point_tiers[3]:
+            return 4
+        else:
+            return 5
+
+    df["FPTS_tier"] = df.groupby("Week")["FPTS"].rank(ascending=False, method="first")
+    df["FPTS_tier"] = df["FPTS_tier"].apply(assign_rank)
+    df["HALF_tier"] = df.groupby("Week")["HALF"].rank(ascending=False, method="first")
+    df["HALF_tier"] = df["HALF_tier"].apply(assign_rank)
+    df["PPR_tier"] = df.groupby("Week")["PPR"].rank(ascending=False, method="first")
+    df["PPR_tier"] = df["PPR_tier"].apply(assign_rank)
 
     df = df.sort_values(["Player", "Week"])
     grouped = df.groupby("Player", sort=False, as_index=False)
 
     if pos == "rb":
-        df = agg_RBs(grouped, point_tiers)
+        df = agg_RBs(grouped)
     elif pos == "wr":
-        df = agg_WRs(grouped, point_tiers)
+        df = agg_WRs(grouped)
     elif pos == "te":
-        df = agg_TEs(grouped, point_tiers)
+        df = agg_TEs(grouped)
     elif pos == "qb":
-        df = agg_QBs(grouped, point_tiers)
+        df = agg_QBs(grouped)
     elif pos == "k":
-        df = agg_Ks(grouped, point_tiers)
+        df = agg_Ks(grouped)
     else:
-        df = agg_DSTs(grouped, point_tiers)
+        df = agg_DSTs(grouped)
 
     df = add_fds(df, pos, year)
     df = df.sort_values("HALF_Score", ascending=False)

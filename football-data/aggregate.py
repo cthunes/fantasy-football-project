@@ -18,10 +18,10 @@ k_adj_constant = 1.249
 dst_adj_constant = 1.554
 
 # weights for pts adjusted mean, pts median, quality start ratio, good start ratio, opportunities mean
-scoring_weights = [0.40, 0.40, 0.25, .5, 0.1]
+scoring_weights = [0.40, 0.40, 0.1]
 
 
-def agg_QBs(grouped, point_tiers):
+def agg_QBs(grouped):
     df = grouped.agg(
         G=("Player", "size"),
         pass_CMP=("CMP", "sum"),
@@ -48,74 +48,29 @@ def agg_QBs(grouped, point_tiers):
         FPTS_mean=("FPTS", "mean"),
         FPTS_median=("FPTS", "median"),
         FPTS_std=("FPTS", "std"),
-        FPTS_bad=("FPTS", lambda x: sum(1 for y in x if y < point_tiers[0][0])),
-        FPTS_poor=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[0][0]) and (y < point_tiers[0][1])
-            ),
-        ),
-        FPTS_okay=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[0][1]) and (y < point_tiers[0][2])
-            ),
-        ),
-        FPTS_good=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[0][2]) and (y < point_tiers[0][3])
-            ),
-        ),
-        FPTS_great=("FPTS", lambda x: sum(1 for y in x if y >= point_tiers[0][3])),
+        FPTS_bad=("FPTS_tier", lambda x: sum(1 for y in x if y == 5)),
+        FPTS_poor=("FPTS_tier", lambda x: sum(1 for y in x if y == 4)),
+        FPTS_okay=("FPTS_tier", lambda x: sum(1 for y in x if y == 3)),
+        FPTS_good=("FPTS_tier", lambda x: sum(1 for y in x if y == 2)),
+        FPTS_great=("FPTS_tier", lambda x: sum(1 for y in x if y == 1)),
         HALF=("FPTS", "sum"),
         HALF_mean=("FPTS", "mean"),
         HALF_median=("FPTS", "median"),
         HALF_std=("FPTS", "std"),
-        HALF_bad=("FPTS", lambda x: sum(1 for y in x if y < point_tiers[1][0])),
-        HALF_poor=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[1][0]) and (y < point_tiers[1][1])
-            ),
-        ),
-        HALF_okay=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[1][1]) and (y < point_tiers[1][2])
-            ),
-        ),
-        HALF_good=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[1][2]) and (y < point_tiers[1][3])
-            ),
-        ),
-        HALF_great=("FPTS", lambda x: sum(1 for y in x if y >= point_tiers[1][3])),
+        HALF_bad=("HALF_tier", lambda x: sum(1 for y in x if y == 5)),
+        HALF_poor=("HALF_tier", lambda x: sum(1 for y in x if y == 4)),
+        HALF_okay=("HALF_tier", lambda x: sum(1 for y in x if y == 3)),
+        HALF_good=("HALF_tier", lambda x: sum(1 for y in x if y == 2)),
+        HALF_great=("HALF_tier", lambda x: sum(1 for y in x if y == 1)),
         PPR=("FPTS", "sum"),
         PPR_mean=("FPTS", "mean"),
         PPR_median=("FPTS", "median"),
         PPR_std=("FPTS", "std"),
-        PPR_bad=("FPTS", lambda x: sum(1 for y in x if y < point_tiers[2][0])),
-        PPR_poor=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[2][0]) and (y < point_tiers[2][1])
-            ),
-        ),
-        PPR_okay=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[2][1]) and (y < point_tiers[2][2])
-            ),
-        ),
-        PPR_good=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[2][2]) and (y < point_tiers[2][3])
-            ),
-        ),
-        PPR_great=("FPTS", lambda x: sum(1 for y in x if y >= point_tiers[2][3])),
+        PPR_bad=("PPR_tier", lambda x: sum(1 for y in x if y == 5)),
+        PPR_poor=("PPR_tier", lambda x: sum(1 for y in x if y == 4)),
+        PPR_okay=("PPR_tier", lambda x: sum(1 for y in x if y == 3)),
+        PPR_good=("PPR_tier", lambda x: sum(1 for y in x if y == 2)),
+        PPR_great=("PPR_tier", lambda x: sum(1 for y in x if y == 1)),
     )
 
     df.insert(1, "POS", "QB")
@@ -138,18 +93,20 @@ def agg_QBs(grouped, point_tiers):
     df.insert(
         39,
         "FPTS_QSRat",
-        (df["FPTS_great"] + df["FPTS_good"] + df["FPTS_okay"])
+        (df["FPTS_great"] + df["FPTS_good"])
         / np.where(
-            df["FPTS_poor"] + df["FPTS_bad"] != 0, df["FPTS_poor"] + df["FPTS_bad"], 1
+            df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_okay"] != 0,
+            df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_okay"],
+            1,
         ),
     )
     df.insert(
         40,
         "FPTS_GSRat",
-        (df["FPTS_great"] + df["FPTS_good"])
+        (df["FPTS_great"])
         / np.where(
-            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"] != 0,
-            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"],
+            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_good"] != 0,
+            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_good"],
             1,
         ),
     )
@@ -160,9 +117,9 @@ def agg_QBs(grouped, point_tiers):
         * (
             df["FPTS_adj"] * scoring_weights[0]
             + df["FPTS_median"] * scoring_weights[1]
-            + df["FPTS_QSRat"] * scoring_weights[2]
-            + df["FPTS_GSRat"] * scoring_weights[3]
-            + df["OPP_mean"] * scoring_weights[4]
+            + df["OPP_mean"] * scoring_weights[2]
+            + np.log2(df["FPTS_QSRat"] + 1)
+            + np.log2(df["FPTS_GSRat"] + 1)
         ),
     )
 
@@ -178,18 +135,20 @@ def agg_QBs(grouped, point_tiers):
     df.insert(
         52,
         "HALF_QSRat",
-        (df["HALF_great"] + df["HALF_good"] + df["HALF_okay"])
+        (df["HALF_great"] + df["HALF_good"])
         / np.where(
-            df["HALF_poor"] + df["HALF_bad"] != 0, df["HALF_poor"] + df["HALF_bad"], 1
+            df["HALF_poor"] + df["HALF_bad"] + df["HALF_okay"] != 0,
+            df["HALF_poor"] + df["HALF_bad"] + df["HALF_okay"],
+            1,
         ),
     )
     df.insert(
         53,
         "HALF_GSRat",
-        (df["HALF_great"] + df["HALF_good"])
+        (df["HALF_great"])
         / np.where(
-            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"] != 0,
-            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"],
+            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"] + df["HALF_good"] != 0,
+            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"] + df["HALF_good"],
             1,
         ),
     )
@@ -200,9 +159,9 @@ def agg_QBs(grouped, point_tiers):
         * (
             df["HALF_adj"] * scoring_weights[0]
             + df["HALF_median"] * scoring_weights[1]
-            + df["HALF_QSRat"] * scoring_weights[2]
-            + df["HALF_GSRat"] * scoring_weights[3]
-            + df["OPP_mean"] * scoring_weights[4]
+            + df["OPP_mean"] * scoring_weights[2]
+            + np.log2(df["HALF_QSRat"] + 1)
+            + np.log2(df["HALF_GSRat"] + 1)
         ),
     )
 
@@ -218,18 +177,20 @@ def agg_QBs(grouped, point_tiers):
     df.insert(
         65,
         "PPR_QSRat",
-        (df["PPR_great"] + df["PPR_good"] + df["PPR_okay"])
+        (df["PPR_great"] + df["PPR_good"])
         / np.where(
-            df["PPR_poor"] + df["PPR_bad"] != 0, df["PPR_poor"] + df["PPR_bad"], 1
+            df["PPR_poor"] + df["PPR_bad"] + df["PPR_okay"] != 0,
+            df["PPR_poor"] + df["PPR_bad"] + df["PPR_okay"],
+            1,
         ),
     )
     df.insert(
         66,
         "PPR_GSRat",
-        (df["PPR_great"] + df["PPR_good"])
+        (df["PPR_great"])
         / np.where(
-            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"] != 0,
-            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"],
+            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"] + df["PPR_good"] != 0,
+            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"] + df["PPR_good"],
             1,
         ),
     )
@@ -240,9 +201,9 @@ def agg_QBs(grouped, point_tiers):
         * (
             df["PPR_adj"] * scoring_weights[0]
             + df["PPR_median"] * scoring_weights[1]
-            + df["PPR_QSRat"] * scoring_weights[2]
-            + df["PPR_GSRat"] * scoring_weights[3]
-            + df["OPP_mean"] * scoring_weights[4]
+            + df["OPP_mean"] * scoring_weights[2]
+            + np.log2(df["PPR_QSRat"] + 1)
+            + np.log2(df["PPR_GSRat"] + 1)
         ),
     )
 
@@ -251,7 +212,7 @@ def agg_QBs(grouped, point_tiers):
     return df
 
 
-def agg_RBs(grouped, point_tiers):
+def agg_RBs(grouped):
     df = grouped.agg(
         G=("Player", "size"),
         rush_ATT=("ATT", "sum"),
@@ -278,74 +239,29 @@ def agg_RBs(grouped, point_tiers):
         FPTS_mean=("FPTS", "mean"),
         FPTS_median=("FPTS", "median"),
         FPTS_std=("FPTS", "std"),
-        FPTS_bad=("FPTS", lambda x: sum(1 for y in x if y < point_tiers[0][0])),
-        FPTS_poor=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[0][0]) and (y < point_tiers[0][1])
-            ),
-        ),
-        FPTS_okay=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[0][1]) and (y < point_tiers[0][2])
-            ),
-        ),
-        FPTS_good=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[0][2]) and (y < point_tiers[0][3])
-            ),
-        ),
-        FPTS_great=("FPTS", lambda x: sum(1 for y in x if y >= point_tiers[0][3])),
+        FPTS_bad=("FPTS_tier", lambda x: sum(1 for y in x if y == 5)),
+        FPTS_poor=("FPTS_tier", lambda x: sum(1 for y in x if y == 4)),
+        FPTS_okay=("FPTS_tier", lambda x: sum(1 for y in x if y == 3)),
+        FPTS_good=("FPTS_tier", lambda x: sum(1 for y in x if y == 2)),
+        FPTS_great=("FPTS_tier", lambda x: sum(1 for y in x if y == 1)),
         HALF=("HALF", "sum"),
         HALF_mean=("HALF", "mean"),
         HALF_median=("HALF", "median"),
         HALF_std=("HALF", "std"),
-        HALF_bad=("HALF", lambda x: sum(1 for y in x if y < point_tiers[1][0])),
-        HALF_poor=(
-            "HALF",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[1][0]) and (y < point_tiers[1][1])
-            ),
-        ),
-        HALF_okay=(
-            "HALF",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[1][1]) and (y < point_tiers[1][2])
-            ),
-        ),
-        HALF_good=(
-            "HALF",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[1][2]) and (y < point_tiers[1][3])
-            ),
-        ),
-        HALF_great=("HALF", lambda x: sum(1 for y in x if y >= point_tiers[1][3])),
+        HALF_bad=("HALF_tier", lambda x: sum(1 for y in x if y == 5)),
+        HALF_poor=("HALF_tier", lambda x: sum(1 for y in x if y == 4)),
+        HALF_okay=("HALF_tier", lambda x: sum(1 for y in x if y == 3)),
+        HALF_good=("HALF_tier", lambda x: sum(1 for y in x if y == 2)),
+        HALF_great=("HALF_tier", lambda x: sum(1 for y in x if y == 1)),
         PPR=("PPR", "sum"),
         PPR_mean=("PPR", "mean"),
         PPR_median=("PPR", "median"),
         PPR_std=("PPR", "std"),
-        PPR_bad=("PPR", lambda x: sum(1 for y in x if y < point_tiers[2][0])),
-        PPR_poor=(
-            "PPR",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[2][0]) and (y < point_tiers[2][1])
-            ),
-        ),
-        PPR_okay=(
-            "PPR",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[2][1]) and (y < point_tiers[2][2])
-            ),
-        ),
-        PPR_good=(
-            "PPR",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[2][2]) and (y < point_tiers[2][3])
-            ),
-        ),
-        PPR_great=("PPR", lambda x: sum(1 for y in x if y >= point_tiers[2][3])),
+        PPR_bad=("PPR_tier", lambda x: sum(1 for y in x if y == 5)),
+        PPR_poor=("PPR_tier", lambda x: sum(1 for y in x if y == 4)),
+        PPR_okay=("PPR_tier", lambda x: sum(1 for y in x if y == 3)),
+        PPR_good=("PPR_tier", lambda x: sum(1 for y in x if y == 2)),
+        PPR_great=("PPR_tier", lambda x: sum(1 for y in x if y == 1)),
     )
 
     df.insert(1, "POS", "RB")
@@ -370,18 +286,20 @@ def agg_RBs(grouped, point_tiers):
     df.insert(
         41,
         "FPTS_QSRat",
-        (df["FPTS_great"] + df["FPTS_good"] + df["FPTS_okay"])
+        (df["FPTS_great"] + df["FPTS_good"])
         / np.where(
-            df["FPTS_poor"] + df["FPTS_bad"] != 0, df["FPTS_poor"] + df["FPTS_bad"], 1
+            df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_okay"] != 0,
+            df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_okay"],
+            1,
         ),
     )
     df.insert(
         42,
         "FPTS_GSRat",
-        (df["FPTS_great"] + df["FPTS_good"])
+        (df["FPTS_great"])
         / np.where(
-            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"] != 0,
-            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"],
+            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_good"] != 0,
+            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_good"],
             1,
         ),
     )
@@ -392,9 +310,9 @@ def agg_RBs(grouped, point_tiers):
         * (
             df["FPTS_adj"] * scoring_weights[0]
             + df["FPTS_median"] * scoring_weights[1]
-            + df["FPTS_QSRat"] * scoring_weights[2]
-            + df["FPTS_GSRat"] * scoring_weights[3]
-            + df["OPP_mean"] * scoring_weights[4]
+            + df["OPP_mean"] * scoring_weights[2]
+            + np.log2(df["FPTS_QSRat"] + 1)
+            + np.log2(df["FPTS_GSRat"] + 1)
         ),
     )
 
@@ -410,18 +328,20 @@ def agg_RBs(grouped, point_tiers):
     df.insert(
         54,
         "HALF_QSRat",
-        (df["HALF_great"] + df["HALF_good"] + df["HALF_okay"])
+        (df["HALF_great"] + df["HALF_good"])
         / np.where(
-            df["HALF_poor"] + df["HALF_bad"] != 0, df["HALF_poor"] + df["HALF_bad"], 1
+            df["HALF_poor"] + df["HALF_bad"] + df["HALF_okay"] != 0,
+            df["HALF_poor"] + df["HALF_bad"] + df["HALF_okay"],
+            1,
         ),
     )
     df.insert(
         55,
         "HALF_GSRat",
-        (df["HALF_great"] + df["HALF_good"])
+        (df["HALF_great"])
         / np.where(
-            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"] != 0,
-            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"],
+            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"] + df["HALF_good"] != 0,
+            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"] + df["HALF_good"],
             1,
         ),
     )
@@ -432,9 +352,9 @@ def agg_RBs(grouped, point_tiers):
         * (
             df["HALF_adj"] * scoring_weights[0]
             + df["HALF_median"] * scoring_weights[1]
-            + df["HALF_QSRat"] * scoring_weights[2]
-            + df["HALF_GSRat"] * scoring_weights[3]
-            + df["OPP_mean"] * scoring_weights[4]
+            + df["OPP_mean"] * scoring_weights[2]
+            + np.log2(df["HALF_QSRat"] + 1)
+            + np.log2(df["HALF_GSRat"] + 1)
         ),
     )
 
@@ -450,18 +370,20 @@ def agg_RBs(grouped, point_tiers):
     df.insert(
         67,
         "PPR_QSRat",
-        (df["PPR_great"] + df["PPR_good"] + df["PPR_okay"])
+        (df["PPR_great"] + df["PPR_good"])
         / np.where(
-            df["PPR_poor"] + df["PPR_bad"] != 0, df["PPR_poor"] + df["PPR_bad"], 1
+            df["PPR_poor"] + df["PPR_bad"] + df["PPR_okay"] != 0,
+            df["PPR_poor"] + df["PPR_bad"] + df["PPR_okay"],
+            1,
         ),
     )
     df.insert(
         68,
         "PPR_GSRat",
-        (df["PPR_great"] + df["PPR_good"])
+        (df["PPR_great"])
         / np.where(
-            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"] != 0,
-            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"],
+            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"] + df["PPR_good"] != 0,
+            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"] + df["PPR_good"],
             1,
         ),
     )
@@ -472,9 +394,9 @@ def agg_RBs(grouped, point_tiers):
         * (
             df["PPR_adj"] * scoring_weights[0]
             + df["PPR_median"] * scoring_weights[1]
-            + df["PPR_QSRat"] * scoring_weights[2]
-            + df["PPR_GSRat"] * scoring_weights[3]
-            + df["OPP_mean"] * scoring_weights[4]
+            + df["OPP_mean"] * scoring_weights[2]
+            + np.log2(df["PPR_QSRat"] + 1)
+            + np.log2(df["PPR_GSRat"] + 1)
         ),
     )
 
@@ -483,7 +405,7 @@ def agg_RBs(grouped, point_tiers):
     return df
 
 
-def agg_WRs(grouped, point_tiers):
+def agg_WRs(grouped):
     df = grouped.agg(
         G=("Player", "size"),
         rec_REC=("REC", "sum"),
@@ -510,74 +432,29 @@ def agg_WRs(grouped, point_tiers):
         FPTS_mean=("FPTS", "mean"),
         FPTS_median=("FPTS", "median"),
         FPTS_std=("FPTS", "std"),
-        FPTS_bad=("FPTS", lambda x: sum(1 for y in x if y < point_tiers[0][0])),
-        FPTS_poor=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[0][0]) and (y < point_tiers[0][1])
-            ),
-        ),
-        FPTS_okay=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[0][1]) and (y < point_tiers[0][2])
-            ),
-        ),
-        FPTS_good=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[0][2]) and (y < point_tiers[0][3])
-            ),
-        ),
-        FPTS_great=("FPTS", lambda x: sum(1 for y in x if y >= point_tiers[0][3])),
+        FPTS_bad=("FPTS_tier", lambda x: sum(1 for y in x if y == 5)),
+        FPTS_poor=("FPTS_tier", lambda x: sum(1 for y in x if y == 4)),
+        FPTS_okay=("FPTS_tier", lambda x: sum(1 for y in x if y == 3)),
+        FPTS_good=("FPTS_tier", lambda x: sum(1 for y in x if y == 2)),
+        FPTS_great=("FPTS_tier", lambda x: sum(1 for y in x if y == 1)),
         HALF=("HALF", "sum"),
         HALF_mean=("HALF", "mean"),
         HALF_median=("HALF", "median"),
         HALF_std=("HALF", "std"),
-        HALF_bad=("HALF", lambda x: sum(1 for y in x if y < point_tiers[1][0])),
-        HALF_poor=(
-            "HALF",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[1][0]) and (y < point_tiers[1][1])
-            ),
-        ),
-        HALF_okay=(
-            "HALF",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[1][1]) and (y < point_tiers[1][2])
-            ),
-        ),
-        HALF_good=(
-            "HALF",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[1][2]) and (y < point_tiers[1][3])
-            ),
-        ),
-        HALF_great=("HALF", lambda x: sum(1 for y in x if y >= point_tiers[1][3])),
+        HALF_bad=("HALF_tier", lambda x: sum(1 for y in x if y == 5)),
+        HALF_poor=("HALF_tier", lambda x: sum(1 for y in x if y == 4)),
+        HALF_okay=("HALF_tier", lambda x: sum(1 for y in x if y == 3)),
+        HALF_good=("HALF_tier", lambda x: sum(1 for y in x if y == 2)),
+        HALF_great=("HALF_tier", lambda x: sum(1 for y in x if y == 1)),
         PPR=("PPR", "sum"),
         PPR_mean=("PPR", "mean"),
         PPR_median=("PPR", "median"),
         PPR_std=("PPR", "std"),
-        PPR_bad=("PPR", lambda x: sum(1 for y in x if y < point_tiers[2][0])),
-        PPR_poor=(
-            "PPR",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[2][0]) and (y < point_tiers[2][1])
-            ),
-        ),
-        PPR_okay=(
-            "PPR",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[2][1]) and (y < point_tiers[2][2])
-            ),
-        ),
-        PPR_good=(
-            "PPR",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[2][2]) and (y < point_tiers[2][3])
-            ),
-        ),
-        PPR_great=("PPR", lambda x: sum(1 for y in x if y >= point_tiers[2][3])),
+        PPR_bad=("PPR_tier", lambda x: sum(1 for y in x if y == 5)),
+        PPR_poor=("PPR_tier", lambda x: sum(1 for y in x if y == 4)),
+        PPR_okay=("PPR_tier", lambda x: sum(1 for y in x if y == 3)),
+        PPR_good=("PPR_tier", lambda x: sum(1 for y in x if y == 2)),
+        PPR_great=("PPR_tier", lambda x: sum(1 for y in x if y == 1)),
     )
 
     df.insert(1, "POS", "WR")
@@ -602,18 +479,20 @@ def agg_WRs(grouped, point_tiers):
     df.insert(
         41,
         "FPTS_QSRat",
-        (df["FPTS_great"] + df["FPTS_good"] + df["FPTS_okay"])
+        (df["FPTS_great"] + df["FPTS_good"])
         / np.where(
-            df["FPTS_poor"] + df["FPTS_bad"] != 0, df["FPTS_poor"] + df["FPTS_bad"], 1
+            df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_okay"] != 0,
+            df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_okay"],
+            1,
         ),
     )
     df.insert(
         42,
         "FPTS_GSRat",
-        (df["FPTS_great"] + df["FPTS_good"])
+        (df["FPTS_great"])
         / np.where(
-            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"] != 0,
-            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"],
+            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_good"] != 0,
+            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_good"],
             1,
         ),
     )
@@ -624,9 +503,9 @@ def agg_WRs(grouped, point_tiers):
         * (
             df["FPTS_adj"] * scoring_weights[0]
             + df["FPTS_median"] * scoring_weights[1]
-            + df["FPTS_QSRat"] * scoring_weights[2]
-            + df["FPTS_GSRat"] * scoring_weights[3]
-            + df["OPP_mean"] * scoring_weights[4]
+            + df["OPP_mean"] * scoring_weights[2]
+            + np.log2(df["FPTS_QSRat"] + 1)
+            + np.log2(df["FPTS_GSRat"] + 1)
         ),
     )
 
@@ -642,18 +521,20 @@ def agg_WRs(grouped, point_tiers):
     df.insert(
         54,
         "HALF_QSRat",
-        (df["HALF_great"] + df["HALF_good"] + df["HALF_okay"])
+        (df["HALF_great"] + df["HALF_good"])
         / np.where(
-            df["HALF_poor"] + df["HALF_bad"] != 0, df["HALF_poor"] + df["HALF_bad"], 1
+            df["HALF_poor"] + df["HALF_bad"] + df["HALF_okay"] != 0,
+            df["HALF_poor"] + df["HALF_bad"] + df["HALF_okay"],
+            1,
         ),
     )
     df.insert(
         55,
         "HALF_GSRat",
-        (df["HALF_great"] + df["HALF_good"])
+        (df["HALF_great"])
         / np.where(
-            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"] != 0,
-            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"],
+            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"] + df["HALF_good"] != 0,
+            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"] + df["HALF_good"],
             1,
         ),
     )
@@ -664,9 +545,9 @@ def agg_WRs(grouped, point_tiers):
         * (
             df["HALF_adj"] * scoring_weights[0]
             + df["HALF_median"] * scoring_weights[1]
-            + df["HALF_QSRat"] * scoring_weights[2]
-            + df["HALF_GSRat"] * scoring_weights[3]
-            + df["OPP_mean"] * scoring_weights[4]
+            + df["OPP_mean"] * scoring_weights[2]
+            + np.log2(df["HALF_QSRat"] + 1)
+            + np.log2(df["HALF_GSRat"] + 1)
         ),
     )
 
@@ -682,18 +563,20 @@ def agg_WRs(grouped, point_tiers):
     df.insert(
         67,
         "PPR_QSRat",
-        (df["PPR_great"] + df["PPR_good"] + df["PPR_okay"])
+        (df["PPR_great"] + df["PPR_good"])
         / np.where(
-            df["PPR_poor"] + df["PPR_bad"] != 0, df["PPR_poor"] + df["PPR_bad"], 1
+            df["PPR_poor"] + df["PPR_bad"] + df["PPR_okay"] != 0,
+            df["PPR_poor"] + df["PPR_bad"] + df["PPR_okay"],
+            1,
         ),
     )
     df.insert(
         68,
         "PPR_GSRat",
-        (df["PPR_great"] + df["PPR_good"])
+        (df["PPR_great"])
         / np.where(
-            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"] != 0,
-            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"],
+            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"] + df["PPR_good"] != 0,
+            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"] + df["PPR_good"],
             1,
         ),
     )
@@ -704,9 +587,9 @@ def agg_WRs(grouped, point_tiers):
         * (
             df["PPR_adj"] * scoring_weights[0]
             + df["PPR_median"] * scoring_weights[1]
-            + df["PPR_QSRat"] * scoring_weights[2]
-            + df["PPR_GSRat"] * scoring_weights[3]
-            + df["OPP_mean"] * scoring_weights[4]
+            + df["OPP_mean"] * scoring_weights[2]
+            + np.log2(df["PPR_QSRat"] + 1)
+            + np.log2(df["PPR_GSRat"] + 1)
         ),
     )
 
@@ -715,7 +598,7 @@ def agg_WRs(grouped, point_tiers):
     return df
 
 
-def agg_TEs(grouped, point_tiers):
+def agg_TEs(grouped):
     df = grouped.agg(
         G=("Player", "size"),
         rec_REC=("REC", "sum"),
@@ -742,74 +625,29 @@ def agg_TEs(grouped, point_tiers):
         FPTS_mean=("FPTS", "mean"),
         FPTS_median=("FPTS", "median"),
         FPTS_std=("FPTS", "std"),
-        FPTS_bad=("FPTS", lambda x: sum(1 for y in x if y < point_tiers[0][0])),
-        FPTS_poor=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[0][0]) and (y < point_tiers[0][1])
-            ),
-        ),
-        FPTS_okay=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[0][1]) and (y < point_tiers[0][2])
-            ),
-        ),
-        FPTS_good=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[0][2]) and (y < point_tiers[0][3])
-            ),
-        ),
-        FPTS_great=("FPTS", lambda x: sum(1 for y in x if y >= point_tiers[0][3])),
+        FPTS_bad=("FPTS_tier", lambda x: sum(1 for y in x if y == 5)),
+        FPTS_poor=("FPTS_tier", lambda x: sum(1 for y in x if y == 4)),
+        FPTS_okay=("FPTS_tier", lambda x: sum(1 for y in x if y == 3)),
+        FPTS_good=("FPTS_tier", lambda x: sum(1 for y in x if y == 2)),
+        FPTS_great=("FPTS_tier", lambda x: sum(1 for y in x if y == 1)),
         HALF=("HALF", "sum"),
         HALF_mean=("HALF", "mean"),
         HALF_median=("HALF", "median"),
         HALF_std=("HALF", "std"),
-        HALF_bad=("HALF", lambda x: sum(1 for y in x if y < point_tiers[1][0])),
-        HALF_poor=(
-            "HALF",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[1][0]) and (y < point_tiers[1][1])
-            ),
-        ),
-        HALF_okay=(
-            "HALF",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[1][1]) and (y < point_tiers[1][2])
-            ),
-        ),
-        HALF_good=(
-            "HALF",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[1][2]) and (y < point_tiers[1][3])
-            ),
-        ),
-        HALF_great=("HALF", lambda x: sum(1 for y in x if y >= point_tiers[1][3])),
+        HALF_bad=("HALF_tier", lambda x: sum(1 for y in x if y == 5)),
+        HALF_poor=("HALF_tier", lambda x: sum(1 for y in x if y == 4)),
+        HALF_okay=("HALF_tier", lambda x: sum(1 for y in x if y == 3)),
+        HALF_good=("HALF_tier", lambda x: sum(1 for y in x if y == 2)),
+        HALF_great=("HALF_tier", lambda x: sum(1 for y in x if y == 1)),
         PPR=("PPR", "sum"),
         PPR_mean=("PPR", "mean"),
         PPR_median=("PPR", "median"),
         PPR_std=("PPR", "std"),
-        PPR_bad=("PPR", lambda x: sum(1 for y in x if y < point_tiers[2][0])),
-        PPR_poor=(
-            "PPR",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[2][0]) and (y < point_tiers[2][1])
-            ),
-        ),
-        PPR_okay=(
-            "PPR",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[2][1]) and (y < point_tiers[2][2])
-            ),
-        ),
-        PPR_good=(
-            "PPR",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[2][2]) and (y < point_tiers[2][3])
-            ),
-        ),
-        PPR_great=("PPR", lambda x: sum(1 for y in x if y >= point_tiers[2][3])),
+        PPR_bad=("PPR_tier", lambda x: sum(1 for y in x if y == 5)),
+        PPR_poor=("PPR_tier", lambda x: sum(1 for y in x if y == 4)),
+        PPR_okay=("PPR_tier", lambda x: sum(1 for y in x if y == 3)),
+        PPR_good=("PPR_tier", lambda x: sum(1 for y in x if y == 2)),
+        PPR_great=("PPR_tier", lambda x: sum(1 for y in x if y == 1)),
     )
 
     df.insert(1, "POS", "TE")
@@ -834,18 +672,20 @@ def agg_TEs(grouped, point_tiers):
     df.insert(
         41,
         "FPTS_QSRat",
-        (df["FPTS_great"] + df["FPTS_good"] + df["FPTS_okay"])
+        (df["FPTS_great"] + df["FPTS_good"])
         / np.where(
-            df["FPTS_poor"] + df["FPTS_bad"] != 0, df["FPTS_poor"] + df["FPTS_bad"], 1
+            df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_okay"] != 0,
+            df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_okay"],
+            1,
         ),
     )
     df.insert(
         42,
         "FPTS_GSRat",
-        (df["FPTS_great"] + df["FPTS_good"])
+        (df["FPTS_great"])
         / np.where(
-            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"] != 0,
-            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"],
+            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_good"] != 0,
+            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_good"],
             1,
         ),
     )
@@ -856,9 +696,9 @@ def agg_TEs(grouped, point_tiers):
         * (
             df["FPTS_adj"] * scoring_weights[0]
             + df["FPTS_median"] * scoring_weights[1]
-            + df["FPTS_QSRat"] * scoring_weights[2]
-            + df["FPTS_GSRat"] * scoring_weights[3]
-            + df["OPP_mean"] * scoring_weights[4]
+            + df["OPP_mean"] * scoring_weights[2]
+            + np.log2(df["FPTS_QSRat"] + 1)
+            + np.log2(df["FPTS_GSRat"] + 1)
         ),
     )
 
@@ -874,18 +714,20 @@ def agg_TEs(grouped, point_tiers):
     df.insert(
         54,
         "HALF_QSRat",
-        (df["HALF_great"] + df["HALF_good"] + df["HALF_okay"])
+        (df["HALF_great"] + df["HALF_good"])
         / np.where(
-            df["HALF_poor"] + df["HALF_bad"] != 0, df["HALF_poor"] + df["HALF_bad"], 1
+            df["HALF_poor"] + df["HALF_bad"] + df["HALF_okay"] != 0,
+            df["HALF_poor"] + df["HALF_bad"] + df["HALF_okay"],
+            1,
         ),
     )
     df.insert(
         55,
         "HALF_GSRat",
-        (df["HALF_great"] + df["HALF_good"])
+        (df["HALF_great"])
         / np.where(
-            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"] != 0,
-            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"],
+            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"] + df["HALF_good"] != 0,
+            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"] + df["HALF_good"],
             1,
         ),
     )
@@ -896,9 +738,9 @@ def agg_TEs(grouped, point_tiers):
         * (
             df["HALF_adj"] * scoring_weights[0]
             + df["HALF_median"] * scoring_weights[1]
-            + df["HALF_QSRat"] * scoring_weights[2]
-            + df["HALF_GSRat"] * scoring_weights[3]
-            + df["OPP_mean"] * scoring_weights[4]
+            + df["OPP_mean"] * scoring_weights[2]
+            + np.log2(df["HALF_QSRat"] + 1)
+            + np.log2(df["HALF_GSRat"] + 1)
         ),
     )
 
@@ -914,18 +756,20 @@ def agg_TEs(grouped, point_tiers):
     df.insert(
         67,
         "PPR_QSRat",
-        (df["PPR_great"] + df["PPR_good"] + df["PPR_okay"])
+        (df["PPR_great"] + df["PPR_good"])
         / np.where(
-            df["PPR_poor"] + df["PPR_bad"] != 0, df["PPR_poor"] + df["PPR_bad"], 1
+            df["PPR_poor"] + df["PPR_bad"] + df["PPR_okay"] != 0,
+            df["PPR_poor"] + df["PPR_bad"] + df["PPR_okay"],
+            1,
         ),
     )
     df.insert(
         68,
         "PPR_GSRat",
-        (df["PPR_great"] + df["PPR_good"])
+        (df["PPR_great"])
         / np.where(
-            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"] != 0,
-            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"],
+            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"] + df["PPR_good"] != 0,
+            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"] + df["PPR_good"],
             1,
         ),
     )
@@ -936,9 +780,9 @@ def agg_TEs(grouped, point_tiers):
         * (
             df["PPR_adj"] * scoring_weights[0]
             + df["PPR_median"] * scoring_weights[1]
-            + df["PPR_QSRat"] * scoring_weights[2]
-            + df["PPR_GSRat"] * scoring_weights[3]
-            + df["OPP_mean"] * scoring_weights[4]
+            + df["OPP_mean"] * scoring_weights[2]
+            + np.log2(df["PPR_QSRat"] + 1)
+            + np.log2(df["PPR_GSRat"] + 1)
         ),
     )
 
@@ -947,7 +791,7 @@ def agg_TEs(grouped, point_tiers):
     return df
 
 
-def agg_Ks(grouped, point_tiers):
+def agg_Ks(grouped):
     df = grouped.agg(
         G=("Player", "size"),
         FG=("FG", "sum"),
@@ -974,74 +818,29 @@ def agg_Ks(grouped, point_tiers):
         FPTS_mean=("FPTS", "mean"),
         FPTS_median=("FPTS", "median"),
         FPTS_std=("FPTS", "std"),
-        FPTS_bad=("FPTS", lambda x: sum(1 for y in x if y < point_tiers[0][0])),
-        FPTS_poor=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[0][0]) and (y < point_tiers[0][1])
-            ),
-        ),
-        FPTS_okay=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[0][1]) and (y < point_tiers[0][2])
-            ),
-        ),
-        FPTS_good=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[0][2]) and (y < point_tiers[0][3])
-            ),
-        ),
-        FPTS_great=("FPTS", lambda x: sum(1 for y in x if y >= point_tiers[0][3])),
+        FPTS_bad=("FPTS_tier", lambda x: sum(1 for y in x if y == 5)),
+        FPTS_poor=("FPTS_tier", lambda x: sum(1 for y in x if y == 4)),
+        FPTS_okay=("FPTS_tier", lambda x: sum(1 for y in x if y == 3)),
+        FPTS_good=("FPTS_tier", lambda x: sum(1 for y in x if y == 2)),
+        FPTS_great=("FPTS_tier", lambda x: sum(1 for y in x if y == 1)),
         HALF=("FPTS", "sum"),
         HALF_mean=("FPTS", "mean"),
         HALF_median=("FPTS", "median"),
         HALF_std=("FPTS", "std"),
-        HALF_bad=("FPTS", lambda x: sum(1 for y in x if y < point_tiers[1][0])),
-        HALF_poor=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[1][0]) and (y < point_tiers[1][1])
-            ),
-        ),
-        HALF_okay=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[1][1]) and (y < point_tiers[1][2])
-            ),
-        ),
-        HALF_good=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[1][2]) and (y < point_tiers[1][3])
-            ),
-        ),
-        HALF_great=("FPTS", lambda x: sum(1 for y in x if y >= point_tiers[1][3])),
+        HALF_bad=("HALF_tier", lambda x: sum(1 for y in x if y == 5)),
+        HALF_poor=("HALF_tier", lambda x: sum(1 for y in x if y == 4)),
+        HALF_okay=("HALF_tier", lambda x: sum(1 for y in x if y == 3)),
+        HALF_good=("HALF_tier", lambda x: sum(1 for y in x if y == 2)),
+        HALF_great=("HALF_tier", lambda x: sum(1 for y in x if y == 1)),
         PPR=("FPTS", "sum"),
         PPR_mean=("FPTS", "mean"),
         PPR_median=("FPTS", "median"),
         PPR_std=("FPTS", "std"),
-        PPR_bad=("FPTS", lambda x: sum(1 for y in x if y < point_tiers[2][0])),
-        PPR_poor=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[2][0]) and (y < point_tiers[2][1])
-            ),
-        ),
-        PPR_okay=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[2][1]) and (y < point_tiers[2][2])
-            ),
-        ),
-        PPR_good=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[2][2]) and (y < point_tiers[2][3])
-            ),
-        ),
-        PPR_great=("FPTS", lambda x: sum(1 for y in x if y >= point_tiers[2][3])),
+        PPR_bad=("PPR_tier", lambda x: sum(1 for y in x if y == 5)),
+        PPR_poor=("PPR_tier", lambda x: sum(1 for y in x if y == 4)),
+        PPR_okay=("PPR_tier", lambda x: sum(1 for y in x if y == 3)),
+        PPR_good=("PPR_tier", lambda x: sum(1 for y in x if y == 2)),
+        PPR_great=("PPR_tier", lambda x: sum(1 for y in x if y == 1)),
     )
 
     df.insert(1, "POS", "K")
@@ -1063,18 +862,20 @@ def agg_Ks(grouped, point_tiers):
     df.insert(
         38,
         "FPTS_QSRat",
-        (df["FPTS_great"] + df["FPTS_good"] + df["FPTS_okay"])
+        (df["FPTS_great"] + df["FPTS_good"])
         / np.where(
-            df["FPTS_poor"] + df["FPTS_bad"] != 0, df["FPTS_poor"] + df["FPTS_bad"], 1
+            df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_okay"] != 0,
+            df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_okay"],
+            1,
         ),
     )
     df.insert(
         39,
         "FPTS_GSRat",
-        (df["FPTS_great"] + df["FPTS_good"])
+        (df["FPTS_great"])
         / np.where(
-            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"] != 0,
-            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"],
+            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_good"] != 0,
+            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_good"],
             1,
         ),
     )
@@ -1085,9 +886,9 @@ def agg_Ks(grouped, point_tiers):
         * (
             df["FPTS_adj"] * scoring_weights[0]
             + df["FPTS_median"] * scoring_weights[1]
-            + df["FPTS_QSRat"] * scoring_weights[2]
-            + df["FPTS_GSRat"] * scoring_weights[3]
-            + df["OPP_mean"] * scoring_weights[4]
+            + df["OPP_mean"] * scoring_weights[2]
+            + np.log2(df["FPTS_QSRat"] + 1)
+            + np.log2(df["FPTS_GSRat"] + 1)
         ),
     )
 
@@ -1103,18 +904,20 @@ def agg_Ks(grouped, point_tiers):
     df.insert(
         51,
         "HALF_QSRat",
-        (df["HALF_great"] + df["HALF_good"] + df["HALF_okay"])
+        (df["HALF_great"] + df["HALF_good"])
         / np.where(
-            df["HALF_poor"] + df["HALF_bad"] != 0, df["HALF_poor"] + df["HALF_bad"], 1
+            df["HALF_poor"] + df["HALF_bad"] + df["HALF_okay"] != 0,
+            df["HALF_poor"] + df["HALF_bad"] + df["HALF_okay"],
+            1,
         ),
     )
     df.insert(
         52,
         "HALF_GSRat",
-        (df["HALF_great"] + df["HALF_good"])
+        (df["HALF_great"])
         / np.where(
-            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"] != 0,
-            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"],
+            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"] + df["HALF_good"] != 0,
+            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"] + df["HALF_good"],
             1,
         ),
     )
@@ -1125,9 +928,9 @@ def agg_Ks(grouped, point_tiers):
         * (
             df["HALF_adj"] * scoring_weights[0]
             + df["HALF_median"] * scoring_weights[1]
-            + df["HALF_QSRat"] * scoring_weights[2]
-            + df["HALF_GSRat"] * scoring_weights[3]
-            + df["OPP_mean"] * scoring_weights[4]
+            + df["OPP_mean"] * scoring_weights[2]
+            + np.log2(df["HALF_QSRat"] + 1)
+            + np.log2(df["HALF_GSRat"] + 1)
         ),
     )
 
@@ -1143,18 +946,20 @@ def agg_Ks(grouped, point_tiers):
     df.insert(
         64,
         "PPR_QSRat",
-        (df["PPR_great"] + df["PPR_good"] + df["PPR_okay"])
+        (df["PPR_great"] + df["PPR_good"])
         / np.where(
-            df["PPR_poor"] + df["PPR_bad"] != 0, df["PPR_poor"] + df["PPR_bad"], 1
+            df["PPR_poor"] + df["PPR_bad"] + df["PPR_okay"] != 0,
+            df["PPR_poor"] + df["PPR_bad"] + df["PPR_okay"],
+            1,
         ),
     )
     df.insert(
         65,
         "PPR_GSRat",
-        (df["PPR_great"] + df["PPR_good"])
+        (df["PPR_great"])
         / np.where(
-            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"] != 0,
-            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"],
+            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"] + df["PPR_good"] != 0,
+            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"] + df["PPR_good"],
             1,
         ),
     )
@@ -1165,9 +970,9 @@ def agg_Ks(grouped, point_tiers):
         * (
             df["PPR_adj"] * scoring_weights[0]
             + df["PPR_median"] * scoring_weights[1]
-            + df["PPR_QSRat"] * scoring_weights[2]
-            + df["PPR_GSRat"] * scoring_weights[3]
-            + df["OPP_mean"] * scoring_weights[4]
+            + df["OPP_mean"] * scoring_weights[2]
+            + np.log2(df["PPR_QSRat"] + 1)
+            + np.log2(df["PPR_GSRat"] + 1)
         ),
     )
 
@@ -1176,7 +981,7 @@ def agg_Ks(grouped, point_tiers):
     return df
 
 
-def agg_DSTs(grouped, point_tiers):
+def agg_DSTs(grouped):
     df = grouped.agg(
         G=("Player", "size"),
         SACK=("SACK", "sum"),
@@ -1197,74 +1002,29 @@ def agg_DSTs(grouped, point_tiers):
         FPTS_mean=("FPTS", "mean"),
         FPTS_median=("FPTS", "median"),
         FPTS_std=("FPTS", "std"),
-        FPTS_bad=("FPTS", lambda x: sum(1 for y in x if y < point_tiers[0][0])),
-        FPTS_poor=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[0][0]) and (y < point_tiers[0][1])
-            ),
-        ),
-        FPTS_okay=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[0][1]) and (y < point_tiers[0][2])
-            ),
-        ),
-        FPTS_good=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[0][2]) and (y < point_tiers[0][3])
-            ),
-        ),
-        FPTS_great=("FPTS", lambda x: sum(1 for y in x if y >= point_tiers[0][3])),
+        FPTS_bad=("FPTS_tier", lambda x: sum(1 for y in x if y == 5)),
+        FPTS_poor=("FPTS_tier", lambda x: sum(1 for y in x if y == 4)),
+        FPTS_okay=("FPTS_tier", lambda x: sum(1 for y in x if y == 3)),
+        FPTS_good=("FPTS_tier", lambda x: sum(1 for y in x if y == 2)),
+        FPTS_great=("FPTS_tier", lambda x: sum(1 for y in x if y == 1)),
         HALF=("FPTS", "sum"),
         HALF_mean=("FPTS", "mean"),
         HALF_median=("FPTS", "median"),
         HALF_std=("FPTS", "std"),
-        HALF_bad=("FPTS", lambda x: sum(1 for y in x if y < point_tiers[1][0])),
-        HALF_poor=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[1][0]) and (y < point_tiers[1][1])
-            ),
-        ),
-        HALF_okay=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[1][1]) and (y < point_tiers[1][2])
-            ),
-        ),
-        HALF_good=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[1][2]) and (y < point_tiers[1][3])
-            ),
-        ),
-        HALF_great=("FPTS", lambda x: sum(1 for y in x if y >= point_tiers[1][3])),
+        HALF_bad=("HALF_tier", lambda x: sum(1 for y in x if y == 5)),
+        HALF_poor=("HALF_tier", lambda x: sum(1 for y in x if y == 4)),
+        HALF_okay=("HALF_tier", lambda x: sum(1 for y in x if y == 3)),
+        HALF_good=("HALF_tier", lambda x: sum(1 for y in x if y == 2)),
+        HALF_great=("HALF_tier", lambda x: sum(1 for y in x if y == 1)),
         PPR=("FPTS", "sum"),
         PPR_mean=("FPTS", "mean"),
         PPR_median=("FPTS", "median"),
         PPR_std=("FPTS", "std"),
-        PPR_bad=("FPTS", lambda x: sum(1 for y in x if y < point_tiers[2][0])),
-        PPR_poor=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[2][0]) and (y < point_tiers[2][1])
-            ),
-        ),
-        PPR_okay=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[2][1]) and (y < point_tiers[2][2])
-            ),
-        ),
-        PPR_good=(
-            "FPTS",
-            lambda x: sum(
-                1 for y in x if (y >= point_tiers[2][2]) and (y < point_tiers[2][3])
-            ),
-        ),
-        PPR_great=("FPTS", lambda x: sum(1 for y in x if y >= point_tiers[2][3])),
+        PPR_bad=("PPR_tier", lambda x: sum(1 for y in x if y == 5)),
+        PPR_poor=("PPR_tier", lambda x: sum(1 for y in x if y == 4)),
+        PPR_okay=("PPR_tier", lambda x: sum(1 for y in x if y == 3)),
+        PPR_good=("PPR_tier", lambda x: sum(1 for y in x if y == 2)),
+        PPR_great=("PPR_tier", lambda x: sum(1 for y in x if y == 1)),
     )
 
     df.insert(1, "POS", "DST")
@@ -1281,18 +1041,20 @@ def agg_DSTs(grouped, point_tiers):
     df.insert(
         27,
         "FPTS_QSRat",
-        (df["FPTS_great"] + df["FPTS_good"] + df["FPTS_okay"])
+        (df["FPTS_great"] + df["FPTS_good"])
         / np.where(
-            df["FPTS_poor"] + df["FPTS_bad"] != 0, df["FPTS_poor"] + df["FPTS_bad"], 1
+            df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_okay"] != 0,
+            df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_okay"],
+            1,
         ),
     )
     df.insert(
         28,
         "FPTS_GSRat",
-        (df["FPTS_great"] + df["FPTS_good"])
+        (df["FPTS_great"])
         / np.where(
-            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"] != 0,
-            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"],
+            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_good"] != 0,
+            df["FPTS_okay"] + df["FPTS_poor"] + df["FPTS_bad"] + df["FPTS_good"],
             1,
         ),
     )
@@ -1301,8 +1063,8 @@ def agg_DSTs(grouped, point_tiers):
         "FPTS_Score",
         df["FPTS_adj"] * scoring_weights[0]
         + df["FPTS_median"] * scoring_weights[1]
-        + df["FPTS_QSRat"] * scoring_weights[2]
-        + df["FPTS_GSRat"] * scoring_weights[3],
+        + np.log2(df["FPTS_QSRat"] + 1)
+        + np.log2(df["FPTS_GSRat"] + 1),
     )
 
     df.insert(
@@ -1317,18 +1079,20 @@ def agg_DSTs(grouped, point_tiers):
     df.insert(
         40,
         "HALF_QSRat",
-        (df["HALF_great"] + df["HALF_good"] + df["HALF_okay"])
+        (df["HALF_great"] + df["HALF_good"])
         / np.where(
-            df["HALF_poor"] + df["HALF_bad"] != 0, df["HALF_poor"] + df["HALF_bad"], 1
+            df["HALF_poor"] + df["HALF_bad"] + df["HALF_okay"] != 0,
+            df["HALF_poor"] + df["HALF_bad"] + df["HALF_okay"],
+            1,
         ),
     )
     df.insert(
         41,
         "HALF_GSRat",
-        (df["HALF_great"] + df["HALF_good"])
+        (df["HALF_great"])
         / np.where(
-            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"] != 0,
-            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"],
+            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"] + df["HALF_good"] != 0,
+            df["HALF_okay"] + df["HALF_poor"] + df["HALF_bad"] + df["HALF_good"],
             1,
         ),
     )
@@ -1337,8 +1101,8 @@ def agg_DSTs(grouped, point_tiers):
         "HALF_Score",
         df["HALF_adj"] * scoring_weights[0]
         + df["HALF_median"] * scoring_weights[1]
-        + df["HALF_QSRat"] * scoring_weights[2]
-        + df["HALF_GSRat"] * scoring_weights[3],
+        + np.log2(df["HALF_QSRat"] + 1)
+        + np.log2(df["HALF_GSRat"] + 1),
     )
 
     df.insert(
@@ -1353,18 +1117,20 @@ def agg_DSTs(grouped, point_tiers):
     df.insert(
         53,
         "PPR_QSRat",
-        (df["PPR_great"] + df["PPR_good"] + df["PPR_okay"])
+        (df["PPR_great"] + df["PPR_good"])
         / np.where(
-            df["PPR_poor"] + df["PPR_bad"] != 0, df["PPR_poor"] + df["PPR_bad"], 1
+            df["PPR_poor"] + df["PPR_bad"] + df["PPR_okay"] != 0,
+            df["PPR_poor"] + df["PPR_bad"] + df["PPR_okay"],
+            1,
         ),
     )
     df.insert(
         54,
         "PPR_GSRat",
-        (df["PPR_great"] + df["PPR_good"])
+        (df["PPR_great"])
         / np.where(
-            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"] != 0,
-            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"],
+            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"] + df["PPR_good"] != 0,
+            df["PPR_okay"] + df["PPR_poor"] + df["PPR_bad"] + df["PPR_good"],
             1,
         ),
     )
@@ -1373,8 +1139,8 @@ def agg_DSTs(grouped, point_tiers):
         "PPR_Score",
         df["PPR_adj"] * scoring_weights[0]
         + df["PPR_median"] * scoring_weights[1]
-        + df["PPR_QSRat"] * scoring_weights[2]
-        + df["PPR_GSRat"] * scoring_weights[3],
+        + np.log2(df["PPR_QSRat"] + 1)
+        + np.log2(df["PPR_GSRat"] + 1),
     )
 
     df.replace(np.inf, 0, inplace=True)
