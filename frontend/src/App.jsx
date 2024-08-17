@@ -8,6 +8,7 @@ import FormAndRankings from "./components/FormAndRankings/FormAndRankings";
 
 const App = () => {
     const view = useSelector((state) => state.view.view);
+    const maxWidth = useSelector((state) => state.view.maxWidth);
     const consoleError = console.error;
     const consoleWarn = console.warn;
     const SUPPRESSED = [
@@ -31,7 +32,7 @@ const App = () => {
         <>
             <TopBar />
             <Container
-                maxWidth="xl"
+                maxWidth={maxWidth}
                 sx={{
                     mt: 2,
                 }}

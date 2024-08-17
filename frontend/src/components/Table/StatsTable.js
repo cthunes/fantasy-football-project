@@ -2310,6 +2310,7 @@ const StatsTable = () => {
         <Box
             sx={{
                 backgroundColor: "secondary.main",
+                mx: 5,
             }}
         >
             <MaterialReactTable

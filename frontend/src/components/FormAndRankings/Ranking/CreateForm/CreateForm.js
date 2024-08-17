@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
+    Container,
     Card,
     CardHeader,
     CardContent,
@@ -19,6 +20,7 @@ import {
     Typography,
     Button,
     Switch,
+    Divider,
 } from "@mui/material";
 import { KeyboardArrowUp, KeyboardArrowDown } from "@mui/icons-material";
 
@@ -92,306 +94,321 @@ const CreateForm = () => {
     }
 
     return (
-        <Card
-            border={5}
-            borderRadius={2}
-            sx={{
-                borderColor: "secondary.dark",
-            }}
-        >
-            <CardHeader
-                title="Create New Rankings"
-                titleTypographyProps={{ color: "white", fontSize: 20 }}
-                action={
-                    <IconButton
-                        onClick={() => setExpanded(!expanded)}
-                        size="small"
-                    >
-                        {expanded ? (
-                            <KeyboardArrowUp sx={{ color: "white" }} />
-                        ) : (
-                            <KeyboardArrowDown sx={{ color: "white" }} />
-                        )}
-                    </IconButton>
-                }
-                sx={{ backgroundColor: "secondary.main" }}
-            ></CardHeader>
-            <Box sx={{ backgroundColor: "secondary.light" }}>
-                <Collapse in={expanded} timeout="auto" unmountOnExit>
-                    <CardContent>
-                        <Box
-                            border={2}
-                            borderRadius={2}
-                            sx={{
-                                p: 1,
-                                px: 2,
-                                borderColor: "secondary.dark",
-                                backgroundColor: "white",
-                            }}
+        <Container maxWidth="xl">
+            <Card
+                border={5}
+                borderRadius={2}
+                sx={{
+                    mx: 5,
+                    borderColor: "secondary.dark",
+                }}
+            >
+                <CardHeader
+                    title="Generate Rankings"
+                    titleTypographyProps={{ fontSize: 18 }}
+                    action={
+                        <IconButton
+                            onClick={() => setExpanded(!expanded)}
+                            size="small"
                         >
-                            <Grid
-                                container
-                                justify="space-between"
-                                alignItems="stretch"
-                                columnSpacing={2}
+                            {expanded ? (
+                                <KeyboardArrowUp sx={{ color: "black" }} />
+                            ) : (
+                                <KeyboardArrowDown sx={{ color: "black" }} />
+                            )}
+                        </IconButton>
+                    }
+                    sx={{
+                        py: 1,
+                        backgroundColor: "secondary.light",
+                    }}
+                ></CardHeader>
+                <Box sx={{ backgroundColor: "secondary.light" }}>
+                    <Collapse in={expanded} timeout="auto" unmountOnExit>
+                        <Divider sx={{ backgroundColor: "secondary.dark" }} />
+                        <CardContent>
+                            <Box
+                                border={2}
+                                borderRadius={2}
+                                sx={{
+                                    p: 1,
+                                    px: 2,
+                                    borderColor: "secondary.dark",
+                                    backgroundColor: "white",
+                                }}
                             >
-                                <Grid item md={4}>
-                                    <ListItemText secondary="Generate from descending order:" />
-                                </Grid>
-                                <Grid item md={8}>
-                                    <FormControl
-                                        size="small"
-                                        sx={{ my: 1, mr: 1, width: 180 }}
-                                    >
-                                        <InputLabel id="year-label">
-                                            Year
-                                        </InputLabel>
-                                        <Select
-                                            labelId="year-label"
-                                            id="year-select"
-                                            value={year}
-                                            label="Year"
+                                <Grid
+                                    container
+                                    justify="space-between"
+                                    alignItems="stretch"
+                                    columnSpacing={2}
+                                >
+                                    <Grid item md={4}>
+                                        <ListItemText secondary="Generate from descending order:" />
+                                    </Grid>
+                                    <Grid item md={8}>
+                                        <FormControl
+                                            size="small"
+                                            sx={{ my: 1, mr: 1, width: 180 }}
                                         >
-                                            <MenuItem
-                                                value={"Weighted Average"}
+                                            <InputLabel id="year-label">
+                                                Year
+                                            </InputLabel>
+                                            <Select
+                                                labelId="year-label"
+                                                id="year-select"
+                                                value={year}
+                                                label="Year"
                                             >
-                                                Weighted Average
-                                            </MenuItem>
-                                            <MenuItem value={"2023"}>
-                                                2023
-                                            </MenuItem>
-                                            <MenuItem value={"2022"}>
-                                                2022
-                                            </MenuItem>
-                                            <MenuItem value={"2021"}>
-                                                2021
-                                            </MenuItem>
-                                            <MenuItem value={"2020"}>
-                                                2020
-                                            </MenuItem>
-                                            <MenuItem value={"2019"}>
-                                                2019
-                                            </MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                    <FormControl
-                                        size="small"
-                                        sx={{ my: 1, mr: 1, width: 180 }}
-                                    >
-                                        <InputLabel id="type-label">
-                                            Scoring
-                                        </InputLabel>
-                                        <Select
-                                            labelId="type-label"
-                                            id="type-select"
-                                            value={pointsType}
-                                            label="Scoring"
-                                            onChange={(event) => {
-                                                if (
-                                                    column ===
-                                                    "half.projected.sum"
-                                                )
-                                                    setColumn(
-                                                        `${event.target.value}.score`
-                                                    );
-                                                else
-                                                    setColumn(
-                                                        `${
+                                                <MenuItem
+                                                    value={"Weighted Average"}
+                                                >
+                                                    Weighted Average
+                                                </MenuItem>
+                                                <MenuItem value={"2023"}>
+                                                    2023
+                                                </MenuItem>
+                                                <MenuItem value={"2022"}>
+                                                    2022
+                                                </MenuItem>
+                                                <MenuItem value={"2021"}>
+                                                    2021
+                                                </MenuItem>
+                                                <MenuItem value={"2020"}>
+                                                    2020
+                                                </MenuItem>
+                                                <MenuItem value={"2019"}>
+                                                    2019
+                                                </MenuItem>
+                                            </Select>
+                                        </FormControl>
+                                        <FormControl
+                                            size="small"
+                                            sx={{ my: 1, mr: 1, width: 180 }}
+                                        >
+                                            <InputLabel id="type-label">
+                                                Scoring
+                                            </InputLabel>
+                                            <Select
+                                                labelId="type-label"
+                                                id="type-select"
+                                                value={pointsType}
+                                                label="Scoring"
+                                                onChange={(event) => {
+                                                    if (
+                                                        column ===
+                                                        "half.projected.sum"
+                                                    )
+                                                        setColumn(
+                                                            `${event.target.value}.score`
+                                                        );
+                                                    else
+                                                        setColumn(
+                                                            `${
+                                                                event.target
+                                                                    .value
+                                                            }.${column.substring(
+                                                                column.indexOf(
+                                                                    "."
+                                                                ) + 1
+                                                            )}`
+                                                        );
+                                                    dispatch(
+                                                        setPointsType(
                                                             event.target.value
-                                                        }.${column.substring(
-                                                            column.indexOf(
-                                                                "."
-                                                            ) + 1
-                                                        )}`
+                                                        )
                                                     );
-                                                dispatch(
-                                                    setPointsType(
+                                                }}
+                                            >
+                                                <MenuItem value={"standard"}>
+                                                    Standard
+                                                </MenuItem>
+                                                <MenuItem value={"half"}>
+                                                    Half-PPR
+                                                </MenuItem>
+                                                <MenuItem value={"ppr"}>
+                                                    PPR
+                                                </MenuItem>
+                                            </Select>
+                                        </FormControl>
+                                        <FormControl
+                                            size="small"
+                                            sx={{ my: 1, mr: 1, width: 180 }}
+                                        >
+                                            <InputLabel id="column-label">
+                                                Column
+                                            </InputLabel>
+                                            <Select
+                                                labelId="column-label"
+                                                id="column-select"
+                                                value={column}
+                                                label="Column"
+                                                onChange={(event) =>
+                                                    setColumn(
                                                         event.target.value
                                                     )
-                                                );
+                                                }
+                                            >
+                                                <MenuItem
+                                                    value={`${pointsType}.score`}
+                                                >
+                                                    Score
+                                                </MenuItem>
+                                                <MenuItem
+                                                    disabled={
+                                                        pointsType === "half"
+                                                            ? false
+                                                            : true
+                                                    }
+                                                    value={`${pointsType}.projected.sum`}
+                                                >
+                                                    Projected Points
+                                                </MenuItem>
+                                                <MenuItem
+                                                    value={`${pointsType}.points.mean`}
+                                                >
+                                                    Mean Points
+                                                </MenuItem>
+                                                <MenuItem
+                                                    value={`${pointsType}.points.adjustedMean`}
+                                                >
+                                                    Adjusted Mean Points
+                                                </MenuItem>
+                                                <MenuItem
+                                                    value={`${pointsType}.points.median`}
+                                                >
+                                                    Median Points
+                                                </MenuItem>
+                                            </Select>
+                                        </FormControl>
+                                        <FormControl
+                                            sx={{ my: 1, minWidth: 120 }}
+                                        >
+                                            <FormControlLabel
+                                                control={
+                                                    <Switch
+                                                        color="secondary"
+                                                        checked={includeFAs}
+                                                        onChange={() =>
+                                                            setIncludeFAs(
+                                                                !includeFAs
+                                                            )
+                                                        }
+                                                    />
+                                                }
+                                                label="Include Free Agents"
+                                                labelPlacement="start"
+                                            />
+                                        </FormControl>
+                                        <Typography
+                                            id="input-slider"
+                                            fontSize={11.5}
+                                            sx={{ ml: 2, color: "#656565" }}
+                                        >
+                                            Number of Players
+                                        </Typography>
+                                        <Slider
+                                            aria-label="Number of Players"
+                                            defaultValue={300}
+                                            valueLabelDisplay="auto"
+                                            step={25}
+                                            marks
+                                            min={200}
+                                            max={400}
+                                            sx={{ color: "secondary.dark" }}
+                                            onChange={(event) =>
+                                                setNumber(event.target.value)
+                                            }
+                                        />
+                                        <Typography
+                                            fontSize={11}
+                                            sx={{
+                                                mb: 1,
+                                                mx: 0.5,
+                                                color: "#656565",
                                             }}
                                         >
-                                            <MenuItem value={"standard"}>
-                                                Standard
-                                            </MenuItem>
-                                            <MenuItem value={"half"}>
-                                                Half-PPR
-                                            </MenuItem>
-                                            <MenuItem value={"ppr"}>
-                                                PPR
-                                            </MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                    <FormControl
-                                        size="small"
-                                        sx={{ my: 1, mr: 1, width: 180 }}
-                                    >
-                                        <InputLabel id="column-label">
-                                            Column
-                                        </InputLabel>
-                                        <Select
-                                            labelId="column-label"
-                                            id="column-select"
-                                            value={column}
-                                            label="Column"
-                                            onChange={(event) =>
-                                                setColumn(event.target.value)
-                                            }
+                                            Note: QBs will be assigned 1/2 value
+                                            to appropriately place them.
+                                        </Typography>
+                                        <Button
+                                            sx={{
+                                                color: "white",
+                                                backgroundColor:
+                                                    "secondary.main",
+                                                width: 180,
+                                                ":hover": {
+                                                    bgcolor: "secondary.dark",
+                                                },
+                                            }}
+                                            onClick={generateRanking}
                                         >
-                                            <MenuItem
-                                                value={`${pointsType}.score`}
-                                            >
-                                                Score
-                                            </MenuItem>
-                                            <MenuItem
-                                                disabled={
-                                                    pointsType === "half"
-                                                        ? false
-                                                        : true
-                                                }
-                                                value={`${pointsType}.projected.sum`}
-                                            >
-                                                Projected Points
-                                            </MenuItem>
-                                            <MenuItem
-                                                value={`${pointsType}.points.mean`}
-                                            >
-                                                Mean Points
-                                            </MenuItem>
-                                            <MenuItem
-                                                value={`${pointsType}.points.adjustedMean`}
-                                            >
-                                                Adjusted Mean Points
-                                            </MenuItem>
-                                            <MenuItem
-                                                value={`${pointsType}.points.median`}
-                                            >
-                                                Median Points
-                                            </MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                    <FormControl sx={{ my: 1, minWidth: 120 }}>
-                                        <FormControlLabel
-                                            control={
-                                                <Switch
-                                                    color="secondary"
-                                                    checked={includeFAs}
-                                                    onChange={() =>
-                                                        setIncludeFAs(
-                                                            !includeFAs
-                                                        )
-                                                    }
-                                                />
-                                            }
-                                            label="Include Free Agents"
-                                            labelPlacement="start"
-                                        />
-                                    </FormControl>
-                                    <Typography
-                                        id="input-slider"
-                                        fontSize={11.5}
-                                        sx={{ ml: 2, color: "#656565" }}
-                                    >
-                                        Number of Players
-                                    </Typography>
-                                    <Slider
-                                        aria-label="Number of Players"
-                                        defaultValue={300}
-                                        valueLabelDisplay="auto"
-                                        step={25}
-                                        marks
-                                        min={200}
-                                        max={400}
-                                        sx={{ color: "secondary.dark" }}
-                                        onChange={(event) =>
-                                            setNumber(event.target.value)
-                                        }
-                                    />
-                                    <Typography
-                                        fontSize={11}
-                                        sx={{
-                                            mb: 1,
-                                            mx: 0.5,
-                                            color: "#656565",
-                                        }}
-                                    >
-                                        Note: QBs will be assigned 1/2 value to
-                                        appropriately place them.
-                                    </Typography>
-                                    <Button
-                                        sx={{
-                                            color: "white",
-                                            backgroundColor: "secondary.main",
-                                            width: 180,
-                                            ":hover": {
-                                                bgcolor: "secondary.dark",
-                                            },
-                                        }}
-                                        onClick={generateRanking}
-                                    >
-                                        Generate Rankings
-                                    </Button>
+                                            Generate Rankings
+                                        </Button>
+                                    </Grid>
                                 </Grid>
-                            </Grid>
-                        </Box>
-                        <Box
-                            border={2}
-                            borderRadius={2}
-                            sx={{
-                                mt: 2,
-                                p: 1,
-                                px: 2,
-                                borderColor: "secondary.dark",
-                                backgroundColor: "white",
-                            }}
-                        >
-                            <Grid
-                                container
-                                justify="space-between"
-                                alignItems="stretch"
-                                columnSpacing={2}
+                            </Box>
+                            <Box
+                                border={2}
+                                borderRadius={2}
+                                sx={{
+                                    mt: 2,
+                                    p: 1,
+                                    px: 2,
+                                    borderColor: "secondary.dark",
+                                    backgroundColor: "white",
+                                }}
                             >
-                                <Grid item md={4}>
-                                    <ListItemText secondary="Create from existing ranking:" />
+                                <Grid
+                                    container
+                                    justify="space-between"
+                                    alignItems="stretch"
+                                    columnSpacing={2}
+                                >
+                                    <Grid item md={4}>
+                                        <ListItemText secondary="Create from existing ranking:" />
+                                    </Grid>
+                                    <Grid item md={8}>
+                                        <Button
+                                            sx={{
+                                                mt: 0.5,
+                                                mr: 1,
+                                                color: "black",
+                                                backgroundColor:
+                                                    "secondary.light",
+                                                width: 180,
+                                                ":hover": {
+                                                    color: "white",
+                                                    bgcolor: "secondary.main",
+                                                },
+                                            }}
+                                        >
+                                            Rankings 1
+                                        </Button>
+                                        <Button
+                                            sx={{
+                                                color: "black",
+                                                mt: 0.5,
+                                                mr: 1,
+                                                backgroundColor:
+                                                    "secondary.light",
+                                                width: 180,
+                                                ":hover": {
+                                                    color: "white",
+                                                    bgcolor: "secondary.main",
+                                                },
+                                            }}
+                                        >
+                                            Rankings 2
+                                        </Button>
+                                    </Grid>
                                 </Grid>
-                                <Grid item md={8}>
-                                    <Button
-                                        sx={{
-                                            mt: 0.5,
-                                            mr: 1,
-                                            color: "black",
-                                            backgroundColor: "secondary.light",
-                                            width: 180,
-                                            ":hover": {
-                                                color: "white",
-                                                bgcolor: "secondary.main",
-                                            },
-                                        }}
-                                    >
-                                        Rankings 1
-                                    </Button>
-                                    <Button
-                                        sx={{
-                                            color: "black",
-                                            mt: 0.5,
-                                            mr: 1,
-                                            backgroundColor: "secondary.light",
-                                            width: 180,
-                                            ":hover": {
-                                                color: "white",
-                                                bgcolor: "secondary.main",
-                                            },
-                                        }}
-                                    >
-                                        Rankings 2
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </Box>
-                    </CardContent>
-                </Collapse>
-            </Box>
-        </Card>
+                            </Box>
+                        </CardContent>
+                    </Collapse>
+                </Box>
+            </Card>
+        </Container>
     );
 };
 

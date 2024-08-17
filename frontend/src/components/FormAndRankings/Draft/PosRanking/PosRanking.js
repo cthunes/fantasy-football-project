@@ -95,18 +95,27 @@ const PosRanking = (props) => {
                     <IconButton
                         onClick={() => {
                             if (props.accessorKey !== "overall") {
-                                dispatch(
-                                    setOverallRnkHt(
-                                        overallRnkHt +
-                                            439 * (!expanded ? 1 : -1)
-                                    )
-                                );
+                                let heights = [
+                                    overallRnkHt[0] +
+                                        439 *
+                                            ((props.open ? expanded : !expanded)
+                                                ? 1
+                                                : -1) *
+                                            (props.col1 ? 1 : 0),
+                                    overallRnkHt[1] +
+                                        439 *
+                                            ((props.open ? expanded : !expanded)
+                                                ? 1
+                                                : -1) *
+                                            (props.col2 ? 1 : 0),
+                                ];
+                                dispatch(setOverallRnkHt(heights));
                             }
                             setExpanded(!expanded);
                         }}
                         size="small"
                     >
-                        {expanded ? (
+                        {(props.open ? !expanded : expanded) ? (
                             <KeyboardArrowUp sx={{ color: "white" }} />
                         ) : (
                             <KeyboardArrowDown sx={{ color: "white" }} />
@@ -117,7 +126,7 @@ const PosRanking = (props) => {
             ></CardHeader>
             <Box sx={{ backgroundColor: "secondary.light" }}>
                 <Collapse
-                    in={props.position === "Overall" ? !expanded : expanded}
+                    in={props.open ? !expanded : expanded}
                     timeout={0}
                     unmountOnExit
                 >
@@ -153,7 +162,12 @@ const PosRanking = (props) => {
                             muiTableContainerProps={
                                 props.position === "Overall"
                                     ? {
-                                          sx: { maxHeight: overallRnkHt },
+                                          sx: {
+                                              maxHeight: Math.max(
+                                                  overallRnkHt[0],
+                                                  overallRnkHt[1]
+                                              ),
+                                          },
                                       }
                                     : {
                                           sx: { maxHeight: 439 },

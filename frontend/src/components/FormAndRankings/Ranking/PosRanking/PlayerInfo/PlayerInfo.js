@@ -151,9 +151,12 @@ const PlayerInfo = (props) => {
                             sx={{ mx: 2, my: 2, width: 120 }}
                             InputProps={{
                                 inputProps: {
-                                    max: current.rankings[
-                                        position.toLowerCase()
-                                    ].length,
+                                    max:
+                                        position !== ""
+                                            ? current.rankings[
+                                                  position.toLowerCase()
+                                              ].length
+                                            : null,
                                     min: 1,
                                 },
                             }}
