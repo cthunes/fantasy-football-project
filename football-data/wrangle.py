@@ -98,28 +98,22 @@ def wrangle(pos, year):
         df["HALF"] = df["FPTS"]
         df["PPR"] = df["FPTS"]
 
-    point_tiers = [5, 10, 15, 20]
+    pt = [5, 10, 15, 20]
     if pos == "rb" or pos == "wr":
-        point_tiers = [10, 20, 30, 40]
+        pt = [10, 20, 30, 40]
 
-    def assign_rank(rank):
-        if rank <= point_tiers[0]:
-            return 1
-        elif rank <= point_tiers[1]:
-            return 2
-        elif rank <= point_tiers[2]:
-            return 3
-        elif rank <= point_tiers[3]:
-            return 4
-        else:
-            return 5
+    g = 16
+    if year > 2021:
+        g = 17
 
-    df["FPTS_tier"] = df.groupby("Week")["FPTS"].rank(ascending=False, method="first")
-    df["FPTS_tier"] = df["FPTS_tier"].apply(assign_rank)
-    df["HALF_tier"] = df.groupby("Week")["HALF"].rank(ascending=False, method="first")
-    df["HALF_tier"] = df["HALF_tier"].apply(assign_rank)
-    df["PPR_tier"] = df.groupby("Week")["PPR"].rank(ascending=False, method="first")
-    df["PPR_tier"] = df["PPR_tier"].apply(assign_rank)
+    for type in ["FPTS", "HALF", "PPR"]:
+        name = "{}_tier".format(type)
+        df = df.sort_values(type, ascending=False)
+        df.loc[df.index[0 : (pt[0] * g)], name] = 1
+        df.loc[df.index[(pt[0] * g) : (pt[1] * g)], name] = 2
+        df.loc[df.index[(pt[1] * g) : (pt[2] * g)], name] = 3
+        df.loc[df.index[(pt[2] * g) : (pt[3] * g)], name] = 4
+        df.loc[df.index[(pt[3] * g) :], name] = 5
 
     df = df.sort_values(["Player", "Week"])
     grouped = df.groupby("Player", sort=False, as_index=False)
