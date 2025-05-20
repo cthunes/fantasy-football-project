@@ -5,6 +5,7 @@ import {
     Box,
     Grid,
     Typography,
+    Divider,
     Select,
     Button,
     FormControl,
@@ -19,6 +20,7 @@ const Ranking = () => {
     const dispatch = useDispatch();
     const rankings = useSelector((state) => state.ranking.rankings);
     const current = useSelector((state) => state.ranking.current);
+    const maxWidth = useSelector((state) => state.view.maxWidth);
     const [currentName, setCurrentName] = useState("");
 
     useEffect(() => {
@@ -26,7 +28,6 @@ const Ranking = () => {
     }, [current]);
 
     const editRanking = () => {
-        console.log(currentName);
         dispatch(
             setCurrent(
                 rankings[
@@ -62,9 +63,14 @@ const Ranking = () => {
         <>
             <CreateForm />
             {current.name != null && currentName != null && (
-                <Box align="center">
+                <Box align="center" sx={{ mx: 5 }}>
                     <Box sx={{ my: 2 }}>
-                        <Grid container columnSpacing={1}>
+                        <Grid
+                            container
+                            maxWidth="md"
+                            columnSpacing={1}
+                            sx={{ my: 2 }}
+                        >
                             <Grid item xs={6} sm={6} md={6} lg={6}>
                                 <FormControl
                                     fullWidth
@@ -113,10 +119,11 @@ const Ranking = () => {
                                 </Button>
                             </Grid>
                         </Grid>
+                        <Divider />
                         <Typography variant="h5" sx={{ my: 1 }}>
                             {current.name}
                         </Typography>
-                        <Grid container columnSpacing={1}>
+                        <Grid container maxWidth="md" columnSpacing={1}>
                             <Grid item xs={4}>
                                 <Button
                                     fullWidth
@@ -169,37 +176,96 @@ const Ranking = () => {
                             </Grid>
                         </Grid>
                     </Box>
-                    <Grid container columnSpacing={1}>
-                        <Grid item xs={12} sm={6} md={6} lg={12}>
-                            <PosRanking
-                                position="Overall"
-                                accessorKey="overall"
-                            />
+                    {maxWidth && (
+                        <Grid container columnSpacing={1} sx={{ my: 1 }}>
+                            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                                <PosRanking
+                                    position="Overall"
+                                    accessorKey="overall"
+                                    open
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                                <PosRanking
+                                    position="Quarterbacks"
+                                    accessorKey="qb"
+                                    col1
+                                />
+                                <PosRanking
+                                    position="Running Backs"
+                                    accessorKey="rb"
+                                    col1
+                                />
+                                <PosRanking
+                                    position="Wide Recievers"
+                                    accessorKey="wr"
+                                    col1
+                                />
+                                <PosRanking
+                                    position="Tight Ends"
+                                    accessorKey="te"
+                                    col1
+                                />
+                                <PosRanking
+                                    position="Kickers"
+                                    accessorKey="k"
+                                    col1
+                                />
+                                <PosRanking
+                                    position="Defense/ST"
+                                    accessorKey="dst"
+                                    col1
+                                />
+                            </Grid>
                         </Grid>
-                        <Grid item xs={12} sm={6} md={6} lg={12}>
-                            <PosRanking
-                                position="Quarterbacks"
-                                accessorKey="qb"
-                            />
-                            <PosRanking
-                                position="Running Backs"
-                                accessorKey="rb"
-                            />
-                            <PosRanking
-                                position="Wide Recievers"
-                                accessorKey="wr"
-                            />
-                            <PosRanking
-                                position="Tight Ends"
-                                accessorKey="te"
-                            />
-                            <PosRanking position="Kickers" accessorKey="k" />
-                            <PosRanking
-                                position="Defense/ST"
-                                accessorKey="dst"
-                            />
+                    )}
+                    {!maxWidth && (
+                        <Grid container columnSpacing={1} sx={{ my: 1 }}>
+                            <Grid item xs={12} sm={12} md={6} lg={6} xl={4}>
+                                <PosRanking
+                                    position="Overall"
+                                    accessorKey="overall"
+                                    open
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={12} md={6} lg={6} xl={4}>
+                                <PosRanking
+                                    position="Running Backs"
+                                    accessorKey="rb"
+                                    open
+                                    col1
+                                />
+                                <PosRanking
+                                    position="Quarterbacks"
+                                    accessorKey="qb"
+                                    col1
+                                />
+                                <PosRanking
+                                    position="Kickers"
+                                    accessorKey="k"
+                                    col1
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={12} md={6} lg={6} xl={4}>
+                                <PosRanking
+                                    position="Wide Recievers"
+                                    accessorKey="wr"
+                                    open
+                                    col2
+                                />
+                                <PosRanking
+                                    position="Tight Ends"
+                                    accessorKey="te"
+                                    col2
+                                />
+                                <PosRanking
+                                    position="Defense/ST"
+                                    accessorKey="dst"
+                                    col2
+                                />
+                            </Grid>
                         </Grid>
-                    </Grid>
+                    )}
                 </Box>
             )}
         </>

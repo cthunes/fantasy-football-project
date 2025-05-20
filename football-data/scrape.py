@@ -1,6 +1,9 @@
 import pandas as pd
+import requests as requests
+from bs4 import BeautifulSoup
 
-currentYear = 2023
+currentYear = 2025
+years = 5
 positions = ["qb", "rb", "wr", "te", "k", "dst"]
 
 
@@ -127,8 +130,27 @@ def scrape(pos, year, week):
     return df
 
 
+def scrapeFD(type, year):
+    url = "https://www.footballdb.com/statistics/nfl/player-stats/{}/{}/regular-season".format(
+        type, year
+    )
+    header = {
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.75 Safari/537.36",
+        "X-Requested-With": "XMLHttpRequest",
+    }
+    r = requests.get(url, headers=header)
+    soup = BeautifulSoup(r.text, "html.parser")
+    for tag in soup.find_all("span", class_="visible-xs"):
+        tag.decompose()
+    var = "Att" if type == "rushing" else "Rec"
+    df = pd.read_html(str(soup.find_all("table")))[0][["Player", var, "FD"]]
+    path = "raw/fd/{}/{}.csv".format(type, year)
+    print("Saving file {}".format(path))
+    df.to_csv(path, index=False)
+
+
 for pos in positions:
-    for yearsAgo in range(1, 6):
+    for yearsAgo in range(1, years + 1):
         data = []
         year = currentYear - yearsAgo
         for week in range(1, 18):
@@ -136,5 +158,13 @@ for pos in positions:
         if year > 2020:
             # starting in 2021, there is a week 18
             data.append(scrape(pos, year, 18))
-        print("Saving file raw/{}/{}.csv".format(pos, year))
+        path = "raw/{}/{}.csv".format(pos, year)
+        print("Saving file {}".format(path))
         pd.concat(data).to_csv("raw/{}/{}.csv".format(pos, year), index=False)
+
+
+# scrape first downs from footballdb
+for yearsAgo in range(1, years + 1):
+    year = currentYear - yearsAgo
+    scrapeFD("rushing", year)
+    scrapeFD("receiving", year)

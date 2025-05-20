@@ -135,3 +135,4 @@ football-data/*.py[cod]
 
 # csv files
 football-data/*/*/*.csv
+football-data/*/*/*/*.csv

@@ -1,7 +1,8 @@
 import pandas as pd
 from aggregate import *
 
-currentYear = 2023
+currentYear = 2025
+years = 5
 # .00001 or the addition of .00001 all refers to 0; this prevents errors caused by it being exactly 0
 positions = [
     {"name": "qb", "weights": [15.625, 6.25, 2.5, 1, 0.00001]},
@@ -11,28 +12,109 @@ positions = [
     {"name": "k", "weights": [3.375, 2.25, 1.5, 1, 0.00001]},
     {"name": "dst", "weights": [64, 16, 4, 1, 0.00001]},
 ]
-scoring_types = ["FPTS", "HALF", "PPR"]
-z_scores = [-0.84162, -0.25335, 0.25335, 0.84162]
 
 
-def calc_tiers(df, pos, year):
-    point_tiers = []
-    p = 20
-    if pos == "rb":
-        p = 40
-    if pos == "wr":
-        p = 60
-    g = 17 if year > 2020 else 16
-    for type in scoring_types:
-        top = df.sort_values(type, ascending=False).head(p * g)
-        # use median instead of mean due to skew of selection of top p * g rows
-        median = top[type].median()
-        std = top[type].std()
-        tiers = []
-        for z in z_scores:
-            tiers.append(median + z * std)
-        point_tiers.append(tiers)
-    return point_tiers
+def add_fds(df, pos, year):
+    if pos != "dst" and pos != "k":
+        df["copy"] = df["Player"]
+        df.insert(1, "TEAM", "")
+        df[["Player", "TEAM"]] = df.Player.str.split("(", expand=True)
+        df["TEAM"] = df.TEAM.str.replace(")", "", regex=False)
+        df["Player"] = df["Player"].str.strip()
+
+        rush_fds = pd.read_csv("raw/fd/rushing/{}.csv".format(year))
+
+        # use last names as join column
+        df["join_name"] = (
+            df["Player"]
+            .str.replace(r" Jr.$| Sr.$| II$| III$| IV$", "", regex=True)
+            .str.rsplit(n=1)
+            .str[-1]
+        )
+        rush_fds["join_name"] = (
+            rush_fds["Player"]
+            .str.replace(r" Jr.$| Sr.$| II$| III$| IV$", "", regex=True)
+            .str.rsplit(n=1)
+            .str[-1]
+        )
+        rush_fds = rush_fds.drop(columns="Player")
+
+        rush_fds = rush_fds.rename(columns={"Att": "rush_ATT"})
+        df = df.merge(rush_fds, how="left", on=["join_name", "rush_ATT"])
+        loc = list(df.columns).index("rush_Y/A")
+        df.insert(loc + 1, "rush_FD", df["FD"])
+        df.fillna(0, inplace=True)
+        total_rush_FD = df["rush_FD"].sum()
+        rush_ATT_per_FD = df["rush_ATT"].sum() / total_rush_FD
+        rush_YDS_per_FD = df["rush_YDS"].sum() / total_rush_FD
+        # replace 0 FDs when there are missing values with expected number of first downs
+        df["rush_FD"] = np.where(
+            df["rush_FD"] == 0,
+            round(
+                (
+                    (df["rush_ATT"] / rush_ATT_per_FD)
+                    + (df["rush_YDS"] / rush_YDS_per_FD)
+                )
+                / 2
+            ),
+            df["rush_FD"],
+        )
+        df.insert(loc + 2, "rush_FD_mean", df["rush_FD"] / df["G"])
+        df = df.drop(columns="FD")
+
+        if pos != "qb":
+            rec_fds = pd.read_csv("raw/fd/receiving/{}.csv".format(year))
+            rec_fds["join_name"] = (
+                rec_fds["Player"]
+                .str.replace(r" Jr.$| Sr.$| II$| III$| IV$", "", regex=True)
+                .str.rsplit(n=1)
+                .str[-1]
+            )
+            rec_fds = rec_fds.drop(columns="Player")
+            rec_fds = rec_fds.rename(columns={"Rec": "rec_REC"})
+            df = df.merge(rec_fds, how="left", on=["join_name", "rec_REC"])
+            loc = list(df.columns).index("rec_Y/R")
+            df.insert(loc + 1, "rec_FD", df["FD"])
+            df.fillna(0, inplace=True)
+            total_rec_FD = df["rec_FD"].sum()
+            rec_REC_per_FD = df["rec_REC"].sum() / total_rec_FD
+            rec_YDS_per_FD = df["rec_YDS"].sum() / total_rec_FD
+            # replace 0 FDs when there are missing values with expected number of first downs
+            df["rec_FD"] = np.where(
+                df["rec_FD"] == 0,
+                round(
+                    (
+                        (df["rec_REC"] / rec_REC_per_FD)
+                        + (df["rec_YDS"] / rec_YDS_per_FD)
+                    )
+                    / 2
+                ),
+                df["rec_FD"],
+            )
+            df.insert(loc + 2, "rec_FD_mean", df["rec_FD"] / df["G"])
+            df = df.drop(columns="FD")
+
+        loc = list(df.columns).index("OPP_mean")
+        df.insert(
+            loc + 1,
+            "FD",
+            df["rush_FD"] + df["rec_FD"] if pos != "qb" else df["rush_FD"],
+        )
+        df.insert(
+            loc + 2,
+            "FD_mean",
+            (
+                df["rush_FD_mean"] + df["rec_FD_mean"]
+                if pos != "qb"
+                else df["rush_FD_mean"]
+            ),
+        )
+
+        df["HALF_Score"] = df["HALF_Score"] + df["FD_mean"] * 0.5
+        df["Player"] = df["copy"]
+        df = df.drop(columns=["join_name", "TEAM", "copy"])
+
+    return df.round(2).drop_duplicates()
 
 
 def wrangle(pos, year):
@@ -48,24 +130,40 @@ def wrangle(pos, year):
         df["HALF"] = df["FPTS"]
         df["PPR"] = df["FPTS"]
 
-    point_tiers = calc_tiers(df, pos, year)
+    pt = [5, 10, 15, 20]
+    if pos == "rb" or pos == "wr":
+        pt = [10, 20, 30, 40]
+
+    g = 16
+    if year > 2021:
+        g = 17
+
+    for type in ["FPTS", "HALF", "PPR"]:
+        name = "{}_tier".format(type)
+        df = df.sort_values(type, ascending=False)
+        df.loc[df.index[0 : (pt[0] * g)], name] = 1
+        df.loc[df.index[(pt[0] * g) : (pt[1] * g)], name] = 2
+        df.loc[df.index[(pt[1] * g) : (pt[2] * g)], name] = 3
+        df.loc[df.index[(pt[2] * g) : (pt[3] * g)], name] = 4
+        df.loc[df.index[(pt[3] * g) :], name] = 5
 
     df = df.sort_values(["Player", "Week"])
     grouped = df.groupby("Player", sort=False, as_index=False)
 
     if pos == "rb":
-        df = agg_RBs(grouped, point_tiers)
+        df = agg_RBs(grouped)
     elif pos == "wr":
-        df = agg_WRs(grouped, point_tiers)
+        df = agg_WRs(grouped)
     elif pos == "te":
-        df = agg_TEs(grouped, point_tiers)
+        df = agg_TEs(grouped)
     elif pos == "qb":
-        df = agg_QBs(grouped, point_tiers)
+        df = agg_QBs(grouped)
     elif pos == "k":
-        df = agg_Ks(grouped, point_tiers)
+        df = agg_Ks(grouped)
     else:
-        df = agg_DSTs(grouped, point_tiers)
+        df = agg_DSTs(grouped)
 
+    df = add_fds(df, pos, year)
     df = df.sort_values("HALF_Score", ascending=False)
     return df.round(2)
 
@@ -315,7 +413,7 @@ def calc_projected_points(df, pos):
     return df.round(2)
 
 
-def wrangle_all(all, pos, weights):
+def wrangle_all(all, pos, weights, currentYear):
     grouped = all.groupby("Player", sort=False, as_index=False)
 
     # average every column over all years for each player using list of weights
@@ -324,6 +422,7 @@ def wrangle_all(all, pos, weights):
             np.average(x[cols], weights=x["Weight"], axis=0), cols
         ),
         list(all.columns.values)[2:-1],
+        include_groups=False
     )
 
     # include sum of weights and YOE based min weight present
@@ -344,45 +443,72 @@ def wrangle_all(all, pos, weights):
 
     # add column for role on team (ranking on team for position)
     if pos != "dst":
-        all.insert(
-            3,
-            "DPCHT",
-            all.groupby("TEAM")["OPP_mean"].transform("rank", ascending=False),
-        )
+        if pos == "qb":
+            all["temp_sum"] = all["G"] + all["OPP_mean"] / 2
+            all.insert(
+                3,
+                "DPCHT",
+                all.groupby("TEAM")["temp_sum"].transform("rank", ascending=False),
+            )
+            all = all.drop(columns="temp_sum")
+        else:
+            all.insert(
+                3,
+                "DPCHT",
+                all.groupby("TEAM")["OPP_mean"].transform("rank", ascending=False),
+            )
         all["DPCHT"] = np.where(all["TEAM"] == "FA", 0, all["DPCHT"])
-    all = all.sort_values("HALF_Score", ascending=False).round(2)
     all = all.drop("Weight_sum", axis=1)
 
     # calculate projected half-ppr points
     all = calc_projected_points(all, pos)
 
+    all = all.sort_values("HALF_Score", ascending=False).round(2)
     # save
-    print("Saving file aggregated/{}/all.csv".format(pos))
-    all.to_csv("aggregated/{}/all.csv".format(pos), index=False)
+    print("Saving file aggregated/{}/all{}.csv".format(pos, currentYear))
+    all.to_csv("aggregated/{}/all{}.csv".format(pos, currentYear), index=False)
 
 
-for pos in positions:
-    data = []
+for currentYear in [currentYear]:
+    for pos in positions:
+        data = []
 
-    for yearsAgo in range(1, 6):
-        year = currentYear - yearsAgo
-        df = wrangle(pos["name"], year)
-        df["Weight"] = pos["weights"][yearsAgo - 1]
-        data.append(df)
-        df = df.drop("Weight", axis=1)
-        df.insert(1, "TEAM", "")
-        df[["Player", "TEAM"]] = df.Player.str.split("(", expand=True)
-        df["TEAM"] = df.TEAM.str.replace(")", "", regex=False)
-        df["Player"] = df["Player"].str.strip()
-        if pos["name"] != "dst":
-            df.insert(
-                3,
-                "DPCHT",
-                df.groupby("TEAM")["OPP_mean"].transform("rank", ascending=False),
-            )
-        print("Saving file aggregated/{}/{}.csv".format(pos["name"], year))
-        df.to_csv("aggregated/{}/{}.csv".format(pos["name"], year), index=False)
+        for yearsAgo in range(1, years + 1):
+            year = currentYear - yearsAgo
+            df = wrangle(pos["name"], year)
+            df["Weight"] = pos["weights"][yearsAgo - 1]
+            data.append(df)
+            df = df.drop("Weight", axis=1)
+            df.insert(1, "TEAM", "")
+            df[["Player", "TEAM"]] = df.Player.str.split("(", expand=True)
+            df["TEAM"] = df.TEAM.str.replace(")", "", regex=False)
+            df["Player"] = df["Player"].str.strip()
+            if pos["name"] != "dst":
+                if pos["name"] == "qb":
+                    df["temp_sum"] = df["G"] + df["OPP_mean"] / 2
+                    df.insert(
+                        3,
+                        "DPCHT",
+                        df.groupby("TEAM")["temp_sum"].transform(
+                            "rank", ascending=False
+                        ),
+                    )
+                    df = df.drop(columns="temp_sum")
+                else:
+                    df.insert(
+                        3,
+                        "DPCHT",
+                        df.groupby("TEAM")["OPP_mean"].transform(
+                            "rank", ascending=False
+                        ),
+                    )
+                df["DPCHT"] = np.where(df["TEAM"] == "FA", 0, df["DPCHT"])
+            print("Saving file aggregated/{}/{}.csv".format(pos["name"], year))
+            df.to_csv("aggregated/{}/{}.csv".format(pos["name"], year), index=False)
 
-    wrangle_all(
-        pd.concat(data).sort_values(["Player", "Weight"]), pos["name"], pos["weights"]
-    )
+        wrangle_all(
+            pd.concat(data).sort_values(["Player", "Weight"]),
+            pos["name"],
+            pos["weights"],
+            currentYear,
+        )

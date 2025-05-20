@@ -8,6 +8,7 @@ import FormAndRankings from "./components/FormAndRankings/FormAndRankings";
 
 const App = () => {
     const view = useSelector((state) => state.view.view);
+    const maxWidth = useSelector((state) => state.view.maxWidth);
     const consoleError = console.error;
     const consoleWarn = console.warn;
     const SUPPRESSED = [
@@ -31,7 +32,7 @@ const App = () => {
         <>
             <TopBar />
             <Container
-                maxWidth="xl"
+                maxWidth={maxWidth}
                 sx={{
                     mt: 2,
                 }}
@@ -45,14 +46,7 @@ const App = () => {
                     <Grid
                         item
                         xs={12}
-                        lg={view === "rankings" || view === "draft" ? 7.5 : 12}
-                    >
-                        <StatsTable />
-                    </Grid>
-                    <Grid
-                        item
-                        xs={12}
-                        lg={4.5}
+                        xl={12}
                         display={
                             view === "rankings" || view === "draft"
                                 ? "block"
@@ -60,6 +54,13 @@ const App = () => {
                         }
                     >
                         <FormAndRankings />
+                    </Grid>
+                    <Grid
+                        item
+                        xs={12}
+                        xl={view === "rankings" || view === "draft" ? 12 : 12}
+                    >
+                        <StatsTable />
                     </Grid>
                 </Grid>
             </Container>

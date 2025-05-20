@@ -4,20 +4,43 @@ import { useDispatch, useSelector } from "react-redux";
 import {
     Card,
     CardHeader,
+    CardActionArea,
     CardContent,
     Collapse,
     IconButton,
     Box,
+    ButtonGroup,
+    Divider,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    List,
+    ListItem,
+    DialogActions,
+    Button,
+    Typography,
 } from "@mui/material";
-import { KeyboardArrowUp, KeyboardArrowDown } from "@mui/icons-material";
+import {
+    KeyboardArrowUp,
+    KeyboardArrowDown,
+    Delete,
+    GroupAdd,
+} from "@mui/icons-material";
 import { MaterialReactTable } from "material-react-table";
 
-import { setCurrent } from "../../../../redux/ranking";
+import { setCurrent, setNewPlayerCount } from "../../../../redux/ranking";
+import { setOverallRnkHt } from "../../../../redux/view";
+
+import PlayerInfo from "./PlayerInfo/PlayerInfo";
 
 const PosRanking = (props) => {
     const dispatch = useDispatch();
     const current = useSelector((state) => state.ranking.current);
+    const newPlayerCount = useSelector((state) => state.ranking.newPlayerCount);
+    const overallRnkHt = useSelector((state) => state.view.overallRnkHt);
     const [expanded, setExpanded] = useState(false);
+    const [open, setOpen] = useState(false);
 
     const columns = useMemo(
         () => [
@@ -135,6 +158,67 @@ const PosRanking = (props) => {
         },
     });
 
+    const insertPlayers = (event) => {
+        event.preventDefault();
+        const entries = Object.fromEntries(
+            new FormData(event.currentTarget).entries()
+        );
+        const newPlayers = [];
+        for (const key in entries) {
+            const match = key.match(/(\D+)(\d+)/);
+            if (match) {
+                if (!newPlayers[match[2]]) {
+                    newPlayers[match[2]] = {};
+                }
+                newPlayers[match[2]][match[1]] = entries[key];
+            }
+        }
+        let rankings = structuredClone(current.rankings);
+        newPlayers.forEach((player) => {
+            const pos = player.position.toLowerCase();
+            const posRank = player.rank;
+            console.log(posRank);
+            player.rank = rankings[pos][posRank - 1].rank;
+            console.log(player.rank);
+            rankings[pos].splice(posRank - 1, 0, player);
+            rankings.overall.splice(
+                rankings.overall.findIndex((item) => item.rank === player.rank),
+                0,
+                player
+            );
+        });
+        dispatch(
+            setCurrent({
+                ...current,
+                rankings: rankings,
+            })
+        );
+        handleClose();
+    };
+
+    const deletePlayer = (row) => {
+        const pos = row.original.position.toLowerCase();
+        dispatch(
+            setCurrent({
+                ...current,
+                rankings: {
+                    ...current.rankings,
+                    overall: current.rankings.overall.filter(
+                        (player) => player.name !== row.original.name
+                    ),
+                    [pos]: current.rankings[pos].filter(
+                        (player) => player.name !== row.original.name
+                    ),
+                },
+            })
+        );
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+        dispatch(setNewPlayerCount(0));
+    };
+
     return (
         <Card
             border={5}
@@ -145,21 +229,141 @@ const PosRanking = (props) => {
                 title={props.position}
                 titleTypographyProps={{ color: "white", fontSize: 16 }}
                 action={
-                    <IconButton
-                        onClick={() => setExpanded(!expanded)}
-                        size="small"
-                    >
-                        {expanded ? (
-                            <KeyboardArrowUp sx={{ color: "white" }} />
-                        ) : (
-                            <KeyboardArrowDown sx={{ color: "white" }} />
-                        )}
-                    </IconButton>
+                    <ButtonGroup>
+                        <IconButton
+                            size="small"
+                            variant="outlined"
+                            color="neutral"
+                            onClick={() => {
+                                setOpen(true);
+                            }}
+                        >
+                            <GroupAdd
+                                sx={{
+                                    color: "white",
+                                    ":hover": {
+                                        color: "success.light",
+                                    },
+                                }}
+                            />
+                        </IconButton>
+                        <Dialog
+                            open={open}
+                            onClose={handleClose}
+                            maxWidth="md"
+                            PaperProps={{
+                                component: "form",
+                                onSubmit: insertPlayers,
+                            }}
+                        >
+                            <DialogTitle>Add Players</DialogTitle>
+                            <Divider />
+                            <DialogContent>
+                                <DialogContentText>
+                                    To add more players to this ranking, fill
+                                    out the required fields. The 'Insert At'
+                                    field adds the player to this spot among
+                                    their position group.
+                                </DialogContentText>
+                                <List>
+                                    <PlayerInfo
+                                        pos={props.accessorKey}
+                                        id={0}
+                                    />
+                                    {Array.from(
+                                        { length: newPlayerCount },
+                                        (_, index) => (
+                                            <PlayerInfo
+                                                delete
+                                                pos={props.accessorKey}
+                                                id={index + 1}
+                                            />
+                                        )
+                                    )}
+                                    <ListItem>
+                                        <Card
+                                            sx={{
+                                                my: 1,
+                                                width: "100%",
+                                                margin: "auto",
+                                            }}
+                                            align="center"
+                                        >
+                                            <CardActionArea
+                                                onClick={() =>
+                                                    dispatch(
+                                                        setNewPlayerCount(
+                                                            newPlayerCount + 1
+                                                        )
+                                                    )
+                                                }
+                                            >
+                                                <CardContent>
+                                                    <Typography>
+                                                        Add Another Player
+                                                    </Typography>
+                                                </CardContent>
+                                            </CardActionArea>
+                                        </Card>
+                                    </ListItem>
+                                </List>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button color="secondary" onClick={handleClose}>
+                                    Cancel
+                                </Button>
+                                <Button color="secondary" type="submit">
+                                    Add Players
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
+                        <IconButton
+                            onClick={() => {
+                                if (props.accessorKey !== "overall") {
+                                    let heights = [
+                                        overallRnkHt[0] +
+                                            439 *
+                                                ((
+                                                    props.open
+                                                        ? expanded
+                                                        : !expanded
+                                                )
+                                                    ? 1
+                                                    : -1) *
+                                                (props.col1 ? 1 : 0),
+                                        overallRnkHt[1] +
+                                            439 *
+                                                ((
+                                                    props.open
+                                                        ? expanded
+                                                        : !expanded
+                                                )
+                                                    ? 1
+                                                    : -1) *
+                                                (props.col2 ? 1 : 0),
+                                    ];
+                                    dispatch(setOverallRnkHt(heights));
+                                }
+                                setExpanded(!expanded);
+                            }}
+                            size="small"
+                        >
+                            {(props.open ? !expanded : expanded) ? (
+                                <KeyboardArrowUp sx={{ color: "white" }} />
+                            ) : (
+                                <KeyboardArrowDown sx={{ color: "white" }} />
+                            )}
+                        </IconButton>
+                    </ButtonGroup>
                 }
                 sx={{ py: 1, backgroundColor: "secondary.main" }}
             ></CardHeader>
             <Box sx={{ backgroundColor: "secondary.light" }}>
-                <Collapse in={expanded} timeout={0} unmountOnExit>
+                <Collapse
+                    in={props.open ? !expanded : expanded}
+                    timeout={0}
+                    unmountOnExit
+                >
                     <CardContent
                         sx={{
                             p: 0,
@@ -172,6 +376,7 @@ const PosRanking = (props) => {
                         <MaterialReactTable
                             columns={columns}
                             data={current.rankings[props.accessorKey]}
+                            enableRowActions
                             enableRowOrdering
                             enableRowNumbers={
                                 props.position === "Overall" ? false : true
@@ -184,21 +389,63 @@ const PosRanking = (props) => {
                             enableTopToolbar={false}
                             initialState={{
                                 density: "compact",
+                                columnOrder: [
+                                    "mrt-row-drag",
+                                    props.position !== "Overall" &&
+                                        "mrt-row-numbers",
+                                    "rank",
+                                    "name",
+                                    "position",
+                                    "team",
+                                    "mrt-row-actions",
+                                ],
                             }}
                             displayColumnDefOptions={{
-                                "mrt-row-drag": { size: 1 },
+                                "mrt-row-drag": {
+                                    header: "",
+                                    size: 1,
+                                },
                                 "mrt-row-numbers": { size: 1 },
+                                "mrt-row-actions": {
+                                    header: "",
+                                    size: 1,
+                                },
                             }}
                             muiTableContainerProps={
                                 props.position === "Overall"
                                     ? {
-                                          sx: { maxHeight: "80vh" },
+                                          sx: {
+                                              maxHeight: Math.max(
+                                                  overallRnkHt[0],
+                                                  overallRnkHt[1]
+                                              ),
+                                          },
                                       }
                                     : {
-                                          sx: { maxHeight: "40vh" },
+                                          sx: { maxHeight: 439 },
                                       }
                             }
                             muiTableBodyRowDragHandleProps={reorder}
+                            renderRowActions={({ row, table }) => (
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        flexWrap: "nowrap",
+                                    }}
+                                >
+                                    <IconButton
+                                        color="secondary"
+                                        onClick={() => deletePlayer(row)}
+                                        sx={{
+                                            ":hover": {
+                                                color: "error.main",
+                                            },
+                                        }}
+                                    >
+                                        <Delete />
+                                    </IconButton>
+                                </Box>
+                            )}
                         />
                     </CardContent>
                 </Collapse>

@@ -7,8 +7,10 @@ import {
     InputLabel,
     MenuItem,
     FormControl,
+    FormControlLabel,
     Select,
     Stack,
+    Switch,
 } from "@mui/material";
 
 import { playerFetchAll } from "../../redux/player";
@@ -20,6 +22,8 @@ const StatsTable = () => {
     const year = useSelector((state) => state.year.year);
     const pointsType = useSelector((state) => state.pointsType.pointsType);
     const [position, setPosition] = useState("ALL");
+    const [team, setTeam] = useState("ALL");
+    const [showFAs, setShowFAs] = useState(true);
     const [tableData, setTableData] = useState(() => []);
     const dispatch = useDispatch();
 
@@ -31,24 +35,30 @@ const StatsTable = () => {
     useEffect(() => {
         setTableData(
             players.filter((player) => {
+                let ret;
                 if (position === "ALL") {
-                    return player.stats.some((item) => item.season === year);
+                    ret = player.stats.some((item) => item.season === year);
                 } else if (position === "FLX") {
-                    return (
+                    ret =
                         player.stats.some((item) => item.season === year) &&
                         (player.position === "RB" ||
                             player.position === "WR" ||
-                            player.position === "TE")
-                    );
+                            player.position === "TE");
                 } else {
-                    return (
+                    ret =
                         player.stats.some((item) => item.season === year) &&
-                        player.position === position
-                    );
+                        player.position === position;
                 }
+                if (team !== "ALL") {
+                    ret = ret && player.team === team;
+                }
+                if (!showFAs) {
+                    ret = ret && player.team !== "FA";
+                }
+                return ret;
             })
         );
-    }, [players, year, position, pointsType]);
+    }, [players, year, position, team, showFAs, pointsType]);
 
     const columns = useMemo(() => {
         let cols = [
@@ -138,6 +148,22 @@ const StatsTable = () => {
                         },
                         id: "rushing.yards",
                         header: "YDS",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].rushing.firstDowns;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "rushing.firstDowns",
+                        header: "FD",
                         size: 30,
                     },
                     {
@@ -249,6 +275,22 @@ const StatsTable = () => {
                                     player.stats.findIndex(
                                         (item) => item.season === year
                                     )
+                                ].rushing.firstDownsMean;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "rushing.firstDownsMean",
+                        header: "FD",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
                                 ].rushing.longMean;
                             } catch {
                                 return null;
@@ -342,6 +384,22 @@ const StatsTable = () => {
                         },
                         id: "receiving.yards",
                         header: "YDS",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].receiving.firstDowns;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "receiving.firstDowns",
+                        header: "FD",
                         size: 30,
                     },
                     {
@@ -460,6 +518,22 @@ const StatsTable = () => {
                         },
                         id: "receiving.yardsPerReception",
                         header: "Y/C",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].receiving.firstDownsMean;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "receiving.firstDownsMean",
+                        header: "FD",
                         size: 30,
                     },
                     {
@@ -1391,6 +1465,22 @@ const StatsTable = () => {
                                     player.stats.findIndex(
                                         (item) => item.season === year
                                     )
+                                ].misc.firstDowns;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "misc.firstDowns",
+                        header: "FD",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
                                 ].misc.fumblesLost;
                             } catch {
                                 return null;
@@ -1436,6 +1526,22 @@ const StatsTable = () => {
                         },
                         id: "misc.opportunitiesMean",
                         header: "OPP",
+                        size: 30,
+                    },
+                    {
+                        accessorFn: (player) => {
+                            try {
+                                return player.stats[
+                                    player.stats.findIndex(
+                                        (item) => item.season === year
+                                    )
+                                ].misc.firstDownsMean;
+                            } catch {
+                                return null;
+                            }
+                        },
+                        id: "misc.firstDownsMean",
+                        header: "FD",
                         size: 30,
                     },
                     {
@@ -1556,7 +1662,7 @@ const StatsTable = () => {
                                 }
                             },
                             id: "ppr.points.adjustedMean",
-                            header: "ADMN",
+                            header: "ADJM",
                             size: 30,
                         },
                     ],
@@ -1779,7 +1885,7 @@ const StatsTable = () => {
                                 }
                             },
                             id: "half.points.adjustedMean",
-                            header: "ADMN",
+                            header: "ADJM",
                             size: 30,
                         },
                     ],
@@ -2056,7 +2162,7 @@ const StatsTable = () => {
                                 }
                             },
                             id: "standard.points.adjustedMean",
-                            header: "ADMN",
+                            header: "ADJM",
                             size: 30,
                         },
                     ],
@@ -2204,6 +2310,7 @@ const StatsTable = () => {
         <Box
             sx={{
                 backgroundColor: "secondary.main",
+                mx: 5,
             }}
         >
             <MaterialReactTable
@@ -2227,6 +2334,8 @@ const StatsTable = () => {
                         "rushing.yards": false,
                         "rushing.yardsMean": false,
                         "rushing.yardsPerAttempt": false,
+                        "rushing.firstDowns": false,
+                        "rushing.firstDownsMean": false,
                         "rushing.long": false,
                         "rushing.longMean": false,
                         "rushing.twentyPlus": false,
@@ -2240,6 +2349,8 @@ const StatsTable = () => {
                         "receiving.yards": false,
                         "receiving.yardsMean": false,
                         "receiving.yardsPerReception": false,
+                        "receiving.firstDowns": false,
+                        "receiving.firstDownsMean": false,
                         "receiving.long": false,
                         "receiving.longMean": false,
                         "receiving.twentyPlus": false,
@@ -2300,6 +2411,8 @@ const StatsTable = () => {
                         "misc.touchesMean": false,
                         "misc.opportunities": false,
                         "misc.opportunitiesMean": false,
+                        "misc.firstDowns": false,
+                        "misc.firstDownsMean": false,
                         "misc.fumblesLost": false,
                         "misc.fumblesLostMean": false,
                         "misc.fumblesLostPerTouch": false,
@@ -2360,12 +2473,16 @@ const StatsTable = () => {
                     return (
                         <Stack direction="row" justifyContent="space-between">
                             <FormControl sx={{ my: 1, mr: 1, minWidth: 80 }}>
-                                <InputLabel id="pos-label">Position</InputLabel>
+                                <InputLabel id="pos-label" color="secondary">
+                                    Position
+                                </InputLabel>
                                 <Select
                                     labelId="pos-label"
                                     id="pos-select"
                                     value={position}
                                     label="Position"
+                                    size="small"
+                                    color="secondary"
                                     onChange={(event) =>
                                         setPosition(event.target.value)
                                     }
@@ -2381,12 +2498,16 @@ const StatsTable = () => {
                                 </Select>
                             </FormControl>
                             <FormControl sx={{ my: 1, mr: 1, minWidth: 80 }}>
-                                <InputLabel id="type-label">Scoring</InputLabel>
+                                <InputLabel id="type-label" color="secondary">
+                                    Scoring
+                                </InputLabel>
                                 <Select
                                     labelId="type-label"
                                     id="type-select"
                                     value={pointsType}
                                     label="Scoring"
+                                    size="small"
+                                    color="secondary"
                                     onChange={(event) =>
                                         dispatch(
                                             setPointsType(event.target.value)
@@ -2400,13 +2521,17 @@ const StatsTable = () => {
                                     <MenuItem value={"ppr"}>PPR</MenuItem>
                                 </Select>
                             </FormControl>
-                            <FormControl sx={{ my: 1, minWidth: 120 }}>
-                                <InputLabel id="year-label">Year</InputLabel>
+                            <FormControl sx={{ my: 1, mr: 1, minWidth: 120 }}>
+                                <InputLabel id="year-label" color="secondary">
+                                    Year
+                                </InputLabel>
                                 <Select
                                     labelId="year-label"
                                     id="year-select"
                                     value={year}
                                     label="Year"
+                                    size="small"
+                                    color="secondary"
                                     onChange={(event) =>
                                         dispatch(setYear(event.target.value))
                                     }
@@ -2414,12 +2539,102 @@ const StatsTable = () => {
                                     <MenuItem value={"Weighted Average"}>
                                         Weighted Average
                                     </MenuItem>
+                                    <MenuItem value={"2023"}>2023</MenuItem>
                                     <MenuItem value={"2022"}>2022</MenuItem>
                                     <MenuItem value={"2021"}>2021</MenuItem>
                                     <MenuItem value={"2020"}>2020</MenuItem>
                                     <MenuItem value={"2019"}>2019</MenuItem>
-                                    <MenuItem value={"2018"}>2018</MenuItem>
                                 </Select>
+                            </FormControl>
+                            <FormControl sx={{ my: 1, minWidth: 120 }}>
+                                <InputLabel id="team-label" color="secondary">
+                                    Team
+                                </InputLabel>
+                                <Select
+                                    labelId="team-label"
+                                    id="team-select"
+                                    value={team}
+                                    label="Team"
+                                    size="small"
+                                    color="secondary"
+                                    onChange={(event) =>
+                                        setTeam(event.target.value)
+                                    }
+                                >
+                                    <MenuItem value={"ALL"}>All</MenuItem>
+                                    <MenuItem value={"ARI"}>Arizona</MenuItem>
+                                    <MenuItem value={"ATL"}>Atlanta</MenuItem>
+                                    <MenuItem value={"BAL"}>Baltimore</MenuItem>
+                                    <MenuItem value={"BUF"}>Buffalo</MenuItem>
+                                    <MenuItem value={"CAR"}>Carolina</MenuItem>
+                                    <MenuItem value={"CHI"}>Chicago</MenuItem>
+                                    <MenuItem value={"CIN"}>
+                                        Cincinnati
+                                    </MenuItem>
+                                    <MenuItem value={"CLE"}>Cleveland</MenuItem>
+                                    <MenuItem value={"DAL"}>Dallas</MenuItem>
+                                    <MenuItem value={"DEN"}>Denver</MenuItem>
+                                    <MenuItem value={"DET"}>Detroit</MenuItem>
+                                    <MenuItem value={"GB"}>Green Bay</MenuItem>
+                                    <MenuItem value={"HOU"}>Houston</MenuItem>
+                                    <MenuItem value={"IND"}>
+                                        Indianapolis
+                                    </MenuItem>
+                                    <MenuItem value={"JAC"}>
+                                        Jacksonville
+                                    </MenuItem>
+                                    <MenuItem value={"KC"}>
+                                        Kansas City
+                                    </MenuItem>
+                                    <MenuItem value={"LAC"}>
+                                        LA Chargers
+                                    </MenuItem>
+                                    <MenuItem value={"LAR"}>LA Rams</MenuItem>
+                                    <MenuItem value={"LV"}>Las Vegas</MenuItem>
+                                    <MenuItem value={"MIA"}>Miami</MenuItem>
+                                    <MenuItem value={"MIN"}>Minnesota</MenuItem>
+                                    <MenuItem value={"NE"}>
+                                        New England
+                                    </MenuItem>
+                                    <MenuItem value={"NO"}>
+                                        New Orleans
+                                    </MenuItem>
+                                    <MenuItem value={"NYG"}>NY Giants</MenuItem>
+                                    <MenuItem value={"NYJ"}>NY Jets</MenuItem>
+                                    <MenuItem value={"PHI"}>
+                                        Philadelphia
+                                    </MenuItem>
+                                    <MenuItem value={"PIT"}>
+                                        Pittsburgh
+                                    </MenuItem>
+                                    <MenuItem value={"SEA"}>Seattle</MenuItem>
+                                    <MenuItem value={"SF"}>
+                                        San Francisco
+                                    </MenuItem>
+                                    <MenuItem value={"TB"}>Tampa Bay</MenuItem>
+                                    <MenuItem value={"TEN"}>Tennessee</MenuItem>
+                                    <MenuItem value={"WAS"}>
+                                        Washington
+                                    </MenuItem>
+                                    <MenuItem value={"FA"}>
+                                        Free Agents
+                                    </MenuItem>
+                                </Select>
+                            </FormControl>
+                            <FormControl sx={{ my: 1, minWidth: 120 }}>
+                                <FormControlLabel
+                                    control={
+                                        <Switch
+                                            color="secondary"
+                                            checked={showFAs}
+                                            onChange={() =>
+                                                setShowFAs(!showFAs)
+                                            }
+                                        />
+                                    }
+                                    label="Show Free Agents"
+                                    labelPlacement="start"
+                                />
                             </FormControl>
                         </Stack>
                     );
