@@ -1,7 +1,8 @@
 import pandas as pd
 from aggregate import *
 
-currentYear = 2024
+currentYear = 2025
+years = 5
 # .00001 or the addition of .00001 all refers to 0; this prevents errors caused by it being exactly 0
 positions = [
     {"name": "qb", "weights": [15.625, 6.25, 2.5, 1, 0.00001]},
@@ -42,6 +43,22 @@ def add_fds(df, pos, year):
         df = df.merge(rush_fds, how="left", on=["join_name", "rush_ATT"])
         loc = list(df.columns).index("rush_Y/A")
         df.insert(loc + 1, "rush_FD", df["FD"])
+        df.fillna(0, inplace=True)
+        total_rush_FD = df["rush_FD"].sum()
+        rush_ATT_per_FD = df["rush_ATT"].sum() / total_rush_FD
+        rush_YDS_per_FD = df["rush_YDS"].sum() / total_rush_FD
+        # replace 0 FDs when there are missing values with expected number of first downs
+        df["rush_FD"] = np.where(
+            df["rush_FD"] == 0,
+            round(
+                (
+                    (df["rush_ATT"] / rush_ATT_per_FD)
+                    + (df["rush_YDS"] / rush_YDS_per_FD)
+                )
+                / 2
+            ),
+            df["rush_FD"],
+        )
         df.insert(loc + 2, "rush_FD_mean", df["rush_FD"] / df["G"])
         df = df.drop(columns="FD")
 
@@ -58,10 +75,25 @@ def add_fds(df, pos, year):
             df = df.merge(rec_fds, how="left", on=["join_name", "rec_REC"])
             loc = list(df.columns).index("rec_Y/R")
             df.insert(loc + 1, "rec_FD", df["FD"])
+            df.fillna(0, inplace=True)
+            total_rec_FD = df["rec_FD"].sum()
+            rec_REC_per_FD = df["rec_REC"].sum() / total_rec_FD
+            rec_YDS_per_FD = df["rec_YDS"].sum() / total_rec_FD
+            # replace 0 FDs when there are missing values with expected number of first downs
+            df["rec_FD"] = np.where(
+                df["rec_FD"] == 0,
+                round(
+                    (
+                        (df["rec_REC"] / rec_REC_per_FD)
+                        + (df["rec_YDS"] / rec_YDS_per_FD)
+                    )
+                    / 2
+                ),
+                df["rec_FD"],
+            )
             df.insert(loc + 2, "rec_FD_mean", df["rec_FD"] / df["G"])
             df = df.drop(columns="FD")
 
-        df.fillna(0, inplace=True)
         loc = list(df.columns).index("OPP_mean")
         df.insert(
             loc + 1,
@@ -381,7 +413,7 @@ def calc_projected_points(df, pos):
     return df.round(2)
 
 
-def wrangle_all(all, pos, weights):
+def wrangle_all(all, pos, weights, currentYear):
     grouped = all.groupby("Player", sort=False, as_index=False)
 
     # average every column over all years for each player using list of weights
@@ -390,6 +422,7 @@ def wrangle_all(all, pos, weights):
             np.average(x[cols], weights=x["Weight"], axis=0), cols
         ),
         list(all.columns.values)[2:-1],
+        include_groups=False
     )
 
     # include sum of weights and YOE based min weight present
@@ -432,42 +465,50 @@ def wrangle_all(all, pos, weights):
 
     all = all.sort_values("HALF_Score", ascending=False).round(2)
     # save
-    print("Saving file aggregated/{}/all.csv".format(pos))
-    all.to_csv("aggregated/{}/all.csv".format(pos), index=False)
+    print("Saving file aggregated/{}/all{}.csv".format(pos, currentYear))
+    all.to_csv("aggregated/{}/all{}.csv".format(pos, currentYear), index=False)
 
 
-for pos in positions:
-    data = []
+for currentYear in [currentYear]:
+    for pos in positions:
+        data = []
 
-    for yearsAgo in range(1, 6):
-        year = currentYear - yearsAgo
-        df = wrangle(pos["name"], year)
-        df["Weight"] = pos["weights"][yearsAgo - 1]
-        data.append(df)
-        df = df.drop("Weight", axis=1)
-        df.insert(1, "TEAM", "")
-        df[["Player", "TEAM"]] = df.Player.str.split("(", expand=True)
-        df["TEAM"] = df.TEAM.str.replace(")", "", regex=False)
-        df["Player"] = df["Player"].str.strip()
-        if pos["name"] != "dst":
-            if pos["name"] == "qb":
-                df["temp_sum"] = df["G"] + df["OPP_mean"] / 2
-                df.insert(
-                    3,
-                    "DPCHT",
-                    df.groupby("TEAM")["temp_sum"].transform("rank", ascending=False),
-                )
-                df = df.drop(columns="temp_sum")
-            else:
-                df.insert(
-                    3,
-                    "DPCHT",
-                    df.groupby("TEAM")["OPP_mean"].transform("rank", ascending=False),
-                )
-            df["DPCHT"] = np.where(df["TEAM"] == "FA", 0, df["DPCHT"])
-        print("Saving file aggregated/{}/{}.csv".format(pos["name"], year))
-        df.to_csv("aggregated/{}/{}.csv".format(pos["name"], year), index=False)
+        for yearsAgo in range(1, years + 1):
+            year = currentYear - yearsAgo
+            df = wrangle(pos["name"], year)
+            df["Weight"] = pos["weights"][yearsAgo - 1]
+            data.append(df)
+            df = df.drop("Weight", axis=1)
+            df.insert(1, "TEAM", "")
+            df[["Player", "TEAM"]] = df.Player.str.split("(", expand=True)
+            df["TEAM"] = df.TEAM.str.replace(")", "", regex=False)
+            df["Player"] = df["Player"].str.strip()
+            if pos["name"] != "dst":
+                if pos["name"] == "qb":
+                    df["temp_sum"] = df["G"] + df["OPP_mean"] / 2
+                    df.insert(
+                        3,
+                        "DPCHT",
+                        df.groupby("TEAM")["temp_sum"].transform(
+                            "rank", ascending=False
+                        ),
+                    )
+                    df = df.drop(columns="temp_sum")
+                else:
+                    df.insert(
+                        3,
+                        "DPCHT",
+                        df.groupby("TEAM")["OPP_mean"].transform(
+                            "rank", ascending=False
+                        ),
+                    )
+                df["DPCHT"] = np.where(df["TEAM"] == "FA", 0, df["DPCHT"])
+            print("Saving file aggregated/{}/{}.csv".format(pos["name"], year))
+            df.to_csv("aggregated/{}/{}.csv".format(pos["name"], year), index=False)
 
-    wrangle_all(
-        pd.concat(data).sort_values(["Player", "Weight"]), pos["name"], pos["weights"]
-    )
+        wrangle_all(
+            pd.concat(data).sort_values(["Player", "Weight"]),
+            pos["name"],
+            pos["weights"],
+            currentYear,
+        )

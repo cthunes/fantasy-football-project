@@ -2,7 +2,8 @@ import pandas as pd
 import requests as requests
 from bs4 import BeautifulSoup
 
-currentYear = 2024
+currentYear = 2025
+years = 5
 positions = ["qb", "rb", "wr", "te", "k", "dst"]
 
 
@@ -149,7 +150,7 @@ def scrapeFD(type, year):
 
 
 for pos in positions:
-    for yearsAgo in range(1, 6):
+    for yearsAgo in range(1, years + 1):
         data = []
         year = currentYear - yearsAgo
         for week in range(1, 18):
@@ -163,7 +164,7 @@ for pos in positions:
 
 
 # scrape first downs from footballdb
-for yearsAgo in range(1, 6):
+for yearsAgo in range(1, years + 1):
     year = currentYear - yearsAgo
     scrapeFD("rushing", year)
     scrapeFD("receiving", year)
