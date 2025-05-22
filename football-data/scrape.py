@@ -1,6 +1,7 @@
 import pandas as pd
 import requests as requests
 from bs4 import BeautifulSoup
+from io import StringIO
 
 currentYear = 2025
 years = 5
@@ -140,10 +141,10 @@ def scrapeFD(type, year):
     }
     r = requests.get(url, headers=header)
     soup = BeautifulSoup(r.text, "html.parser")
-    for tag in soup.find_all("span", class_="visible-xs"):
+    for tag in soup.find_all("span", class_=["d-xl-none", "statplayer-team"]):
         tag.decompose()
     var = "Att" if type == "rushing" else "Rec"
-    df = pd.read_html(str(soup.find_all("table")))[0][["Player", var, "FD"]]
+    df = pd.read_html(StringIO(str(soup.find_all("table"))))[0][["Player", var, "FD"]]
     path = "raw/fd/{}/{}.csv".format(type, year)
     print("Saving file {}".format(path))
     df.to_csv(path, index=False)

@@ -413,7 +413,7 @@ def calc_projected_points(df, pos):
     return df.round(2)
 
 
-def wrangle_all(all, pos, weights, currentYear):
+def wrangle_all(all, pos, weights):
     grouped = all.groupby("Player", sort=False, as_index=False)
 
     # average every column over all years for each player using list of weights
@@ -465,50 +465,48 @@ def wrangle_all(all, pos, weights, currentYear):
 
     all = all.sort_values("HALF_Score", ascending=False).round(2)
     # save
-    print("Saving file aggregated/{}/all{}.csv".format(pos, currentYear))
-    all.to_csv("aggregated/{}/all{}.csv".format(pos, currentYear), index=False)
+    print("Saving file aggregated/{}/all.csv".format(pos))
+    all.to_csv("aggregated/{}/all.csv".format(pos), index=False)
 
 
-for currentYear in [currentYear]:
-    for pos in positions:
-        data = []
+for pos in positions:
+    data = []
 
-        for yearsAgo in range(1, years + 1):
-            year = currentYear - yearsAgo
-            df = wrangle(pos["name"], year)
-            df["Weight"] = pos["weights"][yearsAgo - 1]
-            data.append(df)
-            df = df.drop("Weight", axis=1)
-            df.insert(1, "TEAM", "")
-            df[["Player", "TEAM"]] = df.Player.str.split("(", expand=True)
-            df["TEAM"] = df.TEAM.str.replace(")", "", regex=False)
-            df["Player"] = df["Player"].str.strip()
-            if pos["name"] != "dst":
-                if pos["name"] == "qb":
-                    df["temp_sum"] = df["G"] + df["OPP_mean"] / 2
-                    df.insert(
-                        3,
-                        "DPCHT",
-                        df.groupby("TEAM")["temp_sum"].transform(
-                            "rank", ascending=False
-                        ),
-                    )
-                    df = df.drop(columns="temp_sum")
-                else:
-                    df.insert(
-                        3,
-                        "DPCHT",
-                        df.groupby("TEAM")["OPP_mean"].transform(
-                            "rank", ascending=False
-                        ),
-                    )
-                df["DPCHT"] = np.where(df["TEAM"] == "FA", 0, df["DPCHT"])
-            print("Saving file aggregated/{}/{}.csv".format(pos["name"], year))
-            df.to_csv("aggregated/{}/{}.csv".format(pos["name"], year), index=False)
+    for yearsAgo in range(1, years + 1):
+        year = currentYear - yearsAgo
+        df = wrangle(pos["name"], year)
+        df["Weight"] = pos["weights"][yearsAgo - 1]
+        data.append(df)
+        df = df.drop("Weight", axis=1)
+        df.insert(1, "TEAM", "")
+        df[["Player", "TEAM"]] = df.Player.str.split("(", expand=True)
+        df["TEAM"] = df.TEAM.str.replace(")", "", regex=False)
+        df["Player"] = df["Player"].str.strip()
+        if pos["name"] != "dst":
+            if pos["name"] == "qb":
+                df["temp_sum"] = df["G"] + df["OPP_mean"] / 2
+                df.insert(
+                    3,
+                    "DPCHT",
+                    df.groupby("TEAM")["temp_sum"].transform(
+                        "rank", ascending=False
+                    ),
+                )
+                df = df.drop(columns="temp_sum")
+            else:
+                df.insert(
+                    3,
+                    "DPCHT",
+                    df.groupby("TEAM")["OPP_mean"].transform(
+                        "rank", ascending=False
+                    ),
+                )
+            df["DPCHT"] = np.where(df["TEAM"] == "FA", 0, df["DPCHT"])
+        print("Saving file aggregated/{}/{}.csv".format(pos["name"], year))
+        df.to_csv("aggregated/{}/{}.csv".format(pos["name"], year), index=False)
 
-        wrangle_all(
-            pd.concat(data).sort_values(["Player", "Weight"]),
-            pos["name"],
-            pos["weights"],
-            currentYear,
-        )
+    wrangle_all(
+        pd.concat(data).sort_values(["Player", "Weight"]),
+        pos["name"],
+        pos["weights"],
+    )

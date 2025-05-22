@@ -1,0 +1,49 @@
+#version: "3.8"
+services:
+  mongo:
+    image: mongo:7
+    container_name: local-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+      - ./data/mongo-dump:/dump
+      - ./data/mongo-init-marker:/marker
+    command: >
+      bash -c "
+        mongod --bind_ip_all &
+        until mongosh --eval 'db.runCommand({ ping: 1 })' > /dev/null 2>&1; do
+          echo '⏳ Waiting for MongoDB to start...';
+          sleep 1;
+        done;
+        if [ ! -f /marker/.mongo_initialized ]; then
+          echo '🗄️  Initializing MongoDB dump...';
+          mongorestore /dump;
+          touch /marker/.mongo_initialized;
+        else
+          echo '✅ MongoDB already initialized, skipping restore.';
+        fi
+        tail -f /dev/null
+      "
+      
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/ffp_db
+      - PORT=5000
+    depends_on:
+      - mongo
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  mongo-data:
