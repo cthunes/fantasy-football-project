@@ -73,7 +73,6 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variable files
-.env
 .env.development.local
 .env.test.local
 .env.production.local
@@ -136,3 +135,6 @@ football-data/*.py[cod]
 # csv files
 football-data/*/*/*.csv
 football-data/*/*/*/*.csv
+
+# mongo init marker
+data/mongo-init-marker/

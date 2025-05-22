@@ -1,0 +1,23 @@
+{
+  "name": "fantasy-football-project",
+  "version": "1.0.0",
+  "description": "Project space for a web app enabling the user to play around with NFL football statistics to predict the top fantasy players of the next year.",
+  "main": "index.js",
+  "scripts": {
+    "start": "docker-compose up --build",
+    "down": "docker-compose down",
+    "logs": "docker-compose logs -f",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/csthunes/fantasy-football-project.git"
+  },
+  "keywords": [],
+  "author": "Carter Thunes",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/csthunes/fantasy-football-project/issues"
+  },
+  "homepage": "https://github.com/csthunes/fantasy-football-project#readme"
+}

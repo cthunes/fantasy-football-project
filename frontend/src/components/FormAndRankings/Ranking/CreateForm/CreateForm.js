@@ -35,7 +35,7 @@ const CreateForm = () => {
     const pointsType = useSelector((state) => state.pointsType.pointsType);
     const year = useSelector((state) => state.year.year);
     const [column, setColumn] = useState(`${pointsType}.score`);
-    const [includeFAs, setIncludeFAs] = useState(true);
+    const [includeFAs, setIncludeFAs] = useState(false);
     const [number, setNumber] = useState(300);
 
     useEffect(() => {
@@ -165,6 +165,9 @@ const CreateForm = () => {
                                                 >
                                                     Weighted Average
                                                 </MenuItem>
+                                                <MenuItem value={"2024"}>
+                                                    2024
+                                                </MenuItem>
                                                 <MenuItem value={"2023"}>
                                                     2023
                                                 </MenuItem>
@@ -176,9 +179,6 @@ const CreateForm = () => {
                                                 </MenuItem>
                                                 <MenuItem value={"2020"}>
                                                     2020
-                                                </MenuItem>
-                                                <MenuItem value={"2019"}>
-                                                    2019
                                                 </MenuItem>
                                             </Select>
                                         </FormControl>

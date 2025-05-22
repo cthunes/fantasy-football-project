@@ -17,7 +17,7 @@ qb_adj_constant = 1.637
 k_adj_constant = 1.249
 dst_adj_constant = 1.554
 
-# weights for pts adjusted mean, pts median, quality start ratio, good start ratio, opportunities mean
+# weights for pts adjusted mean, pts median, opportunities mean
 scoring_weights = [0.40, 0.40, 0.1]
 
 

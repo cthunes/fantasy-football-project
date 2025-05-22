@@ -23,7 +23,7 @@ const StatsTable = () => {
     const pointsType = useSelector((state) => state.pointsType.pointsType);
     const [position, setPosition] = useState("ALL");
     const [team, setTeam] = useState("ALL");
-    const [showFAs, setShowFAs] = useState(true);
+    const [showFAs, setShowFAs] = useState(false);
     const [tableData, setTableData] = useState(() => []);
     const dispatch = useDispatch();
 
@@ -2539,11 +2539,11 @@ const StatsTable = () => {
                                     <MenuItem value={"Weighted Average"}>
                                         Weighted Average
                                     </MenuItem>
+                                    <MenuItem value={"2024"}>2024</MenuItem>
                                     <MenuItem value={"2023"}>2023</MenuItem>
                                     <MenuItem value={"2022"}>2022</MenuItem>
                                     <MenuItem value={"2021"}>2021</MenuItem>
                                     <MenuItem value={"2020"}>2020</MenuItem>
-                                    <MenuItem value={"2019"}>2019</MenuItem>
                                 </Select>
                             </FormControl>
                             <FormControl sx={{ my: 1, minWidth: 120 }}>

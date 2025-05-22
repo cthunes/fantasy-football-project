@@ -14,7 +14,7 @@ import saveFootballData from "./db-football-data/parseCSV.js";
 const app = express();
 
 //port
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 5000;
 
 //db
 mongoose
@@ -23,8 +23,9 @@ mongoose
         useUnifiedTopology: true,
     })
     .then(() => {
+        console.log('MongoDB connected')
         //detect changes?
-        if (true === false) saveFootballData();
+        if (false) saveFootballData();
         app.listen(port, () =>
             console.log(`Server is running on port: ${port}`)
         );

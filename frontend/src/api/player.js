@@ -1,5 +1,5 @@
 import axios from "axios";
 
-const url = "http://localhost:8080/players";
+const url = "http://localhost:5000/players";
 
 export const fetchPlayers = () => axios.get(url);
