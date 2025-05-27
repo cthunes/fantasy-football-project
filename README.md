@@ -6,7 +6,7 @@ To get the project up and running locally:
 
 1. **Clone the repository**
     ```bash
-    git clone https://github.com/your-username/fantasy-football-project.git
+    git clone https://github.com/cthunes/fantasy-football-project.git
     cd fantasy-football-project
     ```
 
@@ -26,5 +26,5 @@ To get the project up and running locally:
 5. **Stop and remove containers**  
     When you're done, stop the application and remove containers with:
     ```bash
-    docker-compose down
+    npm down
     ```
