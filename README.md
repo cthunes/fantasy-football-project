@@ -26,5 +26,6 @@ To get the project up and running locally:
 5. **Stop and remove containers**  
     When you're done, stop the application and remove containers with:
     ```bash
-    npm down
+    npm run down
     ```
+    This will run `docker-compose down` under the hood.  
