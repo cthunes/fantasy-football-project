@@ -135,7 +135,7 @@ def wrangle(pos, year):
         pt = [10, 20, 30, 40]
 
     g = 16
-    if year > 2021:
+    if year >= 2021:
         g = 17
 
     for type in ["FPTS", "HALF", "PPR"]:
@@ -169,215 +169,141 @@ def wrangle(pos, year):
 
 
 def calc_projected_points(df, pos):
+    # Save original YOE
+    original_yoe = df["YOE"].copy()
+    # Cap YOE at 3 for calculation
+    df["YOE"] = df["YOE"].clip(upper=3)
+
     if pos == "rb":
         df["proj_HALF_mean"] = (
-            -0.72692
-            + -0.5197 * df["YOE"]
-            + 0.59619 * df["HALF_great"]
-            + -0.53782 * df["rec_REC"]
-            + 0.08638 * df["rec_YDS"]
-            + -3.49137 * df["rec_TGT_mean"]
-            + -0.21826 * df["rush_ATT"]
-            + 0.07864 * df["rush_YDS"]
-            + 2.38092 * df["rush_TD"]
-            + (
-                -0.21372 * df["HALF"]
-                + 10.58923 * df["rec_REC_mean"]
-                + 2.43525 * df["rush_ATT_mean"]
-                + -0.57592 * df["rush_YDS_mean"]
-            )
-            * df["INJCOR"]
-            + (
-                0.05181 * df["HALF_std"]
-                + 0.01208 * df["rec_TGT"]
-                + 0.06746 * df["rec_TD"]
-                + -0.05515 * df["rec_YDS_mean"]
-                + -0.01534 * df["rush_20"]
-                + -1.18488 * df["rush_TD_mean"]
-            )
-            * df["G"]
+            13.12818
+            - 0.02306 * df["rush_ATT"]
+            + 0.06813 * df["rec_YDS_mean"] * df["FD_mean"]
+            - 0.00950 * df["rec_TGT"] * df["YOE"]
+            - 4.57418 * df["rush_TD_mean"] * df["rec_FD_mean"]
+            + 0.45833 * df["FL"] * df["HALF_okay"]
+            - 7.43081 * df["YOE"] * df["FL_mean"]
+            + 0.55976 * df["rush_TD_mean"] * df["rush_ATT_mean"]
+            + 0.56447 * df["HALF_bad"] * df["HALF_QSRat"]
+            - 0.07782 * df["HALF_bad"] * df["HALF_Score"]
+            + 0.03167 * df["HALF_bad"] * df["rush_LG_mean"]
+            - 2.99109 * df["rush_TD_mean"] * df["HALF_GSRat"]
         )
         df["proj_HALF"] = (
-            -145.83082
-            + 13.39285 * df["HALF_std"]
-            + -8.43901 * df["YOE"]
-            + 8.44755 * df["G"]
-            + -11.09284 * df["rec_REC"]
-            + 1.0966 * df["rec_YDS"]
-            + -102.06287 * df["rec_TGT_mean"]
-            + 205.50938 * df["rec_REC_mean"]
-            + -3.83106 * df["rush_ATT"]
-            + 1.19905 * df["rush_YDS"]
-            + 37.67466 * df["rush_TD"]
-            + -4.8592 * df["rush_20"]
-            + -317.877 * df["rush_TD_mean"]
-            + (
-                44.61064 * df["rush_ATT_mean"]
-                + -9.43676 * df["rush_YDS_mean"]
-                + -5.22142 * df["HALF_poor"]
-            )
-            * df["INJCOR"]
-            + (
-                0.42673 * df["rec_TGT"]
-                + 2.48498 * df["rec_TD"]
-                + -0.76576 * df["rec_YDS_mean"]
-                + -26.06521 * df["rec_TD_mean"]
-                + -0.17564 * df["HALF"]
-            )
-            * df["G"]
+            174.41515
+            - 0.35377 * df["HALF"]
+            + 0.90041 * df["HALF_median"] * df["HALF_std"]
+            - 0.75860 * df["G"] * df["YOE"]
+            + 10.92800 * df["rec_FD"] * df["rec_FD_mean"]
+            - 1.74416 * df["HALF_std"] * df["rec_FD"]
+            - 0.48346 * df["rec_FD"] * df["rec_YDS_mean"]
+            + 0.06526 * df["HALF_std"] * df["rec_YDS"]
+            - 627.34446 * df["YOE"] * df["FL/T"]
+            - 26.52114 * df["rush_TD"] * df["FL_mean"]
+            + 2.66273 * df["FL"] * df["rec_Y/R"]
+            + 0.76498 * df["rec_FD"] * df["FD_mean"]
         )
-        df["proj_HALF_mean"] = np.where(
-            (df["OPP"] > df["OPP"].median()), df["proj_HALF_mean"], 0
-        )
-        df["proj_HALF"] = np.where((df["OPP"] > df["OPP"].median()), df["proj_HALF"], 0)
     elif pos == "wr":
         df["proj_HALF_mean"] = (
-            -0.49334
-            + 0.80148 * df["HALF_median"]
-            + 0.63537 * df["DPCHT"]
-            + -0.5466 * df["YOE"]
-            + 0.01449 * df["rec_YDS"]
-            + (
-                -0.08582 * df["HALF_median"]
-                + 0.02653 * df["rec_TD"]
-                + 0.10424 * df["rec_REC_mean"]
-                + -0.01624 * df["rush_ATT"]
-            )
-            * df["G"]
-            + (-0.05926 * df["rec_TGT"] + 0.04487 * df["rush_YDS"]) * df["INJCOR"]
+            9.69071
+            + 0.00259 * df["rec_YDS_mean"] * df["HALF_mean"]
+            - 0.16450 * df["rec_TGT_mean"] * df["YOE"]
+            + 0.03589 * df["FD"] * df["HALF_good"]
+            + 0.02769 * df["YOE"] * df["rush_Y/A"]
+            - 2.99380 * df["rush_TD_mean"] * df["HALF_bad"]
+            + 0.01785 * df["rush_YDS"] * df["HALF_poor"]
+            - 0.28925 * df["HALF_poor"] * df["rush_FD"]
+            - 0.01138 * df["HALF_good"] * df["rec_TGT"]
+            + 0.05881 * df["rec_REC_mean"] * df["HALF_std"]
+            + 32.07052 * df["HALF_good"] * df["FL_mean"]
+            - 1.61720 * df["HALF_good"] * df["FL"]
+            + 0.18181 * df["YOE"] * df["HALF_great"]
+            - 19.63244 * df["HALF_great"] * df["FL/T"]
+            - 0.80565 * df["rec_20_mean"] * df["HALF_QSRat"]
         )
         df["proj_HALF"] = (
-            -15.22122
-            + 18.83461 * df["HALF_median"]
-            + -868.62309 * df["G"]
-            + 878.82462 * df["HALF_great"]
-            + 879.14022 * df["HALF_good"]
-            + 876.92071 * df["HALF_okay"]
-            + 877.62237 * df["HALF_poor"]
-            + 870.30401 * df["HALF_bad"]
-            + 11.4517 * df["DPCHT"]
-            + -17.30612 * df["YOE"]
-            + 0.51368 * df["rec_YDS"]
-            + 17.15681 * df["rec_TD"]
-            + -6.83746 * df["rec_20"]
-            + -4.21227 * df["rec_YDS_mean"]
-            + (
-                -0.07018 * df["HALF"]
-                + -1.74102 * df["HALF_median"]
-                + 2.33678 * df["rec_REC_mean"]
-                + 6.98584 * df["rec_20_mean"]
-                + -0.30867 * df["rush_ATT"]
-            )
-            * df["G"]
-            + 1.29758 * df["HALF_std"] * df["YOE"]
-            + (
-                -1.23481 * df["rec_TGT"]
-                + -103.60143 * df["rec_TD_mean"]
-                + 0.91627 * df["rush_YDS"]
-            )
-            * df["INJCOR"]
+            146.08707
+            - 47.21410 * df["rec_20_mean"]
+            + 0.02493 * df["HALF"] * df["HALF_mean"]
+            - 0.45074 * df["rec_TGT"] * df["YOE"]
+            + 2.32740 * df["FD_mean"] * df["HALF_good"]
+            - 7.07173 * df["rec_Y/R"] * df["rec_TD_mean"]
+            + 0.23833 * df["HALF"] * df["YOE"]
+            + 93.68252 * df["OPP_mean"] * df["FL_mean"]
+            - 0.63054 * df["rec_YDS_mean"] * df["FL"]
+            + 0.94726 * df["rush_Y/A"] * df["HALF_poor"]
+            - 144.55716 * df["rush_FD_mean"] * df["HALF_GSRat"]
+            + 2.52930 * df["HALF_std"] * df["HALF_great"]
+            - 1.55837 * df["HALF_great"] * df["rec_20"]
+            + 4.87852 * df["rec_20_mean"] * df["rec_20"]
+            - 46.06631 * df["rush_TD_mean"] * df["HALF_bad"]
         )
-        df["proj_HALF_mean"] = np.where(
-            (df["OPP"] > df["OPP"].median()), df["proj_HALF_mean"], 0
-        )
-        df["proj_HALF"] = np.where((df["OPP"] > df["OPP"].median()), df["proj_HALF"], 0)
     elif pos == "te":
         df["proj_HALF_mean"] = (
-            -6.14673
-            + 0.11 * df["HALF"]
-            + 0.53357 * df["G"]
-            + 3.42599 * df["YOE"]
-            + 0.43051 * df["DPCHT"]
-            + -0.13485 * df["rush_YDS"]
-            + (
-                0.03901 * df["HALF_Score"]
-                + -0.00744 * df["HALF"]
-                + -0.01736 * df["rec_YDS_mean"]
-            )
-            * df["G"]
-            + (
-                -3.78614 * df["YOE"]
-                + 2.07639 * df["rush_YDS_mean"]
-                + 0.02035 * df["rec_YDS"]
-            )
-            * df["INJCOR"]
+            12.75958
+            - 0.85382 * df["HALF_bad"]
+            + 0.00094 * df["rec_YDS_mean"] * df["HALF"]
+            - 0.04137 * df["OPP"] * df["rec_20_mean"]
+            - 0.27865 * df["HALF_median"] * df["HALF_okay"]
+            + 0.30654 * df["HALF_okay"] * df["FL"]
+            - 1.94957 * df["rec_TD_mean"] * df["YOE"]
+            + 0.03081 * df["HALF_okay"] * df["FD"]
+            - 1.77217 * df["HALF_poor"] * df["HALF_GSRat"]
+            + 0.02437 * df["HALF_bad"] * df["G"]
         )
         df["proj_HALF"] = (
-            -83.30983
-            + 1.40787 * df["HALF"]
-            + 6.92537 * df["G"]
-            + 38.65142 * df["YOE"]
-            + 6.78682 * df["DPCHT"]
-            + -1.8982 * df["rush_YDS"]
-            + 1.31858 * df["rec_YDS"]
-            + -14.23762 * df["rec_REC"]
-            + (
-                0.783 * df["HALF_Score"]
-                + -0.08364 * df["HALF"]
-                + -0.63754 * df["HALF_good"]
-                + -1.31185 * df["rec_YDS_mean"]
-                + 14.09444 * df["rec_REC_mean"]
-            )
-            * df["G"]
-            + (-44.07351 * df["YOE"] + 29.80983 * df["rush_YDS_mean"]) * df["INJCOR"]
+            77.06606
+            + 1.54876 * df["HALF"]
+            - 1.32314 * df["rec_TD_mean"] * df["OPP"]
+            - 0.02691 * df["OPP"] * df["rec_20"]
+            - 18.28303 * df["rec_20_mean"] * df["HALF_okay"]
+            - 0.16448 * df["rec_FD"] * df["HALF_std"]
+            - 1.05763 * df["G"] * df["HALF_mean"]
+            + 0.01569 * df["HALF_mean"] * df["rec_YDS"]
         )
-        df["proj_HALF_mean"] = np.where(
-            (df["OPP"] > df["OPP"].median()), df["proj_HALF_mean"], 0
-        )
-        df["proj_HALF"] = np.where((df["OPP"] > df["OPP"].median()), df["proj_HALF"], 0)
     elif pos == "qb":
         df["proj_HALF_mean"] = (
-            -5.96351
-            + 141.54001 * df["HALF_great"]
-            + 140.18691 * df["HALF_good"]
-            + 141.47472 * df["HALF_okay"]
-            + 141.71899 * df["HALF_poor"]
-            + 140.91067 * df["HALF_bad"]
-            + -139.31597 * df["G"]
-            + 3.10034 * df["YOE"]
-            + 0.00378 * df["pass_YDS"]
-            + -0.30174 * df["YOE"] * df["G"]
-            + (
-                0.69141 * df["rush_TD"]
-                + -0.01737 * df["pass_ATT"]
-                + -0.5941 * df["pass_INT"]
-            )
-            * df["INJCOR"]
+            -2.07396
+            + 1.97038 * df["pass_Y/A"]
+            + 0.06576 * df["HALF_std"] * df["HALF_okay"]
+            - 0.03382 * df["rush_ATT"] * df["YOE"]
+            - 0.14149 * df["pass_Y/A"] * df["pass_INT"]
+            + 0.02208 * df["pass_INT_mean"] * df["OPP"]
+            + 0.14543 * df["rush_ATT_mean"] * df["G"]
+            + 0.20314 * df["pass_Y/A"] * df["YOE"]
         )
         df["proj_HALF"] = (
-            -178.29572
-            + 29.41097 * df["G"]
-            + 48.13456 * df["YOE"]
-            + -1.06412 * df["pass_CMP"]
-            + 0.15388 * df["pass_YDS"]
-            + -14.97579 * df["pass_INT"]
-            + -5.24495 * df["YOE"] * df["G"]
-            + 11.55614 * df["rush_TD"] * df["INJCOR"]
+            41.63286
+            + 12.46356 * df["HALF_mean"]
+            + 1.24346 * df["HALF_std"] * df["HALF_okay"]
+            + 0.01935 * df["rush_YDS"] * df["HALF_bad"]
+            - 9.05340 * df["pass_SACKS_mean"] * df["rush_FD"]
+            - 0.85178 * df["HALF_bad"] * df["HALF_median"]
+            + 0.58581 * df["HALF_bad"] * df["G"]
+            + 8.60298 * df["pass_SACKS"] * df["rush_FD_mean"]
         )
-        df["proj_HALF_mean"] = np.where(
-            (df["OPP"] > df["OPP"].median()), df["proj_HALF_mean"], 0
-        )
-        df["proj_HALF"] = np.where((df["OPP"] > df["OPP"].median()), df["proj_HALF"], 0)
     elif pos == "k":
         df["proj_HALF_mean"] = (
-            2.84778
-            + 0.86635 * df["HALF_adj"]
-            + -0.68583 * df["HALF_median"]
-            + 1.58983 * df["DPCHT"]
-            + 0.37982 * df["FG"]
-            + -8.74909 * df["FG_PCT"]
-            + 8.07964 * df["XP_PCT"]
-            + (-0.50979 * df["HALF_okay"] + -0.21728 * df["FGA"]) * df["INJCOR"]
+            9.60008
+            + 0.63111 * df["XP"] * df["HALF_GSRat"]
+            - 0.02792 * df["OPP_mean"] * df["HALF_std"]
+            - 0.73075 * df["FG_30_39_mean"] * df["YOE"]
+            - 0.49275 * df["HALF_GSRat"] * df["XPA"]
+            + 0.39128 * df["FG_30_39_mean"] * df["FG_50"]
+            - 0.10654 * df["FG_50_mean"] * df["OPP"]
+            + 0.10534 * df["FG_50"] * df["HALF_adj"]
+            - 0.01765 * df["HALF_median"] * df["HALF_good"]
+            - 0.63511 * df["HALF_GSRat"] * df["HALF_poor"]
         )
         df["proj_HALF"] = (
-            -124.1586
-            + 3.23275 * df["HALF"]
-            + 31.07504 * df["DPCHT"]
-            + 6.07283 * df["YOE"]
-            + 327.45736 * df["INJCOR"]
-            + -227.92201 * df["FG_PCT"]
-            + -0.18751 * df["FG"] * df["G"]
-            + -2.19888 * df["OPP"] * df["INJCOR"]
+            164.65195
+            - 253.20695 * df["HALF_GSRat"]
+            + 5.26911 * df["HALF_adj"] * df["HALF_great"]
+            - 3.62681 * df["HALF_great"] * df["OPP_mean"]
+            - 1.42104 * df["HALF_good"] * df["YOE"]
+            + 1.44246 * df["HALF_GSRat"] * df["HALF"]
+            - 6.35416 * df["FGA"] * df["FG_PCT"]
+            + 4.99918 * df["G"] * df["FG_mean"]
         )
         df["proj_HALF_mean"] = np.where(
             (df["OPP"] > df["OPP"].median() / 2), df["proj_HALF_mean"], 0
@@ -387,24 +313,41 @@ def calc_projected_points(df, pos):
         )
     else:
         df["proj_HALF_mean"] = (
-            1.0938
-            + 0.42001 * df["ST_TD"]
-            + 0.70824 * df["HALF_great"]
-            + 0.6305 * df["HALF_good"]
-            + 0.5661 * df["HALF_okay"]
-            + 0.20192 * df["HALF_bad"]
-            + -0.15781 * df["HALF_GSRat"] * df["HALF_QSRat"]
+            4.11413
+            + 0.46106 * df["HALF_mean"]
+            + 0.18600 * df["ST_TD"] * df["HALF_okay"]
+            - 0.03364 * df["HALF_bad"] * df["HALF_poor"]
+            + 0.18946 * df["HALF_bad"] * df["SFTY"]
+            + 0.01415 * df["HALF_bad"] * df["SACK"]
+            - 0.09197 * df["HALF_bad"] * df["HALF_median"]
+            - 1.19802 * df["FF"] * df["SFTY_mean"]
+            - 0.01310 * df["SACK"] * df["HALF_std"]
+            + 1.14308 * df["FF_mean"] * df["HALF_great"]
+            - 0.65438 * df["FF"] * df["HALF_GSRat"]
+            + 0.05296 * df["HALF_median"] * df["HALF_std"]
         )
         df["proj_HALF"] = (
-            67.78177
-            + -7.37916 * df["HALF_mean"]
-            + -6.92168 * df["HALF_GSRat"]
-            + 8.19648 * df["ST_TD"]
-            + 14.04685 * df["HALF_good"]
-            + 17.42961 * df["HALF_great"]
-            + 9.4686 * df["HALF_okay"]
+            46.68152
+            + 0.46919 * df["HALF"]
+            + 3.12829 * df["ST_TD"] * df["HALF_okay"]
+            - 0.40351 * df["HALF_mean"] * df["HALF_median"]
+            + 1.67617 * df["HALF_good"] * df["HALF_great"]
+            - 11.41801 * df["FF"] * df["SFTY_mean"]
+            + 4.41147 * df["HALF_okay"] * df["SFTY"]
+            + 0.07354 * df["HALF_bad"] * df["SACK"]
+            - 5.81759 * df["HALF_bad"] * df["D_TD_mean"]
         )
 
+    if pos != "k" and pos != "dst":
+        df["proj_HALF_mean"] = np.where(
+            (df["OPP"] > df["OPP"].median()), df["proj_HALF_mean"], 0
+        )
+        df["proj_HALF"] = np.where(
+            (df["OPP"] > df["OPP"].median()), df["proj_HALF"], 0
+        )
+    # restore original YOE
+    df["YOE"] = original_yoe
+    # calculate mean and total points as equal to the averages of the projected mean and total points
     temp_proj_half_mean = df["proj_HALF_mean"]
     df["proj_HALF_mean"] = (df["proj_HALF_mean"] + (df["proj_HALF"] / 17)) / 2
     df["proj_HALF"] = (df["proj_HALF"] + (temp_proj_half_mean * 17)) / 2
