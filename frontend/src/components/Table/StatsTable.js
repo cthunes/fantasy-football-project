@@ -77,18 +77,23 @@ const StatsTable = () => {
                         id: "position",
                         header: "POS",
                         size: 30,
+                        filterVariant: 'multi-select',
+                        filterSelectOptions: [ "QB", "RB", "WR", "TE", "K", "DST" ],
                     },
                     {
                         accessorKey: "team",
                         id: "team",
                         header: "TEAM",
                         size: 50,
+                        filterVariant: 'multi-select',
+                        filterSelectOptions: [ "ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE", "DAL", "DEN", "DET", "GB", "HOU", "IND", "JAC", "KC", "LAC", "LAR", "LV", "MIA", "MIN", "NE", "NO", "NYG", "NYJ", "PHI", "PIT", "SEA", "SF", "TB", "TEN", "WAS", "FA" ],
                     },
                     {
                         accessorKey: "yearsOfExperience",
                         id: "yoe",
                         header: "YOE",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) =>
@@ -100,6 +105,7 @@ const StatsTable = () => {
                         id: "depthChart",
                         header: "DC",
                         size: 20,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) =>
@@ -111,6 +117,7 @@ const StatsTable = () => {
                         id: "games",
                         header: "G",
                         size: 30,
+                        filterVariant: 'range',
                     },
                 ],
             },
@@ -133,6 +140,7 @@ const StatsTable = () => {
                         id: "rushing.attempts",
                         header: "ATT",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -149,6 +157,7 @@ const StatsTable = () => {
                         id: "rushing.yards",
                         header: "YDS",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -165,6 +174,7 @@ const StatsTable = () => {
                         id: "rushing.firstDowns",
                         header: "FD",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -181,6 +191,7 @@ const StatsTable = () => {
                         id: "rushing.long",
                         header: "LONG",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -197,6 +208,7 @@ const StatsTable = () => {
                         id: "rushing.twentyPlus",
                         header: "20+",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -213,6 +225,7 @@ const StatsTable = () => {
                         id: "rushing.td",
                         header: "TD",
                         size: 30,
+                        filterVariant: 'range',
                     },
                 ],
             },
@@ -235,6 +248,7 @@ const StatsTable = () => {
                         id: "rushing.attemptsMean",
                         header: "ATT",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -251,6 +265,7 @@ const StatsTable = () => {
                         id: "rushing.yardsMean",
                         header: "YDS",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -267,6 +282,7 @@ const StatsTable = () => {
                         id: "rushing.yardsPerAttempt",
                         header: "Y/A",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -283,6 +299,7 @@ const StatsTable = () => {
                         id: "rushing.firstDownsMean",
                         header: "FD",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -299,6 +316,7 @@ const StatsTable = () => {
                         id: "rushing.longMean",
                         header: "LONG",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -315,6 +333,7 @@ const StatsTable = () => {
                         id: "rushing.twentyPlusMean",
                         header: "20+",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -331,6 +350,7 @@ const StatsTable = () => {
                         id: "rushing.tdMean",
                         header: "TD",
                         size: 30,
+                        filterVariant: 'range',
                     },
                 ],
             },
@@ -353,6 +373,7 @@ const StatsTable = () => {
                         id: "receiving.receptions",
                         header: "REC",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -369,6 +390,7 @@ const StatsTable = () => {
                         id: "receiving.targets",
                         header: "TGT",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -385,6 +407,7 @@ const StatsTable = () => {
                         id: "receiving.yards",
                         header: "YDS",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -401,6 +424,7 @@ const StatsTable = () => {
                         id: "receiving.firstDowns",
                         header: "FD",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -417,6 +441,7 @@ const StatsTable = () => {
                         id: "receiving.long",
                         header: "LONG",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -433,6 +458,7 @@ const StatsTable = () => {
                         id: "receiving.twentyPlus",
                         header: "20+",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -449,6 +475,7 @@ const StatsTable = () => {
                         id: "receiving.td",
                         header: "TD",
                         size: 30,
+                        filterVariant: 'range',
                     },
                 ],
             },
@@ -471,6 +498,7 @@ const StatsTable = () => {
                         id: "receiving.receptionsMean",
                         header: "REC",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -487,6 +515,7 @@ const StatsTable = () => {
                         id: "receiving.targetsMean",
                         header: "TGT",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -503,6 +532,7 @@ const StatsTable = () => {
                         id: "receiving.yardsMean",
                         header: "YDS",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -519,6 +549,7 @@ const StatsTable = () => {
                         id: "receiving.yardsPerReception",
                         header: "Y/C",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -535,6 +566,7 @@ const StatsTable = () => {
                         id: "receiving.firstDownsMean",
                         header: "FD",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -551,6 +583,7 @@ const StatsTable = () => {
                         id: "receiving.longMean",
                         header: "LONG",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -567,6 +600,7 @@ const StatsTable = () => {
                         id: "receiving.twentyPlusMean",
                         header: "20+",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -583,6 +617,7 @@ const StatsTable = () => {
                         id: "receiving.tdMean",
                         header: "TD",
                         size: 30,
+                        filterVariant: 'range',
                     },
                 ],
             },
@@ -605,6 +640,7 @@ const StatsTable = () => {
                         id: "passing.completions",
                         header: "CMP",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -621,6 +657,7 @@ const StatsTable = () => {
                         id: "passing.attempts",
                         header: "ATT",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -637,6 +674,7 @@ const StatsTable = () => {
                         id: "passing.yards",
                         header: "YDS",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -653,6 +691,7 @@ const StatsTable = () => {
                         id: "passing.td",
                         header: "TD",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -669,6 +708,7 @@ const StatsTable = () => {
                         id: "passing.interceptions",
                         header: "INT",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -685,6 +725,7 @@ const StatsTable = () => {
                         id: "passing.sacks",
                         header: "SACK",
                         size: 30,
+                        filterVariant: 'range',
                     },
                 ],
             },
@@ -707,6 +748,7 @@ const StatsTable = () => {
                         id: "passing.completionsMean",
                         header: "CMP",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -723,6 +765,7 @@ const StatsTable = () => {
                         id: "passing.attemptsMean",
                         header: "ATT",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -739,6 +782,7 @@ const StatsTable = () => {
                         id: "passing.percentage",
                         header: "PCT",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -755,6 +799,7 @@ const StatsTable = () => {
                         id: "passing.yardsMean",
                         header: "YDS",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -771,6 +816,7 @@ const StatsTable = () => {
                         id: "passing.yardsPerAttempt",
                         header: "Y/A",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -787,6 +833,7 @@ const StatsTable = () => {
                         id: "passing.tdMean",
                         header: "TD",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -803,6 +850,7 @@ const StatsTable = () => {
                         id: "passing.interceptionsMean",
                         header: "INT",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -819,6 +867,7 @@ const StatsTable = () => {
                         id: "passing.sacksMean",
                         header: "SACK",
                         size: 30,
+                        filterVariant: 'range',
                     },
                 ],
             },
@@ -841,6 +890,7 @@ const StatsTable = () => {
                         id: "kicking.fieldGoals.sum",
                         header: "MADE",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -857,6 +907,7 @@ const StatsTable = () => {
                         id: "kicking.fieldGoals.attempts",
                         header: "ATT",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -873,6 +924,7 @@ const StatsTable = () => {
                         id: "kicking.fieldGoals.long",
                         header: "LONG",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -889,6 +941,7 @@ const StatsTable = () => {
                         id: "kicking.fieldGoals.sum10_19",
                         header: "10-19",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -905,6 +958,7 @@ const StatsTable = () => {
                         id: "kicking.fieldGoals.sum20_29",
                         header: "20-29",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -921,6 +975,7 @@ const StatsTable = () => {
                         id: "kicking.fieldGoals.sum30_39",
                         header: "30-39",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -937,6 +992,7 @@ const StatsTable = () => {
                         id: "kicking.fieldGoals.sum40_49",
                         header: "40-49",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -953,6 +1009,7 @@ const StatsTable = () => {
                         id: "kicking.fieldGoals.sum50Plus",
                         header: "50+",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -969,6 +1026,7 @@ const StatsTable = () => {
                         id: "kicking.extraPoints.sum",
                         header: "EP",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -985,6 +1043,7 @@ const StatsTable = () => {
                         id: "kicking.extraPoints.attempts",
                         header: "EPA",
                         size: 30,
+                        filterVariant: 'range',
                     },
                 ],
             },
@@ -1007,6 +1066,7 @@ const StatsTable = () => {
                         id: "kicking.fieldGoals.mean",
                         header: "MADE",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1023,6 +1083,7 @@ const StatsTable = () => {
                         id: "kicking.fieldGoals.attemptsMean",
                         header: "ATT",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1039,6 +1100,7 @@ const StatsTable = () => {
                         id: "kicking.fieldGoals.percentage",
                         header: "PCT",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1055,6 +1117,7 @@ const StatsTable = () => {
                         id: "kicking.fieldGoals.longMean",
                         header: "LONG",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1071,6 +1134,7 @@ const StatsTable = () => {
                         id: "kicking.fieldGoals.mean10_19",
                         header: "10-19",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1087,6 +1151,7 @@ const StatsTable = () => {
                         id: "kicking.fieldGoals.mean20_29",
                         header: "20-29",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1103,6 +1168,7 @@ const StatsTable = () => {
                         id: "kicking.fieldGoals.mean30_39",
                         header: "30-39",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1119,6 +1185,7 @@ const StatsTable = () => {
                         id: "kicking.fieldGoals.mean40_49",
                         header: "40-49",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1135,6 +1202,7 @@ const StatsTable = () => {
                         id: "kicking.fieldGoals.mean50Plus",
                         header: "50+",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1151,6 +1219,7 @@ const StatsTable = () => {
                         id: "kicking.extraPoints.mean",
                         header: "EP",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1167,6 +1236,7 @@ const StatsTable = () => {
                         id: "kicking.extraPoints.attemptsMean",
                         header: "EPA",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1183,6 +1253,7 @@ const StatsTable = () => {
                         id: "kicking.extraPoints.percentage",
                         header: "EPCT",
                         size: 30,
+                        filterVariant: 'range',
                     },
                 ],
             },
@@ -1205,6 +1276,7 @@ const StatsTable = () => {
                         id: "dst.defense.sacks",
                         header: "SACK",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1221,6 +1293,7 @@ const StatsTable = () => {
                         id: "dst.defense.interceptions",
                         header: "INT",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1237,6 +1310,7 @@ const StatsTable = () => {
                         id: "dst.defense.fumblesRecovered",
                         header: "FR",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1253,6 +1327,7 @@ const StatsTable = () => {
                         id: "dst.defense.forcedFumbles",
                         header: "FF",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1269,6 +1344,7 @@ const StatsTable = () => {
                         id: "dst.defense.safeties",
                         header: "SAF",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1285,6 +1361,7 @@ const StatsTable = () => {
                         id: "dst.defense.td",
                         header: "TD",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1301,6 +1378,7 @@ const StatsTable = () => {
                         id: "dst.specialTeams.td",
                         header: "STTD",
                         size: 30,
+                        filterVariant: 'range',
                     },
                 ],
             },
@@ -1323,6 +1401,7 @@ const StatsTable = () => {
                         id: "dst.defense.sacksMean",
                         header: "SACK",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1339,6 +1418,7 @@ const StatsTable = () => {
                         id: "dst.defense.interceptionsMean",
                         header: "INT",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1355,6 +1435,7 @@ const StatsTable = () => {
                         id: "dst.defense.fumblesRecoveredMean",
                         header: "FR",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1371,6 +1452,7 @@ const StatsTable = () => {
                         id: "dst.defense.forcedFumblesMean",
                         header: "FF",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1387,6 +1469,7 @@ const StatsTable = () => {
                         id: "dst.defense.safetiesMean",
                         header: "SAF",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1403,6 +1486,7 @@ const StatsTable = () => {
                         id: "dst.defense.tdMean",
                         header: "TD",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1419,6 +1503,7 @@ const StatsTable = () => {
                         id: "dst.specialTeams.tdMean",
                         header: "STTD",
                         size: 30,
+                        filterVariant: 'range',
                     },
                 ],
             },
@@ -1441,6 +1526,7 @@ const StatsTable = () => {
                         id: "misc.touches",
                         header: "TCH",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1457,6 +1543,7 @@ const StatsTable = () => {
                         id: "misc.opportunities",
                         header: "OPP",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1473,6 +1560,7 @@ const StatsTable = () => {
                         id: "misc.firstDowns",
                         header: "FD",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1489,6 +1577,7 @@ const StatsTable = () => {
                         id: "misc.fumblesLost",
                         header: "FL",
                         size: 30,
+                        filterVariant: 'range',
                     },
                 ],
             },
@@ -1511,6 +1600,7 @@ const StatsTable = () => {
                         id: "misc.touchesMean",
                         header: "TCH",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1527,6 +1617,7 @@ const StatsTable = () => {
                         id: "misc.opportunitiesMean",
                         header: "OPP",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1543,6 +1634,7 @@ const StatsTable = () => {
                         id: "misc.firstDownsMean",
                         header: "FD",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1559,6 +1651,7 @@ const StatsTable = () => {
                         id: "misc.fumblesLostMean",
                         header: "FL",
                         size: 30,
+                        filterVariant: 'range',
                     },
                     {
                         accessorFn: (player) => {
@@ -1575,6 +1668,7 @@ const StatsTable = () => {
                         id: "misc.fumblesLostPerTouch",
                         header: "FL/T",
                         size: 30,
+                        filterVariant: 'range',
                     },
                 ],
             },
@@ -1600,6 +1694,7 @@ const StatsTable = () => {
                             id: "ppr.points.sum",
                             header: "SUM",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -1616,6 +1711,7 @@ const StatsTable = () => {
                             id: "ppr.points.mean",
                             header: "MEAN",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -1632,6 +1728,7 @@ const StatsTable = () => {
                             id: "ppr.points.median",
                             header: "MDN",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -1648,6 +1745,7 @@ const StatsTable = () => {
                             id: "ppr.points.standardDeviation",
                             header: "STD",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -1664,6 +1762,7 @@ const StatsTable = () => {
                             id: "ppr.points.adjustedMean",
                             header: "ADJM",
                             size: 30,
+                            filterVariant: 'range',
                         },
                     ],
                 },
@@ -1686,6 +1785,7 @@ const StatsTable = () => {
                             id: "ppr.games.bad",
                             header: "BAD",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -1702,6 +1802,7 @@ const StatsTable = () => {
                             id: "ppr.games.poor",
                             header: "POOR",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -1718,6 +1819,7 @@ const StatsTable = () => {
                             id: "ppr.games.okay",
                             header: "FINE",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -1734,6 +1836,7 @@ const StatsTable = () => {
                             id: "ppr.games.good",
                             header: "GOOD",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -1750,6 +1853,7 @@ const StatsTable = () => {
                             id: "ppr.games.great",
                             header: "GRT",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -1766,6 +1870,7 @@ const StatsTable = () => {
                             id: "ppr.qualityStartRatio",
                             header: "QSR",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -1782,6 +1887,7 @@ const StatsTable = () => {
                             id: "ppr.goodStartRatio",
                             header: "GSR",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -1798,6 +1904,7 @@ const StatsTable = () => {
                             id: "ppr.score",
                             header: "SCR",
                             size: 30,
+                            filterVariant: 'range',
                         },
                     ],
                 },
@@ -1823,6 +1930,7 @@ const StatsTable = () => {
                             id: "half.points.sum",
                             header: "SUM",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -1839,6 +1947,7 @@ const StatsTable = () => {
                             id: "half.points.mean",
                             header: "MEAN",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -1855,6 +1964,7 @@ const StatsTable = () => {
                             id: "half.points.median",
                             header: "MDN",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -1871,6 +1981,7 @@ const StatsTable = () => {
                             id: "half.points.standardDeviation",
                             header: "STD",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -1887,6 +1998,7 @@ const StatsTable = () => {
                             id: "half.points.adjustedMean",
                             header: "ADJM",
                             size: 30,
+                            filterVariant: 'range',
                         },
                     ],
                 },
@@ -1909,6 +2021,7 @@ const StatsTable = () => {
                             id: "half.games.bad",
                             header: "BAD",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -1925,6 +2038,7 @@ const StatsTable = () => {
                             id: "half.games.poor",
                             header: "POOR",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -1941,6 +2055,7 @@ const StatsTable = () => {
                             id: "half.games.okay",
                             header: "FINE",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -1957,6 +2072,7 @@ const StatsTable = () => {
                             id: "half.games.good",
                             header: "GOOD",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -1973,6 +2089,7 @@ const StatsTable = () => {
                             id: "half.games.great",
                             header: "GRT",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -1989,6 +2106,7 @@ const StatsTable = () => {
                             id: "half.qualityStartRatio",
                             header: "QSR",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -2005,6 +2123,7 @@ const StatsTable = () => {
                             id: "half.goodStartRatio",
                             header: "GSR",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -2021,6 +2140,7 @@ const StatsTable = () => {
                             id: "half.score",
                             header: "SCR",
                             size: 30,
+                            filterVariant: 'range',
                         },
                     ],
                 },
@@ -2043,6 +2163,7 @@ const StatsTable = () => {
                             id: "half.projected.mean",
                             header: "MEAN",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -2059,6 +2180,7 @@ const StatsTable = () => {
                             id: "half.projected.sum",
                             header: "TOT",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -2075,6 +2197,7 @@ const StatsTable = () => {
                             id: "half.projected.rank",
                             header: "RANK",
                             size: 30,
+                            filterVariant: 'range',
                         },
                     ],
                 },
@@ -2100,6 +2223,7 @@ const StatsTable = () => {
                             id: "standard.points.sum",
                             header: "SUM",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -2116,6 +2240,7 @@ const StatsTable = () => {
                             id: "standard.points.mean",
                             header: "MEAN",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -2132,6 +2257,7 @@ const StatsTable = () => {
                             id: "standard.points.median",
                             header: "MDN",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -2148,6 +2274,7 @@ const StatsTable = () => {
                             id: "standard.points.standardDeviation",
                             header: "STD",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -2164,6 +2291,7 @@ const StatsTable = () => {
                             id: "standard.points.adjustedMean",
                             header: "ADJM",
                             size: 30,
+                            filterVariant: 'range',
                         },
                     ],
                 },
@@ -2186,6 +2314,7 @@ const StatsTable = () => {
                             id: "standard.games.bad",
                             header: "BAD",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -2202,6 +2331,7 @@ const StatsTable = () => {
                             id: "standard.games.poor",
                             header: "POOR",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -2218,6 +2348,7 @@ const StatsTable = () => {
                             id: "standard.games.okay",
                             header: "FINE",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -2234,6 +2365,7 @@ const StatsTable = () => {
                             id: "standard.games.good",
                             header: "GOOD",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -2250,6 +2382,7 @@ const StatsTable = () => {
                             id: "standard.games.great",
                             header: "GRT",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -2266,6 +2399,7 @@ const StatsTable = () => {
                             id: "standard.qualityStartRatio",
                             header: "QSR",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -2282,6 +2416,7 @@ const StatsTable = () => {
                             id: "standard.goodStartRatio",
                             header: "GSR",
                             size: 30,
+                            filterVariant: 'range',
                         },
                         {
                             accessorFn: (player) => {
@@ -2298,6 +2433,7 @@ const StatsTable = () => {
                             id: "standard.score",
                             header: "SCR",
                             size: 30,
+                            filterVariant: 'range',
                         },
                     ],
                 },
@@ -2317,10 +2453,11 @@ const StatsTable = () => {
                 columns={columns}
                 data={tableData}
                 enableRowNumbers
-                rowNumberMode="static"
+                rowNumberDisplayMode="static"
+                columnFilterDisplayMode="popover"
                 enableStickyHeader
                 enableColumnActions={false}
-                enablePinning
+                enableColumnPinning
                 enableDensityToggle={false}
                 initialState={{
                     columnPinning: {
@@ -2466,7 +2603,7 @@ const StatsTable = () => {
                     },
                 }}
                 muiTableContainerProps={{ sx: { maxHeight: "80vh" } }}
-                muiTablePaginationProps={{
+                muiPaginationProps={{
                     rowsPerPageOptions: [25, 50, 100],
                 }}
                 renderTopToolbarCustomActions={({ table }) => {

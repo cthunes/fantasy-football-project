@@ -425,7 +425,7 @@ const PosRanking = (props) => {
                                           sx: { maxHeight: 439 },
                                       }
                             }
-                            muiTableBodyRowDragHandleProps={reorder}
+                            muiRowDragHandleProps={reorder}
                             renderRowActions={({ row, table }) => (
                                 <Box
                                     sx={{
