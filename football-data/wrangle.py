@@ -356,6 +356,43 @@ def calc_projected_points(df, pos):
     return df.round(2)
 
 
+def add_rank_and_par_cols(df, pos):
+    ascending_cols = {"pass_INT", "pass_INT_mean", "pass_SACKS", "pass_SACKS_mean", "FL", "FL_mean", "FL/T"}
+    base_cols = [col for col in df.columns[4:-1] if not (col.endswith("_rank") or col.endswith("_par"))]
+
+    # Define replacement index ranges by position
+    replacement_ranges = {
+        "qb":  (10, 15),   # 11th–15th best
+        "rb":  (25, 35),   # 26th–35th best
+        "wr":  (25, 35),   # 26th–35th best
+        "te":  (10, 15),   # 11th–15th best
+        "k":   (10, 15),   # 11th–15th best
+        "dst": (10, 15),   # 11th–15th best
+    }
+    rep_start, rep_end = replacement_ranges[pos]
+
+    new_cols = {}
+    
+    for col in base_cols:
+        asc = col in ascending_cols
+
+        # Rank
+        rank_col = df[col].rank(ascending=asc, method="min")
+        new_cols[f"{col}_rank"] = rank_col
+
+        # PAR
+        sorted_vals = df[col].dropna().sort_values(ascending=asc).reset_index(drop=True)
+        rep_slice = sorted_vals[rep_start:rep_end]
+        replacement = rep_slice.mean() if not rep_slice.empty else sorted_vals.median()
+        par_col = ((df[col] - replacement) / replacement) * 100 if replacement != 0 else float("nan")
+        new_cols[f"{col}_par"] = par_col
+    
+    df = pd.concat([df, pd.DataFrame(new_cols, index=df.index)], axis=1)
+
+    return df.round(2)
+
+
+
 def wrangle_all(all, pos, weights):
     grouped = all.groupby("Player", sort=False, as_index=False)
 
@@ -403,6 +440,13 @@ def wrangle_all(all, pos, weights):
         all["DPCHT"] = np.where(all["TEAM"] == "FA", 0, all["DPCHT"])
     all = all.drop("Weight_sum", axis=1)
 
+    # add rank and par columns
+    all = add_rank_and_par_cols(all, pos)
+
+    # move YOE to the end
+    yoe_col = all.pop("YOE")
+    all["YOE"] = yoe_col
+
     # calculate projected half-ppr points
     all = calc_projected_points(all, pos)
 
@@ -445,6 +489,8 @@ for pos in positions:
                     ),
                 )
             df["DPCHT"] = np.where(df["TEAM"] == "FA", 0, df["DPCHT"])
+        # add rank and par columns
+        df = add_rank_and_par_cols(df, pos["name"])
         print("Saving file aggregated/{}/{}.csv".format(pos["name"], year))
         df.to_csv("aggregated/{}/{}.csv".format(pos["name"], year), index=False)
 
