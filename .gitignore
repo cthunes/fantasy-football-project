@@ -140,3 +140,6 @@ football-data/*/*/*/*.csv
 
 # mongo init marker
 data/mongo-init-marker/
+
+# vscode settings
+.vscode/
