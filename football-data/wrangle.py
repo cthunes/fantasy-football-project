@@ -13,108 +13,269 @@ positions = [
     {"name": "dst", "weights": [64, 16, 4, 1, 0.00001]},
 ]
 
+# use last names as join column
+def split_join_name(df):
+    df["join_name"] = (
+        df["Player"]
+        .str.replace(r" Jr.$| Sr.$| II$| III$| IV$", "", regex=True)
+        .str.rsplit(n=1)
+        .str[-1]
+    )
+
+
+def split_team(df):
+    df.insert(1, "TEAM", "")
+    df[["Player", "TEAM"]] = df.Player.str.split("(", expand=True)
+    df["TEAM"] = df.TEAM.str.replace(")", "", regex=False)
+    df["Player"] = df["Player"].str.strip()
+
 
 def add_fds(df, pos, year):
-    if pos != "dst" and pos != "k":
-        df["copy"] = df["Player"]
-        df.insert(1, "TEAM", "")
-        df[["Player", "TEAM"]] = df.Player.str.split("(", expand=True)
-        df["TEAM"] = df.TEAM.str.replace(")", "", regex=False)
-        df["Player"] = df["Player"].str.strip()
+    df["copy"] = df["Player"]
+    split_team(df)
 
-        rush_fds = pd.read_csv("raw/fd/rushing/{}.csv".format(year))
+    rush_fds = pd.read_csv("raw/fd/rushing/{}.csv".format(year))
 
-        # use last names as join column
-        df["join_name"] = (
-            df["Player"]
-            .str.replace(r" Jr.$| Sr.$| II$| III$| IV$", "", regex=True)
-            .str.rsplit(n=1)
-            .str[-1]
-        )
-        rush_fds["join_name"] = (
-            rush_fds["Player"]
-            .str.replace(r" Jr.$| Sr.$| II$| III$| IV$", "", regex=True)
-            .str.rsplit(n=1)
-            .str[-1]
-        )
-        rush_fds = rush_fds.drop(columns="Player")
+    # use last names as join column
+    split_join_name(df)
+    split_join_name(rush_fds)
+    rush_fds = rush_fds.drop(columns="Player")
 
-        rush_fds = rush_fds.rename(columns={"Att": "rush_ATT"})
-        df = df.merge(rush_fds, how="left", on=["join_name", "rush_ATT"])
-        loc = list(df.columns).index("rush_Y/A")
-        df.insert(loc + 1, "rush_FD", df["FD"])
+    rush_fds = rush_fds.rename(columns={"Att": "rush_ATT"})
+    df = df.merge(rush_fds, how="left", on=["join_name", "rush_ATT"])
+    loc = list(df.columns).index("rush_Y/A")
+    df.insert(loc + 1, "rush_FD", df["FD"])
+    df.fillna(0, inplace=True)
+    total_rush_FD = df["rush_FD"].sum()
+    rush_ATT_per_FD = df.loc[df["rush_FD"] > 0, "rush_ATT"].sum() / total_rush_FD
+    rush_YDS_per_FD = df.loc[df["rush_FD"] > 0, "rush_YDS"].sum() / total_rush_FD
+    # replace 0 FDs when there are missing values with expected number of first downs
+    df["rush_FD"] = np.where(
+        df["rush_FD"] == 0,
+        round(
+            (
+                (df["rush_ATT"] / rush_ATT_per_FD)
+                + (df["rush_YDS"] / rush_YDS_per_FD)
+            )
+            / 2
+        ),
+        df["rush_FD"],
+    )
+    df.insert(loc + 2, "rush_FD_mean", df["rush_FD"] / df["G"])
+    df = df.drop(columns="FD")
+
+    if pos != "qb":
+        rec_fds = pd.read_csv("raw/fd/receiving/{}.csv".format(year))
+        split_join_name(rec_fds)
+        rec_fds = rec_fds.drop(columns="Player")
+        rec_fds = rec_fds.rename(columns={"Rec": "rec_REC"})
+        df = df.merge(rec_fds, how="left", on=["join_name", "rec_REC"])
+        loc = list(df.columns).index("rec_Y/R")
+        df.insert(loc + 1, "rec_FD", df["FD"])
         df.fillna(0, inplace=True)
-        total_rush_FD = df["rush_FD"].sum()
-        rush_ATT_per_FD = df["rush_ATT"].sum() / total_rush_FD
-        rush_YDS_per_FD = df["rush_YDS"].sum() / total_rush_FD
+        total_rec_FD = df["rec_FD"].sum()
+        rec_REC_per_FD = df.loc[df["rec_FD"] > 0, "rec_REC"].sum() / total_rec_FD
+        rec_YDS_per_FD = df.loc[df["rec_FD"] > 0, "rec_YDS"].sum() / total_rec_FD
         # replace 0 FDs when there are missing values with expected number of first downs
-        df["rush_FD"] = np.where(
-            df["rush_FD"] == 0,
+        df["rec_FD"] = np.where(
+            df["rec_FD"] == 0,
             round(
                 (
-                    (df["rush_ATT"] / rush_ATT_per_FD)
-                    + (df["rush_YDS"] / rush_YDS_per_FD)
+                    (df["rec_REC"] / rec_REC_per_FD)
+                    + (df["rec_YDS"] / rec_YDS_per_FD)
                 )
                 / 2
             ),
-            df["rush_FD"],
+            df["rec_FD"],
         )
-        df.insert(loc + 2, "rush_FD_mean", df["rush_FD"] / df["G"])
+        df.insert(loc + 2, "rec_FD_mean", df["rec_FD"] / df["G"])
         df = df.drop(columns="FD")
 
-        if pos != "qb":
-            rec_fds = pd.read_csv("raw/fd/receiving/{}.csv".format(year))
-            rec_fds["join_name"] = (
-                rec_fds["Player"]
-                .str.replace(r" Jr.$| Sr.$| II$| III$| IV$", "", regex=True)
-                .str.rsplit(n=1)
-                .str[-1]
-            )
-            rec_fds = rec_fds.drop(columns="Player")
-            rec_fds = rec_fds.rename(columns={"Rec": "rec_REC"})
-            df = df.merge(rec_fds, how="left", on=["join_name", "rec_REC"])
-            loc = list(df.columns).index("rec_Y/R")
-            df.insert(loc + 1, "rec_FD", df["FD"])
-            df.fillna(0, inplace=True)
-            total_rec_FD = df["rec_FD"].sum()
-            rec_REC_per_FD = df["rec_REC"].sum() / total_rec_FD
-            rec_YDS_per_FD = df["rec_YDS"].sum() / total_rec_FD
-            # replace 0 FDs when there are missing values with expected number of first downs
-            df["rec_FD"] = np.where(
-                df["rec_FD"] == 0,
-                round(
-                    (
-                        (df["rec_REC"] / rec_REC_per_FD)
-                        + (df["rec_YDS"] / rec_YDS_per_FD)
-                    )
-                    / 2
-                ),
-                df["rec_FD"],
-            )
-            df.insert(loc + 2, "rec_FD_mean", df["rec_FD"] / df["G"])
-            df = df.drop(columns="FD")
+    loc = list(df.columns).index("OPP_mean")
+    df.insert(
+        loc + 1,
+        "FD",
+        df["rush_FD"] + df["rec_FD"] if pos != "qb" else df["rush_FD"],
+    )
+    df.insert(
+        loc + 2,
+        "FD_mean",
+        (
+            df["rush_FD_mean"] + df["rec_FD_mean"]
+            if pos != "qb"
+            else df["rush_FD_mean"]
+        ),
+    )
 
-        loc = list(df.columns).index("OPP_mean")
-        df.insert(
-            loc + 1,
-            "FD",
-            df["rush_FD"] + df["rec_FD"] if pos != "qb" else df["rush_FD"],
-        )
-        df.insert(
-            loc + 2,
-            "FD_mean",
-            (
-                df["rush_FD_mean"] + df["rec_FD_mean"]
-                if pos != "qb"
-                else df["rush_FD_mean"]
-            ),
-        )
-
-        df["HALF_Score"] = df["HALF_Score"] + df["FD_mean"] * 0.5
-        df["Player"] = df["copy"]
-        df = df.drop(columns=["join_name", "TEAM", "copy"])
+    df["HALF_Score"] = df["HALF_Score"] + df["FD_mean"] * 0.5
+    df["Player"] = df["copy"]
+    df = df.drop(columns=["join_name", "TEAM", "copy"])
 
     return df.round(2).drop_duplicates()
+
+
+def add_fds_by_game(df, pos, year):
+    df_grouped = df.groupby("Player", as_index=False)
+
+    split_team(df)
+    df_sum = df_grouped.agg({"rush_ATT": "sum"}).rename(columns={"rush_ATT": "rush_ATT_sum"})
+    split_team(df_sum)
+    df = df.merge(df_sum, on=["Player", "TEAM"], how="left")
+    rush_fds = pd.read_csv("raw/fd/rushing/{}.csv".format(year))
+
+    split_join_name(df)
+    split_join_name(rush_fds)
+    rush_fds = rush_fds.drop(columns="Player")
+
+    df = df.merge(rush_fds, how="left", left_on=["join_name", "rush_ATT_sum"], right_on=["join_name", "Att"])
+    loc = list(df.columns).index("rush_YDS")
+    df.insert(loc + 1, "rush_FD", df["FD"])
+
+    # Identify unmatched rows and fuzzy match or fill with expected value
+    unmatched = df[df["FD"].isna()].copy()
+    approx_candidates = unmatched[["join_name", "Week", "rush_ATT_sum"]].merge(
+        rush_fds[["join_name", "Att", "FD"]],
+        how="left",
+        on="join_name"
+    )
+    mask = np.abs(approx_candidates["rush_ATT_sum"] - approx_candidates["Att"]) / approx_candidates["Att"] <= 0.05
+    approx_candidates = approx_candidates[mask].copy()
+    approx_candidates["diff"] = np.abs(approx_candidates["rush_ATT_sum"] - approx_candidates["Att"])
+    approx_candidates = approx_candidates.sort_values("diff").drop_duplicates(subset=["join_name", "Week", "rush_ATT_sum"])
+    df.set_index(["join_name", "Week", "rush_ATT_sum"], inplace=True)
+    approx_candidates.set_index(["join_name", "Week", "rush_ATT_sum"], inplace=True)
+    df.loc[approx_candidates.index, "rush_FD"] = approx_candidates["FD"]
+    df.reset_index(inplace=True)
+    rush_ATT_per_FD = rush_fds["Att"].sum() / rush_fds["FD"].sum()
+    df["rush_FD"] = df["rush_FD"].fillna(0)
+    df["rush_FD"] = np.where(
+        df["rush_FD"] == 0,
+        df["rush_ATT"] / rush_ATT_per_FD,
+        df["rush_FD"]
+    )
+
+    df = df.drop(columns="FD")
+
+    if pos != "qb":
+        rec_fds = pd.read_csv("raw/fd/receiving/{}.csv".format(year))
+        split_join_name(rec_fds)
+        rec_fds = rec_fds.drop(columns="Player")
+
+        df_sum = df_grouped.agg({"rec_REC": "sum"}).rename(columns={"rec_REC": "rec_REC_sum"})
+        split_team(df_sum)
+        df = df.merge(df_sum, on=["Player", "TEAM"], how="left")
+        df = df.merge(rec_fds, how="left", left_on=["join_name", "rec_REC_sum"], right_on=["join_name", "Rec"])
+        loc = list(df.columns).index("rec_YDS")
+        df.insert(loc + 1, "rec_FD", df["FD"])
+
+        # Identify unmatched rows and fuzzy match or fill with expected value
+        unmatched = df[df["FD"].isna()].copy()
+        approx_candidates = unmatched[["join_name", "Week", "rec_REC_sum"]].merge(
+            rec_fds[["join_name", "Rec", "FD"]],
+            how="left",
+            on="join_name"
+        )
+        mask = np.abs(approx_candidates["rec_REC_sum"] - approx_candidates["Rec"]) / approx_candidates["Rec"] <= 0.05
+        approx_candidates = approx_candidates[mask].copy()
+        approx_candidates["diff"] = np.abs(approx_candidates["rec_REC_sum"] - approx_candidates["Rec"])
+        approx_candidates = approx_candidates.sort_values("diff").drop_duplicates(subset=["join_name", "Week", "rec_REC_sum"])
+        df.set_index(["join_name", "Week", "rec_REC_sum"], inplace=True)
+        approx_candidates.set_index(["join_name", "Week", "rec_REC_sum"], inplace=True)
+        df.loc[approx_candidates.index, "rec_FD"] = approx_candidates["FD"]
+        df.reset_index(inplace=True)
+        rec_REC_per_FD = rec_fds["Rec"].sum() / rec_fds["FD"].sum()
+        df["rec_FD"] = df["rec_FD"].fillna(0)
+        df["rec_FD"] = np.where(
+            df["rec_FD"] == 0,
+            df["rec_REC"] / rec_REC_per_FD,
+            df["rec_FD"]
+        )
+
+        df = df.drop(columns="FD")
+
+    loc = list(df.columns).index("OPP")
+    df.insert(
+        loc + 1,
+        "FD_expected",
+        (
+            df["rush_FD"] * df["rush_ATT"] / df["Att"] + df["rec_FD"] * df["rec_REC"] / df["Rec"]
+            if pos != "qb"
+            else df["rush_FD"] * df["rush_ATT"] / df["Att"]
+        ).fillna(0).round(0)
+    )
+
+    df["FPTS"] = df["FPTS"] + df["FD_expected"] * 0.5
+    df["HALF"] = df["HALF"] + df["FD_expected"] * 0.5
+    df["PPR"] = df["PPR"] + df["FD_expected"] * 0.5
+    df = df.drop(columns=["rush_FD", "Att", "join_name", "rush_ATT_sum"])
+    if pos != "qb":
+        df = df.drop(columns=["rec_REC_sum", "rec_FD", "Rec"])
+    # move week to 4th position
+    week_col = df.pop("Week")
+    df.insert(3, "Week", week_col)
+    return df.round(2).drop_duplicates()
+
+
+def save_ind_games(df, pos, year):
+    if pos == "qb":
+        df = df.rename(columns = {"CMP" : "pass_CMP",
+                                  "ATT" : "pass_ATT",
+                                  "PCT" : "pass_PCT",
+                                  "YDS" : "pass_YDS",
+                                  "Y/A" : "pass_Y/A",
+                                  "TD" : "pass_TD",
+                                  "INT" : "pass_INT",
+                                  "SACKS" : "pass_SACKS",
+                                  "ATT.1" : "rush_ATT",
+                                  "YDS.1" : "rush_YDS",
+                                  "TD.1" : "rush_TD"})
+        df.insert(14, "OPP", df["pass_ATT"] + df["rush_ATT"])
+    elif pos == "rb":
+        df = df.rename(columns = {"ATT" : "rush_ATT",
+                                  "YDS" : "rush_YDS",
+                                  "Y/A" : "rush_Y/A",
+                                  "LG" : "rush_LG",
+                                  "20+" : "rush_20+",
+                                  "TD" : "rush_TD",
+                                  "REC" : "rec_REC",
+                                  "TGT" : "rec_TGT",
+                                  "YDS.1" : "rec_YDS",
+                                  "Y/R" : "rec_Y/R",
+                                  "TD.1" : "rec_TD"})
+        df.insert(14, "TOU", df["rush_ATT"] + df["rec_REC"])
+        df.insert(15, "OPP", df["rush_ATT"] + df["rec_TGT"])
+    elif pos == "wr" or pos == "te":
+        df = df.rename(columns = {"REC" : "rec_REC",
+                                  "TGT" : "rec_TGT",
+                                  "YDS" : "rec_YDS",
+                                  "Y/R" : "rec_Y/R",
+                                  "LG" : "rec_LG",
+                                  "20+" : "rec_20+",
+                                  "TD" : "rec_TD",
+                                  "ATT" : "rush_ATT",
+                                  "YDS.1" : "rush_YDS",
+                                  "Y/A" : "rush_Y/A",
+                                  "TD.1" : "rush_TD"})
+        df.insert(13, "TOU", df["rush_ATT"] + df["rec_REC"])
+        df.insert(14, "OPP", df["rush_ATT"] + df["rec_TGT"])
+    elif pos == "k":
+        df = df.rename(columns = {"1-19" : "FG_10_19",
+                                  "20-29" : "FG_20_29",
+                                  "30-39" : "FG_30_39",
+                                  "40-49" : "FG_40_49",
+                                  "50+" : "FG_50",
+                                  "XPT" : "XP"})
+        df.insert(14, "OPP", df["FGA"] + df["XPA"])
+    else:  #dst
+        df = df.rename(columns = {"DEF TD" : "D_TD", "SPC TD" : "ST_TD"})
+    
+    if pos != "dst" and pos != "k":
+        df = add_fds_by_game(df, pos, year)
+    else:
+        split_team(df)
+
+    print("Saving file aggregated/{}/{}games.csv".format(pos, year))
+    df.to_csv("aggregated/{}/{}games.csv".format(pos, year), index=False)
 
 
 def wrangle(pos, year):
@@ -148,8 +309,9 @@ def wrangle(pos, year):
         df.loc[df.index[(pt[3] * g) :], name] = 5
 
     df = df.sort_values(["Player", "Week"])
-    grouped = df.groupby("Player", sort=False, as_index=False)
+    save_ind_games(df.copy(), pos, year)
 
+    grouped = df.groupby("Player", sort=False, as_index=False)
     if pos == "rb":
         df = agg_RBs(grouped)
     elif pos == "wr":
@@ -163,7 +325,8 @@ def wrangle(pos, year):
     else:
         df = agg_DSTs(grouped)
 
-    df = add_fds(df, pos, year)
+    if pos != "dst" and pos != "k":
+        df = add_fds(df, pos, year)
     df = df.sort_values("HALF_Score", ascending=False)
     return df.round(2)
 
@@ -465,10 +628,7 @@ for pos in positions:
         df["Weight"] = pos["weights"][yearsAgo - 1]
         data.append(df)
         df = df.drop("Weight", axis=1)
-        df.insert(1, "TEAM", "")
-        df[["Player", "TEAM"]] = df.Player.str.split("(", expand=True)
-        df["TEAM"] = df.TEAM.str.replace(")", "", regex=False)
-        df["Player"] = df["Player"].str.strip()
+        split_team(df)
         if pos["name"] != "dst":
             if pos["name"] == "qb":
                 df["temp_sum"] = df["G"] + df["OPP_mean"] / 2

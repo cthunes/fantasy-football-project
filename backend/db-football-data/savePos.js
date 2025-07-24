@@ -1,4 +1,5 @@
 import Player from "../models/Player.js";
+import Game from "../models/Game.js";
 
 async function pushPlayer(player) {
     try {
@@ -22,6 +23,33 @@ async function pushPlayer(player) {
             p = new Player(player);
         }
         return p.save();
+    } catch (e) {
+        console.log(e.message);
+    }
+}
+
+async function pushPlayerGame(name, position, game) {
+    try {
+        let p = await Player.findOne({
+            name: name,
+            position: position,
+        });
+        if (p) {
+            let g = await Game.findOne({
+                player: p._id,
+                season: game.season,
+                week: game.week,
+            });
+            if (g) {
+                Object.assign(g, game);
+            } else {
+                g = new Game({ ...game, player: p._id });
+            }      
+            return g.save();  
+        } else {
+            console.log(`Player not found: ${name} (${position}), game not created.`);
+            return;
+        }
     } catch (e) {
         console.log(e.message);
     }
@@ -1178,6 +1206,176 @@ const DST_MAPPING = {
     },
 };
 
+const QB_GAME_MAPPING = {
+    rushing: {
+        attempts: 8,
+        yards: 9,
+        td: 10,
+    },
+    passing: {
+        completions: 0,
+        attempts: 1,
+        percentage: 2,
+        yards: 3,
+        yardsPerAttempt: 4,
+        td: 5,
+        interceptions: 6,
+        sacks: 7,
+    },
+    misc: {
+        opportunities: 11,
+        expectedFirstDowns: 12,
+        fumblesLost: 13,
+    },
+    standard: {
+        points: 14,
+        tier: 17,
+    },
+    half: {
+        points: 15,
+        tier: 18,
+    },
+    ppr: {
+        points: 16,
+        tier: 19,
+    }
+};
+
+const RB_GAME_MAPPING = {
+    rushing: {
+        attempts: 0,
+        yards: 1,
+        yardsPerAttempt: 2,
+        long: 3,
+        twentyPlus: 4,
+        td: 5,
+    },
+    receiving: {
+        receptions: 6,
+        targets: 7,
+        yards: 8,
+        yardsPerReception: 9,
+        td: 10,
+    },
+    misc: {
+        touches: 11,
+        opportunities: 12,
+        expectedFirstDowns: 13,
+        fumblesLost: 14,
+    },
+    standard: {
+        points: 15,
+        tier: 18,
+    },
+    half: {
+        points: 16,
+        tier: 19,
+    },
+    ppr: {
+        points: 17,
+        tier: 20,
+    }
+};
+
+//WRs and TEs (PC = PassCatcher)
+const PC_GAME_MAPPING = {
+    rushing: {
+        attempts: 7,
+        yards: 8,
+        td: 9,
+    },
+    receiving: {
+        receptions: 0,
+        targets: 1,
+        yards: 2,
+        yardsPerReception: 3,
+        long: 4,
+        twentyPlus: 5,
+        td: 6,
+    },
+    misc: {
+        touches: 10,
+        opportunities: 11,
+        expectedFirstDowns: 12,
+        fumblesLost: 13,
+    },
+    standard: {
+        points: 14,
+        tier: 17,
+    },
+    half: {
+        points: 15,
+        tier: 18,
+    },
+    ppr: {
+        points: 16,
+        tier: 19,
+    }
+};
+
+const K_GAME_MAPPING = {
+    kicking: {
+        fieldGoals: {
+            made: 0,
+            attempts: 1,
+            percentage: 2,
+            long: 3,
+            made10_19: 4,
+            made20_29: 5,
+            made30_39: 6,
+            made40_49: 7,
+            made50Plus: 8,
+        },
+        extraPoints: {
+            made: 9,
+            attempts: 10,
+        },
+    },
+    misc: {
+        opportunities: 11,
+    },
+    standard: {
+        points: 12,
+        tier: 15,
+    },
+    half: {
+        points: 13,
+        tier: 16,
+    },
+    ppr: {
+        points: 14,
+        tier: 17,
+    }
+};
+
+const DST_GAME_MAPPING = {
+    dst: {
+        defense: {
+            sacks: 0,
+            interceptions: 1,
+            fumblesRecovered: 2,
+            forcedFumbles: 3,
+            td: 4,
+            safeties: 5,
+        },
+        specialTeams: {
+            td: 6,
+        },
+    },
+    standard: {
+        points: 7,
+        tier: 10,
+    },
+    half: {
+        points: 8,
+        tier: 11,
+    },
+    ppr: {
+        points: 9,
+        tier: 12,
+    }
+};
+
 function buildStats(mapping, numbers) {
     const stats = {};
     for (const key in mapping) {
@@ -1218,6 +1416,21 @@ function parsePlayer(row, filename, mapping) {
     return pushPlayer(player);
 }
 
+function parsePlayerGame(row, position, mapping) {
+    const numbers = row.slice(4).map(Number);
+    const game = {
+        season: row[2],
+        week: row[3],
+        ...buildStats(mapping, numbers)
+    };
+    return pushPlayerGame(row[0], position, game);
+}
+
+export const parseQBGame = (row, pos) => parsePlayerGame(row, pos, QB_GAME_MAPPING);
+export const parseRBGame = (row, pos) => parsePlayerGame(row, pos, RB_GAME_MAPPING);
+export const parsePCGame = (row, pos) => parsePlayerGame(row, pos, PC_GAME_MAPPING);
+export const parseKGame = (row, pos) => parsePlayerGame(row, pos, K_GAME_MAPPING);
+export const parseDSTGame = (row, pos) => parsePlayerGame(row, pos, DST_GAME_MAPPING);
 export const parseQB = (row, filename) => parsePlayer(row, filename, QB_MAPPING);
 export const parseRB = (row, filename) => parsePlayer(row, filename, RB_MAPPING);
 export const parsePC = (row, filename) => parsePlayer(row, filename, PC_MAPPING);

@@ -25,7 +25,7 @@ mongoose
     .then(() => {
         console.log('MongoDB connected')
         //detect changes?
-        if (false) saveFootballData();
+        saveFootballData(false, false);
         app.listen(port, () =>
             console.log(`Server is running on port: ${port}`)
         );
