@@ -332,10 +332,13 @@ def wrangle(pos, year):
 
 
 def calc_projected_points(df, pos):
-    # Save original YOE
+    # Save original YOE and HALF_mean
     original_yoe = df["YOE"].copy()
-    # Cap YOE at 3 for calculation
+    original_half_mean = df["HALF_mean"].copy()
+    # Cap YOE at 3 and add first downs to HALF_mean for calculation
     df["YOE"] = df["YOE"].clip(upper=3)
+    if pos != "k" and pos != "dst":
+        df["HALF_mean"] = df["HALF_mean"] + df["FD_mean"] * 0.5
 
     if pos == "rb":
         df["proj_HALF_mean"] = (
@@ -508,8 +511,9 @@ def calc_projected_points(df, pos):
         df["proj_HALF"] = np.where(
             (df["OPP"] > df["OPP"].median()), df["proj_HALF"], 0
         )
-    # restore original YOE
+    # restore original YOE and HALF_mean
     df["YOE"] = original_yoe
+    df["HALF_mean"] = original_half_mean
     # calculate mean and total points as equal to the averages of the projected mean and total points
     temp_proj_half_mean = df["proj_HALF_mean"]
     df["proj_HALF_mean"] = (df["proj_HALF_mean"] + (df["proj_HALF"] / 17)) / 2
@@ -534,23 +538,39 @@ def add_rank_and_par_cols(df, pos):
     }
     rep_start, rep_end = replacement_ranges[pos]
 
+    # Define eligibility filters by position
+    eligible = pd.Series(True, index=df.index)
+    if pos != "dst":
+        eligible &= df["G"] >= 6
+        opp_thresholds = {
+            "qb": 20,
+            "rb": 6,
+            "wr": 4,
+            "te": 2,
+            "k": 6,
+        }
+        eligible &= df["OPP_mean"] >= opp_thresholds[pos]
+
     new_cols = {}
     
     for col in base_cols:
         asc = col in ascending_cols
 
         # Rank
-        rank_col = df[col].rank(ascending=asc, method="min")
-        new_cols[f"{col}_rank"] = rank_col
+        rank_series = df[col].where(eligible, np.nan)
+        new_cols[f"{col}_rank"] = rank_series.rank(ascending=asc, method="min")
 
         # PAR
-        sorted_vals = df[col].dropna().sort_values(ascending=asc).reset_index(drop=True)
+        sorted_vals = rank_series.dropna().sort_values(ascending=asc).reset_index(drop=True)
         rep_slice = sorted_vals[rep_start:rep_end]
         replacement = rep_slice.mean() if not rep_slice.empty else sorted_vals.median()
-        par_col = ((df[col] - replacement) / replacement) * 100 if replacement != 0 else float("nan")
+        par_col = ((df[col] - replacement) / replacement) * 100 if replacement != 0 else np.nan
         new_cols[f"{col}_par"] = par_col
     
     df = pd.concat([df, pd.DataFrame(new_cols, index=df.index)], axis=1)
+
+    # Fill NaNs in all new rank columns with 0
+    df = df.fillna(0)
 
     return df.round(2)
 

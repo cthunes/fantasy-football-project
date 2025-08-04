@@ -177,9 +177,7 @@ const PosRanking = (props) => {
         newPlayers.forEach((player) => {
             const pos = player.position.toLowerCase();
             const posRank = player.rank;
-            console.log(posRank);
             player.rank = rankings[pos][posRank - 1].rank;
-            console.log(player.rank);
             rankings[pos].splice(posRank - 1, 0, player);
             rankings.overall.splice(
                 rankings.overall.findIndex((item) => item.rank === player.rank),
@@ -234,9 +232,7 @@ const PosRanking = (props) => {
                             size="small"
                             variant="outlined"
                             color="neutral"
-                            onClick={() => {
-                                setOpen(true);
-                            }}
+                            onClick={() => setOpen(true)}
                         >
                             <GroupAdd
                                 sx={{
@@ -356,7 +352,7 @@ const PosRanking = (props) => {
                         </IconButton>
                     </ButtonGroup>
                 }
-                sx={{ py: 1, backgroundColor: "secondary.main" }}
+                sx={{ py: 1, backgroundColor: "secondary.dark" }}
             ></CardHeader>
             <Box sx={{ backgroundColor: "secondary.light" }}>
                 <Collapse
@@ -434,11 +430,11 @@ const PosRanking = (props) => {
                                     }}
                                 >
                                     <IconButton
-                                        color="secondary"
                                         onClick={() => deletePlayer(row)}
                                         sx={{
+                                            color: "error.light",
                                             ":hover": {
-                                                color: "error.main",
+                                                color: "error.dark",
                                             },
                                         }}
                                     >

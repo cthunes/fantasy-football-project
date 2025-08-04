@@ -22,7 +22,7 @@ const TopBar = () => {
         <Box sx={{ flexGrow: 1 }}>
             <AppBar
                 position="static"
-                sx={{ px: 5, backgroundColor: "secondary.main" }}
+                sx={{ px: 5, backgroundColor: "secondary.dark" }}
             >
                 <Toolbar sx={{ justifyContent: "flex-end" }}>
                     <ButtonBase
@@ -30,7 +30,7 @@ const TopBar = () => {
                         sx={{ mr: "auto" }}
                     >
                         <Typography variant="h5" sx={{ flexGrow: 1 }}>
-                            Explore Fantasy Statistics
+                            Fantasy Stats Explorer
                         </Typography>
                     </ButtonBase>
                     <ButtonGroup>

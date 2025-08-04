@@ -17,6 +17,8 @@ import { playerFetchAll } from "../../redux/player";
 import { setYear } from "../../redux/year";
 import { setPointsType } from "../../redux/pointsType";
 
+import PlayerCard from "../PlayerCard/PlayerCard";
+
 const StatsTable = () => {
     const players = useSelector((state) => state.player.players);
     const year = useSelector((state) => state.year.year);
@@ -26,6 +28,15 @@ const StatsTable = () => {
     const [showFAs, setShowFAs] = useState(false);
     const [tableData, setTableData] = useState(() => []);
     const dispatch = useDispatch();
+    const [selectedRow, setSelectedRow] = useState(null); // null means modal is closed
+
+    const handleRowClick = (row) => {
+        setSelectedRow(row); // Opens modal with row data
+    };
+
+    const handleClose = () => {
+        setSelectedRow(null); // Closes modal
+    };
 
     useEffect(() => {
         dispatch(playerFetchAll());
@@ -78,7 +89,7 @@ const StatsTable = () => {
                         header: "POS",
                         size: 30,
                         filterVariant: 'multi-select',
-                        filterSelectOptions: [ "QB", "RB", "WR", "TE", "K", "DST" ],
+                        filterSelectOptions: ["QB", "RB", "WR", "TE", "K", "DST"],
                     },
                     {
                         accessorKey: "team",
@@ -86,7 +97,7 @@ const StatsTable = () => {
                         header: "TEAM",
                         size: 50,
                         filterVariant: 'multi-select',
-                        filterSelectOptions: [ "ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE", "DAL", "DEN", "DET", "GB", "HOU", "IND", "JAC", "KC", "LAC", "LAR", "LV", "MIA", "MIN", "NE", "NO", "NYG", "NYJ", "PHI", "PIT", "SEA", "SF", "TB", "TEN", "WAS", "FA" ],
+                        filterSelectOptions: ["ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE", "DAL", "DEN", "DET", "GB", "HOU", "IND", "JAC", "KC", "LAC", "LAR", "LV", "MIA", "MIN", "NE", "NO", "NYG", "NYJ", "PHI", "PIT", "SEA", "SF", "TB", "TEN", "WAS", "FA"],
                     },
                     {
                         accessorKey: "yearsOfExperience",
@@ -2449,6 +2460,13 @@ const StatsTable = () => {
                 mx: 5,
             }}
         >
+            {selectedRow && (
+                <PlayerCard
+                    isOpen={!!selectedRow}
+                    onClose={handleClose}
+                    player={selectedRow}
+                />
+            )}
             <MaterialReactTable
                 columns={columns}
                 data={tableData}
@@ -2461,7 +2479,7 @@ const StatsTable = () => {
                 enableDensityToggle={false}
                 initialState={{
                     columnPinning: {
-                        left: ["mrt-row-numbers", "name", "position"],
+                        left: ["mrt-row-numbers", "name", "position", "team"],
                     },
                     density: "compact",
                     pagination: { pageSize: 25 },
@@ -2597,6 +2615,14 @@ const StatsTable = () => {
                         border: "1px solid rgba(20, 20, 20, .3)",
                     },
                 }}
+                muiTableBodyRowProps={({ row }) => ({
+                    onClick: () => {
+                        handleRowClick(row.original);
+                    },
+                    sx: {
+                        cursor: 'pointer', //you might want to change the cursor too when adding an onClick
+                    },
+                })}
                 muiTableBodyCellProps={{
                     sx: {
                         border: "1px solid rgba(20, 20, 20, .1)",
@@ -2620,8 +2646,11 @@ const StatsTable = () => {
                                     label="Position"
                                     size="small"
                                     color="secondary"
-                                    onChange={(event) =>
-                                        setPosition(event.target.value)
+                                    onChange={(event) => {
+                                        table.setColumnFilters([]);
+                                        table.setGlobalFilter('');
+                                        setPosition(event.target.value);
+                                    }
                                     }
                                 >
                                     <MenuItem value={"ALL"}>ALL</MenuItem>
@@ -2777,7 +2806,7 @@ const StatsTable = () => {
                     );
                 }}
             />
-        </Box>
+        </Box >
     );
 };
 

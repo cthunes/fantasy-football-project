@@ -122,7 +122,7 @@ const PosRanking = (props) => {
                         )}
                     </IconButton>
                 }
-                sx={{ py: 1, backgroundColor: "secondary.main" }}
+                sx={{ py: 1, backgroundColor: "secondary.dark" }}
             ></CardHeader>
             <Box sx={{ backgroundColor: "secondary.light" }}>
                 <Collapse
