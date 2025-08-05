@@ -18,7 +18,7 @@ services:
         done;
         if [ ! -f /marker/.mongo_initialized ]; then
           echo '🗄️  Initializing MongoDB dump...';
-          mongorestore /dump;
+          mongorestore --drop /dump;
           touch /marker/.mongo_initialized;
         else
           echo '✅ MongoDB already initialized, skipping restore.';
