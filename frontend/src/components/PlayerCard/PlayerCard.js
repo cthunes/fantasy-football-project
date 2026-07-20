@@ -88,12 +88,12 @@ const baseStatsByPosition = {
         '{pointsType}.games.great', '{pointsType}.goodStartRatio', '{pointsType}.qualityStartRatio',
     ],
     WR: [
-        'receiving.yards', 'receiving.yardsMean', 'receiving.receptions', 'receiving.receptionsMean', 'receiving.targetsMean',
+        'receiving.yards', 'receiving.yardsMean', 'receiving.tdMean', 'receiving.receptionsMean', 'receiving.targetsMean',
         'receiving.firstDownsMean', 'misc.touchesMean', 'misc.firstDownsMean', '{pointsType}.points.mean',
         '{pointsType}.games.great', '{pointsType}.goodStartRatio', '{pointsType}.qualityStartRatio',
     ],
     TE: [
-        'receiving.yards', 'receiving.yardsMean', 'receiving.receptions', 'receiving.receptionsMean', 'receiving.twentyPlus',
+        'receiving.yards', 'receiving.yardsMean', 'receiving.tdMean', 'receiving.receptionsMean', 'receiving.twentyPlus',
         'misc.touchesMean', 'misc.firstDownsMean', '{pointsType}.points.standardDeviation', '{pointsType}.points.mean',
         '{pointsType}.games.great', '{pointsType}.goodStartRatio', '{pointsType}.qualityStartRatio',
     ],
