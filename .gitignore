@@ -133,10 +133,12 @@ dist
 # Byte-compiled / optimized / DLL files
 football-data/__pycache__/
 football-data/*.py[cod]
+old-football-data/__pycache__/
+old-football-data/*.py[cod]
 
 # csv files
-football-data/*/*/*.csv
-football-data/*/*/*/*.csv
+old-football-data/*/*/*.csv
+old-football-data/*/*/*/*.csv
 
 # mongo init marker
 data/mongo-init-marker/
