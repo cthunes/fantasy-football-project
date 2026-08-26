@@ -1,6 +1,12 @@
 import nflreadpy as nfl
 import pandas as pd
+import unicodedata
+import re
 
+def _normalize_name(name):
+    pattern = r"[ .\-']|\b(jr|sr|ii|iii|iv)\b"
+    name = re.sub(pattern, "", name.lower(), flags=re.IGNORECASE)
+    return "".join([c for c in unicodedata.normalize("NFKD", name) if not unicodedata.combining(c)])
 
 def load_games(seasons):
     schedules = nfl.load_schedules(seasons).to_pandas()
@@ -13,7 +19,7 @@ def load_players(seasons):
     depth_charts = nfl.load_depth_charts(seasons[-1] + 1).to_pandas()
     ff_rankings = nfl.load_ff_rankings().to_pandas()
     positions = ['QB', 'RB', 'WR', 'TE', 'K']
-    players.loc[players["position"] == "FB", "position"] = "RB"
+    players.loc[players["position"] == "FB", "position"] = players["position_group"]
     players = players[players['position'].isin(positions)]
     players = players[players['last_season'] >= seasons[0]]
     players = players[["gsis_id", "display_name", "first_name", "last_name", "position", "height", "weight", 
@@ -24,17 +30,36 @@ def load_players(seasons):
     depth_charts = depth_charts.drop_duplicates(subset=["gsis_id"], keep="first")
     depth_charts = depth_charts[["gsis_id", "team", "pos_rank"]]
     players = players.merge(depth_charts, on="gsis_id", how="left")
-    ff_rankings = ff_rankings[ff_rankings['page_type'].isin(['redraft-qb', 'redraft-rb', 'redraft-wr', 'redraft-te', 'redraft-k', 'redraft-dst'])]
+    players.loc[players["latest_team"] != players["team"], "team"] = "FA"
+    ff_rankings = ff_rankings[ff_rankings['page_type'].isin(['redraft-qb', 'redraft-rb', 'redraft-wr', 
+                                                             'redraft-te', 'redraft-k'])]
     ff_rankings = ff_rankings[["player", "pos", "team", "ecr", "sd", "best", "worst"]]
-    ff_rankings.rename(columns={"player": "display_name", "pos": "position", "sd": "ecr_sd", "best": "ecr_best", "worst": "ecr_worst"}, inplace=True)
-    ff_rankings["display_name"] = ff_rankings["display_name"].str.replace(r" Jr.$| Sr.$| II$| III$| IV$", "", regex=True)
-    ff_rankings.loc[ff_rankings["team"] == "JAC", "team"] = "JAX"
-    players["display_name"] = players["display_name"].str.replace(r" Jr.$| Sr.$| II$| III$| IV$", "", regex=True)
+    ff_rankings.rename(columns={"player": "display_name", "pos": "position", "sd": "ecr_sd", 
+                                "best": "ecr_best", "worst": "ecr_worst"}, inplace=True)
+    players["name_key"] = players["display_name"].apply(_normalize_name)
+    ff_rankings["name_key"] = ff_rankings["display_name"].apply(_normalize_name)
+    players.loc[players["latest_team"] == "LA", "latest_team"] = "LAR"
     players.loc[players["team"] == "LA", "team"] = "LAR"
+    ff_rankings.loc[ff_rankings["team"] == "JAC", "team"] = "JAX"
     players.loc[players["position"] == "K", "team"] = players["latest_team"]
     players["team"] = players["team"].fillna("FA")
-    players = players.merge(ff_rankings, on=["display_name", "team", "position"], how="outer")
-    return players.to_dict(orient="records")
+    # Safely merge
+    rank_cols = ["ecr", "ecr_sd", "ecr_best", "ecr_worst"]
+    # Exact: name + team + position
+    players = players.merge(
+        ff_rankings[["name_key", "team", "position"] + rank_cols],
+        on=["name_key", "team", "position"],
+        how="left"
+    )
+    # Rows that didn't match
+    missing = players["ecr"].isna()
+    # Fallback: name only
+    fallback = players.loc[missing, ["name_key"]].merge(
+        ff_rankings[["name_key"] + rank_cols],
+        on="name_key",
+        how="left"
+    )
+    players.loc[missing, rank_cols] = fallback[rank_cols].values
 
 def load_player_games(seasons):
     player_games = nfl.load_player_stats(seasons).to_pandas()
