@@ -145,3 +145,5 @@ data/mongo-init-marker/
 
 # vscode settings
 .vscode/
+
+__pycache__/

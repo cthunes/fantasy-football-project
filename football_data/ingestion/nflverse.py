@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import unicodedata
 import re
-from constants import *
+from football_data.ingestion.constants import *
 
 def _normalize_name(name):
     pattern = r"[ .\-']|\b(jr|sr|ii|iii|iv)\b"
@@ -45,7 +45,7 @@ def _load_ff_rankings():
     ff_rankings = nfl.load_ff_rankings().to_pandas()
 
     # subset ff_rankings to only fantasy relevant positions
-    ff_rankings = ff_rankings[ff_rankings['page_type'].isin(['redraft-' + pos for pos in FF_POSITIONS])]
+    ff_rankings = ff_rankings[ff_rankings['page_type'].isin(['redraft-' + pos for pos in [pos.lower() for pos in FF_POSITIONS]])]
     # subset ff_rankings columns and rename to match players for merging
     ff_rankings = ff_rankings[["player", "pos", "team", "ecr", "sd", "best", "worst"]]
     ff_rankings.rename(columns={"player": "display_name", "pos": "position", "sd": "ecr_sd", 
@@ -203,6 +203,8 @@ def _load_play_by_play(seasons):
     return pbp
 
 def load_games(seasons):
+    print("Loading games")
+
     # load from nflverse
     schedules = nfl.load_schedules(seasons).to_pandas()
     
@@ -212,6 +214,8 @@ def load_games(seasons):
     return schedules.to_dict(orient="records")
 
 def load_players(seasons):
+    print("Loading players")
+
     # load data from nflverse and subset
     players = _load_players(seasons)
     depth_charts = _load_depth_charts(seasons)
@@ -259,6 +263,8 @@ def load_players(seasons):
     return players.to_dict(orient="records")
 
 def load_player_games(seasons):
+    print("Loading player games")
+
     # load data from nflverse and subset
     player_games = _load_player_stats(seasons)
     snap_counts = _load_snap_counts(seasons)
@@ -274,6 +280,8 @@ def load_player_games(seasons):
     return player_games.to_dict(orient="records")
 
 def load_team_games(seasons):
+    print("Loading team games")
+
     # load data from nflverse and subset
     team_games = nfl.load_team_stats(seasons).to_pandas()
     pbp = _load_play_by_play(seasons)

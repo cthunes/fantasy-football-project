@@ -1,7 +1,7 @@
 import pandas as pd
 import argparse
-from nflverse import *
-from ..mongo.mongo import *
+from football_data.ingestion.nflverse import *
+from football_data.mongo.mongo import *
 
 
 def main(seasons):
