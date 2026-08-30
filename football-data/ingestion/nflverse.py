@@ -1,10 +1,9 @@
 import nflreadpy as nfl
 import pandas as pd
+import numpy as np
 import unicodedata
 import re
-
-# subset players to only fantasy relevant positions and those who played in the seasons of interest
-FF_POSITIONS = ['QB', 'RB', 'WR', 'TE', 'K']
+from constants import *
 
 def _normalize_name(name):
     pattern = r"[ .\-']|\b(jr|sr|ii|iii|iv)\b"
@@ -54,6 +53,7 @@ def _load_ff_rankings():
     return ff_rankings
 
 def _load_player_stats(seasons):
+    # load from nflverse
     player_games = nfl.load_player_stats(seasons).to_pandas()
 
     # convert FB to their position group (RB or TE) for fantasy purposes
@@ -65,6 +65,7 @@ def _load_player_stats(seasons):
     return player_games
 
 def _load_snap_counts(seasons):
+    # load from nflverse
     snap_counts = nfl.load_snap_counts(seasons).to_pandas()
     ff_playerids = nfl.load_ff_playerids().to_pandas()[["gsis_id", "pfr_id"]]
     
@@ -78,7 +79,6 @@ def _load_snap_counts(seasons):
 
 def _calculate_nextgen_avg_totals(nextgen_stats):
     # PASSING
-
     nextgen_stats["passing_aggressiveness_total"] = nextgen_stats["passing_aggressiveness"] * nextgen_stats["passing_attempts"]
     nextgen_stats["passing_aggressiveness_denom"] = nextgen_stats["passing_attempts"]
 
@@ -104,7 +104,6 @@ def _calculate_nextgen_avg_totals(nextgen_stats):
     nextgen_stats["passing_avg_intended_air_yards_denom"] = nextgen_stats["passing_attempts"]
 
     # RUSHING
-
     nextgen_stats["rushing_avg_rush_yards_total"] = nextgen_stats["rushing_avg_rush_yards"] * nextgen_stats["rushing_rush_attempts"]
     nextgen_stats["rushing_avg_rush_yards_denom"] = nextgen_stats["rushing_rush_attempts"]
 
@@ -118,7 +117,6 @@ def _calculate_nextgen_avg_totals(nextgen_stats):
     nextgen_stats["rushing_rush_pct_over_expected_denom"] = nextgen_stats["rushing_rush_attempts"]
 
     # RECEIVING
-
     nextgen_stats["receiving_avg_cushion_total"] = nextgen_stats["receiving_avg_cushion"] * nextgen_stats["receiving_targets"]
     nextgen_stats["receiving_avg_cushion_denom"] = nextgen_stats["receiving_targets"]
 
@@ -143,6 +141,7 @@ def _calculate_nextgen_avg_totals(nextgen_stats):
     return nextgen_stats
 
 def _load_nextgen_stats(seasons):
+    # load from nflverse
     passing = nfl.load_nextgen_stats(seasons, "passing").to_pandas()
     rushing = nfl.load_nextgen_stats(seasons, "rushing").to_pandas()
     receiving = nfl.load_nextgen_stats(seasons, "receiving").to_pandas()
@@ -177,13 +176,38 @@ def _load_nextgen_stats(seasons):
     return nextgen_stats
 
 def _load_play_by_play(seasons):
-    pass
+    # load from nflverse
+    pbp = nfl.load_pbp(seasons).to_pandas()
+
+    # generate def 3+outs, 4th down stops, yards and points allowed
+    pbp["def_three_and_outs"] = np.where((pbp["play_type"] == "punt") & (pbp["drive_first_downs"] == 0), 1, 0)
+    pbp["def_fourth_down_stops"] = np.where((pbp["fourth_down_failed"] == 1) & (pbp["fixed_drive_result"] == "Turnover on downs"), 1, 0)
+    pbp["def_yards_allowed"] = np.where(pbp["play_type"].isin(["run", "pass"]), pbp["yards_gained"], 0)
+    pbp["def_points_allowed"] = (pbp["pass_touchdown"] + pbp["rush_touchdown"]) * 6
+    pbp["def_points_allowed"] += np.where((pbp["kickoff_attempt"] + pbp["punt_attempt"] > 0), pbp["return_touchdown"] * 6, 0)
+    pbp["def_points_allowed"] += np.where(pbp["extra_point_result"] == "good", 1, 0)
+    pbp["def_points_allowed"] += np.where(pbp["two_point_conv_result"] == "success", 2, 0)
+    pbp["def_points_allowed"] += np.where(pbp["field_goal_result"] == "made", 3, 0)
+
+    # if defensive team is the same as td scoring team for punt/kickoff return TDs, rotate with posession team
+    pbp.loc[(pbp["kickoff_attempt"] + pbp["punt_attempt"] > 0) 
+            & (pbp["return_touchdown"] == 1) 
+            & (pbp["defteam"] == pbp["td_team"]), 
+            "defteam"] = pbp["posteam"]
+
+    # group by game id and defensive team to get game sums
+    agg_cols = ["game_id", "defteam", "def_three_and_outs", "def_fourth_down_stops", "def_yards_allowed", "def_points_allowed"]
+    pbp = pbp[agg_cols].groupby(["game_id", "defteam"], as_index=False).agg('sum')
+
+    pbp.rename(columns={"defteam": "team"}, inplace=True)
+    return pbp
 
 def load_games(seasons):
     # load from nflverse
     schedules = nfl.load_schedules(seasons).to_pandas()
-    schedules = schedules[["game_id", "season", "week", "home_team", "away_team", "home_score", "away_score", 
-                           "home_rest", "away_rest", "roof", "surface", "temp", "wind"]]
+    
+    # drop unnecessary columns and rename to camel case
+    schedules = schedules[SCHEDULES_COLUMNS]
     schedules.columns = [_snake_to_camel(col) for col in schedules.columns]
     return schedules.to_dict(orient="records")
 
@@ -235,190 +259,29 @@ def load_players(seasons):
     return players.to_dict(orient="records")
 
 def load_player_games(seasons):
+    # load data from nflverse and subset
     player_games = _load_player_stats(seasons)
     snap_counts = _load_snap_counts(seasons)
     nextgen_stats = _load_nextgen_stats(seasons)
 
+    # merge in snap_counts and nextgen_stats to player_games
     player_games = player_games.merge(snap_counts, on=["game_id", "player_id"], how="left")
     player_games = player_games.merge(nextgen_stats, on=["season", "week", "player_id"], how="left")
 
-    columns = [
-        "player_id",
-        "game_id",
-        "season",
-        "week",
-        "team",
-        "opponent_team",
-        
-        # Passing
-        "completions",
-        "attempts",
-        "passing_yards",
-        "passing_tds",
-        "passing_interceptions",
-        "sacks_suffered",
-        "sack_yards_lost",
-        "sack_fumbles",
-        "sack_fumbles_lost",
-        "passing_air_yards",
-        "passing_yards_after_catch",
-        "passing_first_downs",
-        "passing_epa",
-        "passing_cpoe",
-        "passing_2pt_conversions",
-        "pacr",
-        "passing_10",
-        "passing_16",
-        "passing_20",
-        "passing_40",
-
-        # Rushing
-        "carries",
-        "rushing_yards",
-        "rushing_tds",
-        "rushing_fumbles",
-        "rushing_fumbles_lost",
-        "rushing_first_downs",
-        "rushing_epa",
-        "rushing_2pt_conversions",
-        "rushing_10",
-        "rushing_12",
-        "rushing_20",
-        "rushing_40",
-
-        # Receiving
-        "receptions",
-        "targets",
-        "receiving_yards",
-        "receiving_tds",
-        "receiving_fumbles",
-        "receiving_fumbles_lost",
-        "receiving_air_yards",
-        "receiving_yards_after_catch",
-        "receiving_first_downs",
-        "receiving_epa",
-        "receiving_2pt_conversions",
-        "receiving_10",
-        "receiving_16",
-        "receiving_20",
-        "receiving_40",
-        "racr",
-        "target_share",
-        "air_yards_share",
-        "wopr",
-
-        # Kicking
-        'fg_att',
-        'fg_blocked',
-        'fg_blocked_distance',
-        'fg_blocked_list',
-        'fg_long',
-        'fg_made',
-        'fg_made_0_19',
-        'fg_made_20_29',
-        'fg_made_30_39',
-        'fg_made_40_49',
-        'fg_made_50_59',
-        'fg_made_60_',
-        'fg_made_distance',
-        'fg_made_list',
-        'fg_missed',
-        'fg_missed_0_19',
-        'fg_missed_20_29',
-        'fg_missed_30_39',
-        'fg_missed_40_49',
-        'fg_missed_50_59',
-        'fg_missed_60_',
-        'fg_missed_distance',
-        'fg_missed_list',
-        'fg_pct',
-        'pat_att',
-        'pat_blocked',
-        'pat_made',
-        'pat_missed',
-        'pat_pct',
-
-        # Snaps
-        "offense_snaps",
-        "offense_pct",
-        "defense_snaps",
-        "defense_pct",
-        "st_snaps",
-        "st_pct",
-
-        # Next Gen rates/averages
-        'passing_aggressiveness',
-        'passing_aggressiveness_total',
-        'passing_aggressiveness_denom',
-        'passing_avg_air_distance',
-        'passing_avg_air_distance_total',
-        'passing_avg_air_distance_denom',
-        'passing_avg_air_yards_differential',
-        'passing_avg_air_yards_to_sticks',
-        'passing_avg_air_yards_to_sticks_total',
-        'passing_avg_air_yards_to_sticks_denom',
-        'passing_avg_completed_air_yards',
-        'passing_avg_completed_air_yards_total',
-        'passing_avg_completed_air_yards_denom',
-        'passing_avg_time_to_throw',
-        'passing_avg_time_to_throw_total',
-        'passing_avg_time_to_throw_denom',
-        'passing_completion_percentage',
-        'passing_completion_percentage_above_expectation',
-        'passing_completion_percentage_above_expectation_total',
-        'passing_completion_percentage_above_expectation_denom',
-        'passing_expected_completion_percentage',
-        'passing_expected_completion_percentage_total',
-        'passing_expected_completion_percentage_denom',
-        'passing_max_air_distance',
-        'passing_max_completed_air_distance',
-        'passing_passer_rating',
-        'passing_avg_intended_air_yards_total',
-        'passing_avg_intended_air_yards_denom',
-        'rushing_avg_rush_yards',
-        'rushing_avg_rush_yards_total',
-        'rushing_avg_rush_yards_denom',
-        'rushing_avg_time_to_los',
-        'rushing_avg_time_to_los_total',
-        'rushing_avg_time_to_los_denom',
-        'rushing_efficiency',
-        'rushing_expected_rush_yards',
-        'rushing_percent_attempts_gte_eight_defenders',
-        'rushing_percent_attempts_gte_eight_defenders_total',
-        'rushing_percent_attempts_gte_eight_defenders_denom',
-        'rushing_rush_pct_over_expected',
-        'rushing_rush_pct_over_expected_total',
-        'rushing_rush_pct_over_expected_denom',
-        'rushing_rush_yards_over_expected',
-        'rushing_rush_yards_over_expected_per_att',
-        'receiving_avg_cushion',
-        'receiving_avg_cushion_total',
-        'receiving_avg_cushion_denom',
-        'receiving_avg_expected_yac',
-        'receiving_avg_expected_yac_total',
-        'receiving_avg_expected_yac_denom',
-        'receiving_avg_separation',
-        'receiving_avg_separation_total',
-        'receiving_avg_separation_denom',
-        'receiving_avg_yac',
-        'receiving_avg_yac_total',
-        'receiving_avg_yac_denom',
-        'receiving_avg_yac_above_expectation',
-        'receiving_avg_yac_above_expectation_total',
-        'receiving_avg_yac_above_expectation_denom',
-        'receiving_catch_percentage',
-        'receiving_catch_percentage_total',
-        'receiving_catch_percentage_denom',
-        'receiving_percent_share_of_intended_air_yards',
-        'receiving_avg_intended_air_yards_total',
-        'receiving_avg_intended_air_yards_denom'
-    ]
-
-    player_games = player_games[columns]
+    # drop unnecessary columns and rename to camel case
+    player_games = player_games[PLAYER_GAMES_COLUMNS]
     player_games.columns = [_snake_to_camel(col) for col in player_games.columns]
-    
     return player_games.to_dict(orient="records")
 
 def load_team_games(seasons):
+    # load data from nflverse and subset
     team_games = nfl.load_team_stats(seasons).to_pandas()
+    pbp = _load_play_by_play(seasons)
+
+    # merge pbp (3+out, 4th down stops, yards and points allowed) to team_games data
+    team_games = pd.merge(team_games, pbp, "left", ["game_id", "team"])
+
+    # drop unnecessary columns and rename to camel case
+    team_games = team_games[TEAM_GAMES_COLUMNS]
+    team_games.columns = [_snake_to_camel(col) for col in team_games.columns]
     return team_games.to_dict(orient="records")
