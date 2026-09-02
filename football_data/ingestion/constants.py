@@ -11,6 +11,7 @@ PLAYER_GAMES_COLUMNS = [
     "week",
     "team",
     "opponent_team",
+    "position", 
     
     # Passing
     "completions",
@@ -102,6 +103,8 @@ PLAYER_GAMES_COLUMNS = [
     # Snaps
     "offense_snaps",
     "offense_pct",
+    "offense_pct_total",
+    "offense_pct_denom",
     "defense_snaps",
     "defense_pct",
     "st_snaps",
@@ -144,6 +147,8 @@ PLAYER_GAMES_COLUMNS = [
     'rushing_avg_time_to_los_total',
     'rushing_avg_time_to_los_denom',
     'rushing_efficiency',
+    'rushing_efficiency_total',
+    'rushing_efficiency_denom',
     'rushing_expected_rush_yards',
     'rushing_percent_attempts_gte_eight_defenders',
     'rushing_percent_attempts_gte_eight_defenders_total',
@@ -172,6 +177,8 @@ PLAYER_GAMES_COLUMNS = [
     'receiving_catch_percentage_total',
     'receiving_catch_percentage_denom',
     'receiving_percent_share_of_intended_air_yards',
+    'receiving_percent_share_of_intended_air_yards_total',
+    'receiving_percent_share_of_intended_air_yards_denom',
     'receiving_avg_intended_air_yards',
     'receiving_avg_intended_air_yards_total',
     'receiving_avg_intended_air_yards_denom'
@@ -239,6 +246,8 @@ TEAM_GAMES_COLUMNS = [
     'special_teams_tds',
     'def_tackles_for_loss',
     'def_fumbles_forced',
+    'def_sacks',
+    'def_qb_hits',
     'def_interceptions',
     'def_pass_defended',
     'def_tds',

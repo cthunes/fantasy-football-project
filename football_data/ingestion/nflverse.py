@@ -5,6 +5,7 @@ import unicodedata
 import re
 from football_data.ingestion.constants import *
 
+
 def _normalize_name(name):
     pattern = r"[ .\-']|\b(jr|sr|ii|iii|iv)\b"
     name = re.sub(pattern, "", name.lower(), flags=re.IGNORECASE)
@@ -60,7 +61,7 @@ def _load_player_stats(seasons):
     player_games.loc[player_games["position"] == "FB", "position"] = player_games["position_group"]
     player_games = player_games[player_games['position'].isin(FF_POSITIONS)]
 
-    player_games.drop(columns=["player_name", "player_display_name", "position", "position_group", "headshot_url", "season_type"], inplace=True)
+    player_games.drop(columns=["player_name", "player_display_name", "position_group", "headshot_url", "season_type"], inplace=True)
 
     return player_games
 
@@ -73,11 +74,17 @@ def _load_snap_counts(seasons):
     snap_counts = snap_counts.merge(ff_playerids, on="pfr_player_id", how="left")
     snap_counts = snap_counts[snap_counts['position'].isin(FF_POSITIONS + ["FB"])]
     snap_counts = snap_counts[~snap_counts['player_id'].isna()]
-    snap_counts = snap_counts[["game_id", "player_id", "offense_snaps", "offense_pct", "defense_snaps", "defense_pct", "st_snaps", "st_pct"]]
+
+    team_offense_snaps = snap_counts["offense_snaps"] / snap_counts["offense_pct"]
+    team_offense_snaps = team_offense_snaps.groupby([snap_counts["game_id"], snap_counts["team"]]).transform("median").round()
+    snap_counts["offense_pct_total"] = snap_counts["offense_snaps"]
+    snap_counts["offense_pct_denom"] = team_offense_snaps
+    snap_counts = snap_counts[["game_id", "player_id", "offense_snaps", "offense_pct", "offense_pct_total", "offense_pct_denom", "defense_snaps", "defense_pct", "st_snaps", "st_pct"]]
 
     return snap_counts
 
 def _calculate_nextgen_avg_totals(nextgen_stats):
+
     # PASSING
     nextgen_stats["passing_aggressiveness_total"] = nextgen_stats["passing_aggressiveness"] * nextgen_stats["passing_attempts"]
     nextgen_stats["passing_aggressiveness_denom"] = nextgen_stats["passing_attempts"]
@@ -116,6 +123,9 @@ def _calculate_nextgen_avg_totals(nextgen_stats):
     nextgen_stats["rushing_rush_pct_over_expected_total"] = nextgen_stats["rushing_rush_pct_over_expected"] * nextgen_stats["rushing_rush_attempts"]
     nextgen_stats["rushing_rush_pct_over_expected_denom"] = nextgen_stats["rushing_rush_attempts"]
 
+    nextgen_stats["rushing_efficiency_total"] = nextgen_stats["rushing_efficiency"] * nextgen_stats["rushing_rush_yards"]
+    nextgen_stats["rushing_efficiency_denom"] = nextgen_stats["rushing_rush_yards"]
+
     # RECEIVING
     nextgen_stats["receiving_avg_cushion_total"] = nextgen_stats["receiving_avg_cushion"] * nextgen_stats["receiving_targets"]
     nextgen_stats["receiving_avg_cushion_denom"] = nextgen_stats["receiving_targets"]
@@ -138,6 +148,12 @@ def _calculate_nextgen_avg_totals(nextgen_stats):
     nextgen_stats["receiving_avg_intended_air_yards_total"] = nextgen_stats["receiving_avg_intended_air_yards"] * nextgen_stats["receiving_targets"]
     nextgen_stats["receiving_avg_intended_air_yards_denom"] = nextgen_stats["receiving_targets"]
 
+    receiving_intended_air_yards = nextgen_stats["receiving_avg_intended_air_yards"] * nextgen_stats["receiving_targets"]
+    team_intended_air_yards = receiving_intended_air_yards / nextgen_stats["receiving_percent_share_of_intended_air_yards"]
+    team_intended_air_yards = team_intended_air_yards.groupby([nextgen_stats["season"], nextgen_stats["week"], nextgen_stats["team_abbr"]]).transform("median").round()
+    nextgen_stats["receiving_percent_share_of_intended_air_yards_total"] = nextgen_stats["receiving_percent_share_of_intended_air_yards"] * team_intended_air_yards
+    nextgen_stats["receiving_percent_share_of_intended_air_yards_denom"] = team_intended_air_yards
+
     return nextgen_stats
 
 def _load_nextgen_stats(seasons):
@@ -149,7 +165,7 @@ def _load_nextgen_stats(seasons):
     passing.rename(columns={"avg_intended_air_yards": "passing_avg_intended_air_yards"}, inplace=True)
     receiving.rename(columns={"avg_intended_air_yards": "receiving_avg_intended_air_yards"}, inplace=True)
 
-    join_cols = ["season", "week", "player_gsis_id"]
+    join_cols = ["season", "week", "player_gsis_id", "team_abbr"]
     # column names that are unique to each, plus join_cols
     pass_use_cols = join_cols + passing.columns.difference(rushing.columns).difference(receiving.columns).to_list()
     rush_use_cols = join_cols + rushing.columns.difference(passing.columns).difference(receiving.columns).to_list()
@@ -170,7 +186,7 @@ def _load_nextgen_stats(seasons):
 
     nextgen_stats = _calculate_nextgen_avg_totals(nextgen_stats)
     nextgen_stats.drop(columns=['passing_completions', 'passing_attempts', 'passing_interceptions', 'passing_pass_touchdowns', 'passing_pass_yards', 
-                                'rushing_rush_attempts', 'rushing_rush_touchdowns', 'rushing_rush_yards', 
+                                'team_abbr', 'rushing_rush_attempts', 'rushing_rush_touchdowns', 'rushing_rush_yards',
                                 'receiving_rec_touchdowns', 'receiving_receptions', 'receiving_targets', 'receiving_yards'], inplace=True)
 
     return nextgen_stats
