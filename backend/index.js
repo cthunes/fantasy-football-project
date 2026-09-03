@@ -7,8 +7,9 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 import playerRoutes from "./routes/player.js";
+import playerAggregationRoutes from "./routes/playerAggregation.js";
 import rankingRoutes from "./routes/ranking.js";
-import saveFootballData from "./db-football-data/parseCSV.js";
+//import saveFootballData from "./db-football-data/parseCSV.js";
 
 //app
 const app = express();
@@ -25,7 +26,7 @@ mongoose
     .then(() => {
         console.log('MongoDB connected')
         //detect changes?
-        saveFootballData(false, false);
+        //saveFootballData(false, false);
         app.listen(port, () =>
             console.log(`Server is running on port: ${port}`)
         );
@@ -40,4 +41,5 @@ app.use(cors({ origin: true, credentials: true }));
 
 //routes
 app.use("/players", playerRoutes);
+app.use("/playerAggregations", playerAggregationRoutes);
 app.use("/rankings", rankingRoutes);
