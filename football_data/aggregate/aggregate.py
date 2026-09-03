@@ -197,6 +197,7 @@ def calculate_derived_stats(df):
     df["carriesShare"] = df["carries"] / df["carriesTeam"]
     df["rushingYardsShare"] = df["rushingYards"] / df["rushingYardsTeam"]
     df["receivingYardsShare"] = df["receivingYards"] / df["receivingYardsTeam"]
+    df["fantasyPointsPerOpportunity"] = df["fantasyPoints"] / df["opportunities"]
 
     return df
 
