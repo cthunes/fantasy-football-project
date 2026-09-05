@@ -9,6 +9,8 @@ dotenv.config();
 import playerRoutes from "./routes/player.js";
 import playerAggregationRoutes from "./routes/playerAggregation.js";
 import rankingRoutes from "./routes/ranking.js";
+import scoringRuleRoutes from "./routes/scoringRule.js";
+import profileRoutes from "./routes/profile.js";
 //import saveFootballData from "./db-football-data/parseCSV.js";
 
 //app
@@ -43,3 +45,5 @@ app.use(cors({ origin: true, credentials: true }));
 app.use("/players", playerRoutes);
 app.use("/playerAggregations", playerAggregationRoutes);
 app.use("/rankings", rankingRoutes);
+app.use("/scoringRules", scoringRuleRoutes);
+app.use("/profiles", profileRoutes);
