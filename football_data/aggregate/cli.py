@@ -29,6 +29,11 @@ def main(argv=None):
     profile_parser = subparsers.add_parser("profile", help="Aggregate using a profile's rules")
     profile_parser.add_argument("--profile-id", required=True)
     profile_parser.add_argument("--seasons", nargs="+", type=int, required=True)
+    profile_parser.add_argument(
+        "--combine-seasons",
+        action="store_true",
+        help="Aggregate all requested seasons together instead of separately",
+    )
     profile_parser.add_argument("--scoring", default=DEFAULT_SCORING_CONFIG["_id"])
 
     args = parser.parse_args(argv)
@@ -45,15 +50,31 @@ def main(argv=None):
                 scoring_config=args.scoring,
             )
         elif args.command == "profile":
-            documents = aggregate_players(
-                db,
-                {
-                    "type": "profile",
-                    "profileId": args.profile_id,
-                    "seasons": args.seasons,
-                },
-                args.scoring,
-            )
+            if args.combine_seasons:
+                documents = aggregate_players(
+                    db,
+                    {
+                        "type": "profile",
+                        "profileId": args.profile_id,
+                        "seasons": args.seasons,
+                    },
+                    args.scoring,
+                    scope="player",
+                )
+            else:
+                documents = []
+                for season in args.seasons:
+                    documents.extend(
+                        aggregate_players(
+                            db,
+                            {
+                                "type": "profile",
+                                "profileId": args.profile_id,
+                                "seasons": [season],
+                            },
+                            args.scoring,
+                        )
+                    )
         else:
             raise ValueError(args.command)
         print(f"Upserted {len(documents)} player_aggregations documents.")

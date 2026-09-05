@@ -43,12 +43,12 @@ def documents_from_aggregated(
     persist_ids=None,
 ):
     aggregation_id = build_aggregation_id(resolved.selection, scoring_config)
-    persist = set(persist_ids) if persist_ids else None
+    persist = set(persist_ids or [])
     documents = []
 
     for row in aggregated.to_dict(orient="records"):
         player_id = row["playerId"]
-        if persist is not None and player_id not in persist:
+        if persist and player_id not in persist:
             continue
 
         player = players_by_id.get(player_id, {})
@@ -61,6 +61,7 @@ def documents_from_aggregated(
             "name": player.get("name") or _dst_name(player_id),
             "position": row.get("position") or player.get("position"),
             "team": player.get("team") or _dst_team(player_id),
+            **_depth_chart_field(player),
             **_years_of_experience_field(player),
             "scope": scope,
             "aggregationType": resolved.aggregation_type,
@@ -96,12 +97,12 @@ def weighted_documents(
     persist_ids=None,
 ):
     aggregation_id = build_aggregation_id(selection, scoring_config)
-    persist = set(persist_ids) if persist_ids else None
+    persist = set(persist_ids or [])
     documents = []
 
     for row in blended.to_dict(orient="records"):
         player_id = row["playerId"]
-        if persist is not None and player_id not in persist:
+        if persist and player_id not in persist:
             continue
 
         player = players_by_id.get(player_id, {})
@@ -113,6 +114,7 @@ def weighted_documents(
             "name": player.get("name") or _dst_name(player_id),
             "position": row.get("position") or player.get("position"),
             "team": player.get("team") or _dst_team(player_id),
+            **_depth_chart_field(player),
             **_years_of_experience_field(player),
             "scope": scope,
             "aggregationType": "weighted",
@@ -206,7 +208,19 @@ def _split_stats_and_context(row):
 def _years_of_experience_field(player):
     if "yearsOfExperience" not in player:
         return {}
-    return {"yearsOfExperience": to_mongo_value(player.get("yearsOfExperience"))}
+    yoe = to_mongo_value(player.get("yearsOfExperience"))
+    # rookies say 0, but second year players are 2, third year players are 3, etc. 
+    # We want to say 1 for second year players, 2 for third year players, etc.
+    if yoe > 1:
+        yoe -= 1
+    return {"yearsOfExperience": yoe}
+
+
+def _depth_chart_field(player):
+    if "posRank" not in player:
+        return {}
+    pos_rank = to_mongo_value(player.get("posRank"))
+    return {"posRank": pos_rank}
 
 
 def _season_key(seasons):

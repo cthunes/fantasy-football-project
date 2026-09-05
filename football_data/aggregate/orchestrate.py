@@ -69,6 +69,8 @@ def aggregate_players(db, selection, scoring_config, scope="table"):
     aggregated = _keep_mapped_players(aggregated, resolved.mapping)
     aggregated = calculate_context(aggregated)
 
+    aggregated = aggregated.round(2)
+
     players_by_id = _load_players(db, aggregated["playerId"].tolist())
     persist_ids = persist_player_ids(selection) if scope == "player" else None
 
@@ -190,7 +192,7 @@ def _keep_mapped_players(aggregated, mapping):
 def _load_players(db, player_ids):
     players = db["players"].find(
         {"playerId": {"$in": list(set(player_ids))}},
-        {"_id": 0, "playerId": 1, "name": 1, "position": 1, "team": 1, "yearsOfExperience": 1},
+        {"_id": 0, "playerId": 1, "name": 1, "position": 1, "team": 1, "posRank": 1, "yearsOfExperience": 1},
     )
     return {player["playerId"]: player for player in players}
 

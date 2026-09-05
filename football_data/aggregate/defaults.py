@@ -74,6 +74,39 @@ DEFAULT_PROFILES = [
         },
     },
     {
+        "_id": "bellcow_games",
+        "name": "Bellcow Games",
+        "includePlayoffs": False,
+        "rules": {
+            "offensePct": {
+                "operator": ">=",
+                "value": 0.70,
+            }
+        },
+    },
+    {
+        "_id": "starter_games_with_playoffs",
+        "name": "Starter Games + Playoffs",
+        "includePlayoffs": True,
+        "rules": {
+            "offensePct": {
+                "operator": ">=",
+                "value": 0.50,
+            }
+        },
+    },
+    {
+        "_id": "bellcow_games_with_playoffs",
+        "name": "Bellcow Games + Playoffs",
+        "includePlayoffs": True,
+        "rules": {
+            "offensePct": {
+                "operator": ">=",
+                "value": 0.70,
+            }
+        },
+    },
+    {
         "_id": "full_season",
         "name": "Full Season",
         "includePlayoffs": True,
