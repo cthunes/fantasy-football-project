@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 export const pointsTypeSlice = createSlice({
     name: "pointsType",
     initialState: {
-        pointsType: "half",
+        pointsType: "",
     },
     reducers: {
         setPointsType: (state, action) => {
